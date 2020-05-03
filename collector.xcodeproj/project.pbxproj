@@ -24,6 +24,7 @@
 		D3959707243EC92B00ED4931 /* GamesDBGameInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3959706243EC92B00ED4931 /* GamesDBGameInfo.swift */; };
 		D3B1CB01243F859600B968F9 /* GamesDBImages.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3B1CB00243F859600B968F9 /* GamesDBImages.swift */; };
 		D3C2E75F245E773100F82332 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3C2E75E245E773100F82332 /* Constants.swift */; };
+		D3C2E761245E83F700F82332 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3C2E760245E83F700F82332 /* Constants.swift */; };
 		D3EE915124310F70003800E7 /* ImageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3EE915024310F70003800E7 /* ImageViewController.swift */; };
 /* End PBXBuildFile section */
 
@@ -47,6 +48,7 @@
 		D3959706243EC92B00ED4931 /* GamesDBGameInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GamesDBGameInfo.swift; sourceTree = "<group>"; };
 		D3B1CB00243F859600B968F9 /* GamesDBImages.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GamesDBImages.swift; sourceTree = "<group>"; };
 		D3C2E75E245E773100F82332 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
+		D3C2E760245E83F700F82332 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		D3EE915024310F70003800E7 /* ImageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -89,6 +91,7 @@
 				D38932B72426839900C10B54 /* State.swift */,
 				D3812EEB2418144800F0B8F2 /* ViewController.swift */,
 				D3C2E75E245E773100F82332 /* Constants.swift */,
+				D3C2E760245E83F700F82332 /* Constants.swift */,
 				D3959706243EC92B00ED4931 /* GamesDBGameInfo.swift */,
 				D3B1CB00243F859600B968F9 /* GamesDBImages.swift */,
 				D3877C8824304094006865FB /* DetailVCCollectionViewCell.swift */,
@@ -186,6 +189,7 @@
 				D3877C8924304094006865FB /* DetailVCCollectionViewCell.swift in Sources */,
 				D3EE915124310F70003800E7 /* ImageViewController.swift in Sources */,
 				D3959707243EC92B00ED4931 /* GamesDBGameInfo.swift in Sources */,
+				D3C2E761245E83F700F82332 /* Constants.swift in Sources */,
 				D3959705243E33DD00ED4931 /* ScreenScraper.swift in Sources */,
 				D3877C872430096A006865FB /* ViewControllerTableViewCell.swift in Sources */,
 				D3B1CB01243F859600B968F9 /* GamesDBImages.swift in Sources */,

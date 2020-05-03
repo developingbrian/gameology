@@ -695,7 +695,7 @@ class DetailViewController: UIViewController, UICollectionViewDataSource, UIColl
         if (gameData?.data.games.count)! > 0  {
         if let gameData = gameData?.data.games[0].id {
                 print("gameData = \(gameData)")
-        let apiKey = "8b574d53e9ff612a214486cfe8def1f5c045b0e4eaac50cfd54aa7873d89fd7b"
+            let apiKey = "\(Constants.gameDBAPIKey)"
             
         let url = URL(string: "https://api.thegamesdb.net/v1/Games/Images?apikey=\(apiKey)&games_id=\(gameData)&filter%5Btype%5D=clearlogo%20%2C%20fanart")!
             
@@ -731,7 +731,7 @@ class DetailViewController: UIViewController, UICollectionViewDataSource, UIColl
     
     func downloadGameDBGameInfoJSON(completed: @escaping () -> () ) {
         if let gameName = game?.name?.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) {
-    let apiKey = "8b574d53e9ff612a214486cfe8def1f5c045b0e4eaac50cfd54aa7873d89fd7b"
+            let apiKey = "\(Constants.gameDBAPIKey)"
         
     let url = URL(string: "https://api.thegamesdb.net/v1.1/Games/ByGameName?apikey=\(apiKey)&name=\(gameName)&fields=players&filter%5Bplatform%5D=\(gdbPlatformID)")!
         
@@ -770,8 +770,7 @@ class DetailViewController: UIViewController, UICollectionViewDataSource, UIColl
        
         if let gameName = game?.name?.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) {
         print("\(gameName)")
-        let url = URL(string: "https://www.screenscraper.fr/api2/jeuInfos.php?devid=thesuffering&devpassword=06QOJ0pDreS&softname=collector&output=json&romnom=\(gameName)")!
-//        let apiKey = "cb4d31574547c1aae77a34959ef2dfa6"
+            let url = URL(string: "https://www.screenscraper.fr/api2/jeuInfos.php?devid=\(Constants.screenScaperDevID)&devpassword=\(Constants.screenScraperDevPassword)&softname=collector&output=json&romnom=\(gameName)")!
         var requestHeader = URLRequest.init(url: url )
 //        requestHeader.httpBody = "fields name;limit 50;".data(using: .utf8, allowLossyConversion: false)
         requestHeader.httpMethod = "GET"
