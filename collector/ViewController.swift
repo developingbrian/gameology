@@ -320,6 +320,8 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
                             
                             
                             
+                        } else {
+                            self.games = items
                         }
                         DispatchQueue.main.async {
                             self.tableView.reloadData()
@@ -476,8 +478,10 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
             //
             //                        }
             
-            
         }
+        
+        print("gamesArray \(self.games)")
+
         
         self.setPlatformIcon()
         
