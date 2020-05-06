@@ -228,38 +228,9 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         }
     }
     //cover.image_id,name,summary, total_rating,platforms.category,platforms,popularity
-    func downloadJSONPostman(platformSelected: Int, completed: @escaping () -> ())  {
-        
-        
-        var semaphore = DispatchSemaphore (value: 0)
-        
-        let parameters = "fields age_ratings, genres.name, cover.image_id, name, summary, involved_companies.company.name, total_rating, platforms.category, platforms, popularity, platforms.versions.platform_logo.image_id, platforms.platform_logo.image_id, platforms.platform_logo.url\nlimit 50;\noffset 0;\nwhere platforms = 18;\nsort name:asc;\n"
-        let postData = parameters.data(using: .utf8)
-        
-        var request = URLRequest(url: URL(string: "https://api-v3.igdb.com/games/")!,timeoutInterval: Double.infinity)
-        request.addValue("cb4d31574547c1aae77a34959ef2dfa6", forHTTPHeaderField: "user-key")
-        request.addValue("application/json", forHTTPHeaderField: "Accept")
-        request.addValue("text/plain", forHTTPHeaderField: "Content-Type")
-        
-        request.httpMethod = "POST"
-        request.httpBody = postData
-        
-        let task = URLSession.shared.dataTask(with: request) { data, response, error in
-            guard let data = data else {
-                print(String(describing: error))
-                return
-            }
-            print(String(data: data, encoding: .utf8)!)
-            self.games = try! JSONDecoder().decode([Game].self, from: data)
-            semaphore.signal()
-        }
-        
-        task.resume()
-        semaphore.wait()
-        
-    }
-    
+  
     func downloadJSON(platformSelected: String?, gameName: String?, offset: String?, completed: @escaping () -> () ) {
+        print("downloadJSON() triggered")
         let fields = "age_ratings.rating, age_ratings.category, genres.name,  cover.image_id, name, first_release_date, summary, involved_companies.company.name, total_rating, platforms.category, platforms, cover.id, popularity, platforms.versions.platform_logo.image_id, platforms.platform_logo.image_id, platforms.platform_logo.url, screenshots.image_id"
         let gameCategory = "1"
         let limit =  "100"
@@ -272,9 +243,9 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
             searchString = "\"\(gameName!)\""
             print(searchString!)
         }
-        //        let parameters = "fields cover.image_id, name, summary, involved_companies.company.name, total_rating, platforms.category, platforms, popularity, platforms.versions.platform_logo.image_id, platforms.platform_logo.image_id, platforms.platform_logo.url;\nlimit \(limit);\noffset \(offset);\nwhere category = \(gameCategory);\nwhere platforms = \(platformSelected);\nsort \(sortField):asc;"
+
         var parameters = ""
-        if platformSelected != nil { if currentOffset == nil {
+        if platformSelected != nil { if currentOffset == 0 {
             parameters = "fields \(fields);\nlimit \(limit);\noffset 0;\nwhere platforms = \(platformSelected!);\nsort \(sortField) asc;"
         } else {parameters = "fields \(fields);\nlimit \(limit);\noffset \(currentOffset);\nwhere platforms = \(platformSelected!);\nsort \(sortField) asc;" }
             
@@ -287,28 +258,25 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         let apiKey = "\(Constants.igdbAPIKey)"
         var requestHeader = URLRequest.init(url: url )
         requestHeader.httpBody = postData
-        
-        //"""
-        //        fields cover.image_id,name,summary,involved_companies.company.name,total_rating,platforms.category,platforms,popularity,platforms.versions.platform_logo.image_id,platforms.platform_logo.image_id,platforms.platform_logo.url;
-        //        limit 500;
-        //        sort name asc;
-        //        where platforms = \(platformSelected) & platforms.category = (1);
-        //        """.data(using: .utf8, allowLossyConversion: false)
         requestHeader.httpMethod = "POST"
         requestHeader.setValue(apiKey, forHTTPHeaderField: "user-key")
         requestHeader.setValue("application/json", forHTTPHeaderField: "Accept")
+        print("line before URLSession working")
         URLSession.shared.dataTask(with: requestHeader) { (data, response, error) in
+            print("line after URLSession")
+            print(data)
+            if error != nil {
+                print(error)
+            }
             
             if error == nil {
                 do {
-                    print("test")
                     let json = String(data: data!, encoding: .utf8)
                     print("\(json)")
                     
 //                    self.games = try JSONDecoder().decode([Game].self, from: data!)
                     
                     let decodedJSON = try JSONDecoder().decode([Game]?.self, from: data!)
-                    print("\(decodedJSON)")
                     if let parseJSON = decodedJSON {
                         
                         var items = self.games
@@ -323,9 +291,9 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
                         } else {
                             self.games = items
                         }
-                        DispatchQueue.main.async {
-                            self.tableView.reloadData()
-                        }
+//                        DispatchQueue.main.async {
+//                            self.tableView.reloadData()
+//                        }
                         
                     }
                     
@@ -468,7 +436,8 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         self.games.removeAll()
         self.tableView.reloadData()
         downloadJSON(platformSelected: "\(picked)", gameName: nil, offset: "\(initialOffset)") {
-            
+          
+            print("pickview JSON downloaded")
 //            print("platform image id is ** \(self.games[0].platforms?[0].versions?[0].platformLogo?.imageID)?")
             
             //                  if self.games[0].platforms?[0].platformLogo?.imageID != nil {
@@ -477,17 +446,17 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
             //                          self.setLogoImage(from: "https://images.igdb.com/igdb/image/upload/t_logo_med/\(logoID).png")
             //
             //                        }
+            self.setPlatformIcon()
             
+            self.tableviewPlatformImage.image = UIImage(named: "\(self.imageName)")
+            
+            self.tableView.reloadData()
         }
         
         print("gamesArray \(self.games)")
 
         
-        self.setPlatformIcon()
         
-        self.tableviewPlatformImage.image = UIImage(named: "\(self.imageName)")
-        
-        self.tableView.reloadData()
         
         
     }
