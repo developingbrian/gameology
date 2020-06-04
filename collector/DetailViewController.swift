@@ -67,22 +67,22 @@ class DetailViewController: UIViewController, UICollectionViewDataSource, UIColl
     var gdbPlatformID = 7
     var gameData : GameDB?
     var gameDataImages : GameDBData?
-     
-//    let inner : Images.Inner?
+    
+    //    let inner : Images.Inner?
     
     
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
-//        downloadScreenScraperJSON {
-//            print ("Screen Scraper Success")
-//        }
-//
-//
-//        if let index = media.first(where: { $0.type == "fanart" } ) {
-//             print("\(index.url)")
-//            setFanartImage(from: index.url)
-//        }
+        //        downloadScreenScraperJSON {
+        //            print ("Screen Scraper Success")
+        //        }
+        //
+        //
+        //        if let index = media.first(where: { $0.type == "fanart" } ) {
+        //             print("\(index.url)")
+        //            setFanartImage(from: index.url)
+        //        }
         
         switch game?.platforms?[0].id {
         case 18:
@@ -109,23 +109,23 @@ class DetailViewController: UIViewController, UICollectionViewDataSource, UIColl
         case 78:
             //SCD
             gdbPlatformID = 21
-
+            
         default:
             print("invalid platform")
         }
         
         downloadGameDBGameInfoJSON {
             print("GameDB Success")
-//
-//            if let playerData = self.gameData!.data.games[0].players {
-//
-//
-//            }
+            //
+            //            if let playerData = self.gameData!.data.games[0].players {
+            //
+            //
+            //            }
             if (self.gameData?.data.games.count)! > 0 {
                 if let players = self.gameData?.data.games[0].players {
                     self.numberOfPlayersLbl.text = "\(players)"
                 }
-//                self.numberOfPlayersLbl.text = "\(self.gameData!.data.games[0].players)"
+                //                self.numberOfPlayersLbl.text = "\(self.gameData!.data.games[0].players)"
             }
             
             self.downloadGameDBGameImageJSON {
@@ -135,7 +135,7 @@ class DetailViewController: UIViewController, UICollectionViewDataSource, UIColl
                 var clearLogoFileName : String
                 let inner = self.gameDataImages?.data.images.innerArray
                 for (_, value) in inner! {
-                   array = value
+                    array = value
                 }
                 let fanartArray = array?.filter({$0.type == "fanart"})
                 
@@ -158,32 +158,32 @@ class DetailViewController: UIViewController, UICollectionViewDataSource, UIColl
                     
                 }
                 
-//                let clearlogoFileName = array?.filter({$0.type == "clearlogo"})[0].fileName
-//
-//                print("clearLogoFileName = \(clearlogoFileName)")
+                //                let clearlogoFileName = array?.filter({$0.type == "clearlogo"})[0].fileName
+                //
+                //                print("clearLogoFileName = \(clearlogoFileName)")
                 
                 
-
+                
                 
             }
         }
-       
         
-       
-
         
-      
-            
-  
-       
+        
+        
+        
+        
+        
+        
+        
         
         
         screenshotCollectionView.delegate = self
         screenshotCollectionView.dataSource = self
-//        print("rating \(game?.ageRating?[0].rating)")
-//        
-//        print("rating 2 \(game?.ageRating?[0].rating?.description)")
-//        print("genre \(game?.genres[0].name)")
+        //        print("rating \(game?.ageRating?[0].rating)")
+        //
+        //        print("rating 2 \(game?.ageRating?[0].rating?.description)")
+        //        print("genre \(game?.genres[0].name)")
         //        var ageRated = game?.ageRating?[0].rating
         //        print("ageRated \(ageRated)")
         //        print("game id; \(game?.ageRating?[0].id)")
@@ -215,61 +215,29 @@ class DetailViewController: UIViewController, UICollectionViewDataSource, UIColl
         let tap = UITapGestureRecognizer(target: self.view, action: #selector(UIView.endEditing(_:)))
         view.addGestureRecognizer(tap)
         
-        //        func handle(tap: UITapGestureRecognizer) {
-        //               view.endEditing(true)
-        //           }
-        //
-        //        var tap = UITapGestureRecognizer(target: self, action: "handle:")
-        //        view.addGestureRecognizer(tap)
-        
-        
-        //        if game?.platforms?[0].platformLogo?.imageID != nil {
-        //            let logoID = (game?.platforms?[0].versions?[0].platformLogo?.imageID)!
-        //
-        //            setLogoImage(from: "https://images.igdb.com/igdb/image/upload/t_logo_med/\(logoID).png")
-        //
-        //        }
-//        if game?.genres?[0].name != nil {
-//            let separator = " / "
-//
-//
-//            for (index,genre) in game!.genres!.enumerated() {
-//
-//
-//                if index == (game!.genres!.count - 1) {
-//                   // do something with last index
-//                    genreLabel.text! += "\(genre.name!)"
-//                } else {
-//                   genreLabel.text! += "\(genre.name!) / "
-//                }
-//
-//            }
-//        } else {
-//            genreLabel.text = " "
-//        }
         genreLabel.text = game?.genres.compactMap { $0.name }.joined(separator: " / ")
         print("gameData \(gameData?.data.games[0].players)")
         print("games.count \(gameData?.data.games.count)")
-//        game?.genres.map(\.name).joined(separator: " / ")
-
-            
+        //        game?.genres.map(\.name).joined(separator: " / ")
+        
+        
         if game?.firstReleaseDate != nil {
             let date = Date(timeIntervalSince1970: (game?.firstReleaseDate!)!)
-                   let dateFormatter = DateFormatter()
-                   dateFormatter.timeZone = TimeZone(abbreviation: "MST") //Set timezone that you want
-                   dateFormatter.locale = NSLocale.current
-                   dateFormatter.dateFormat = "MM-dd-yyyy" //Specify your format that you want
-                   let strDate = dateFormatter.string(from: date)
-                   if strDate != nil {
-                    releaseDateLabel.text =  strDate
-                   } else {
-                      releaseDateLabel.text = " "
-                   }
-               }
-            
+            let dateFormatter = DateFormatter()
+            dateFormatter.timeZone = TimeZone(abbreviation: "MST") //Set timezone that you want
+            dateFormatter.locale = NSLocale.current
+            dateFormatter.dateFormat = "MM-dd-yyyy" //Specify your format that you want
+            let strDate = dateFormatter.string(from: date)
+            if strDate != nil {
+                releaseDateLabel.text =  strDate
+            } else {
+                releaseDateLabel.text = " "
+            }
+        }
+        
         
         switch game?.ageRating?[0].rating {
-            
+        //setting the ESRB label based on age rating from api
         case 7:
             ageRatingImageView.image = UIImage(named: "ESRB-EC")
         case 8:
@@ -291,7 +259,7 @@ class DetailViewController: UIViewController, UICollectionViewDataSource, UIColl
         print("platform ID is ** **\(game!.platforms![0].id)")
         
         switch game!.platforms![0].id {
-            
+        //setting the game platform logo
         case 18:
             if traitCollection.userInterfaceStyle == .light {
                 //Light Mode
@@ -388,11 +356,14 @@ class DetailViewController: UIViewController, UICollectionViewDataSource, UIColl
         
         print("\(boxArtImage.image)")
         if game?.totalRating != nil {
+        //IGDB gives ratings in 1-100 results, however this app displays 1-5 stars.  This takes those values and converts them to a 1-5 rating, and then displays the result as varying images.
+            
             let ratingConvert = (((game!.totalRating!)/10)/2)
             
             print(ratingConvert)
             
             switch ratingConvert {
+            
             case 0.5..<1:
                 let halfRating = String(format: "%.2f", ratingConvert)
                 ratingLabel.text = String(halfRating)
@@ -693,110 +664,110 @@ class DetailViewController: UIViewController, UICollectionViewDataSource, UIColl
     
     func downloadGameDBGameImageJSON(completed: @escaping () -> () ) {
         if (gameData?.data.games.count)! > 0  {
-        if let gameData = gameData?.data.games[0].id {
+            if let gameData = gameData?.data.games[0].id {
                 print("gameData = \(gameData)")
-            let apiKey = "\(Constants.gameDBAPIKey)"
-            
-        let url = URL(string: "https://api.thegamesdb.net/v1/Games/Images?apikey=\(apiKey)&games_id=\(gameData)&filter%5Btype%5D=clearlogo%20%2C%20fanart")!
-            
-            var requestHeader = URLRequest.init(url: url)
-    //        requestHeader.httpBody = "apikey \(apiKey),name \(game?.name), fields players, filter \(gdbPlatformID) ".data(using: .utf8, allowLossyConversion: false)
-            requestHeader.httpMethod = "GET"
-            requestHeader.setValue("application/json", forHTTPHeaderField: "Accept")
-            URLSession.shared.dataTask(with: requestHeader) { (data, response, error) in
-
-                if error == nil {
-                    do {
-                                let json = String(data: data!, encoding: .utf8)
-                                print("\(json)")
-
-                                self.gameDataImages = try JSONDecoder().decode(GameDBData.self, from: data!)
-
-                                DispatchQueue.main.async {
-                                    completed()
-                                }
-                            } catch {
-
-                                print(error)
-
-                            }
-                        }
-                    }.resume()
-
-
-            }
-        }
-
-            }
-    
-    func downloadGameDBGameInfoJSON(completed: @escaping () -> () ) {
-        if let gameName = game?.name?.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) {
-            let apiKey = "\(Constants.gameDBAPIKey)"
-        
-    let url = URL(string: "https://api.thegamesdb.net/v1.1/Games/ByGameName?apikey=\(apiKey)&name=\(gameName)&fields=players&filter%5Bplatform%5D=\(gdbPlatformID)")!
-        
-        var requestHeader = URLRequest.init(url: url)
-//        requestHeader.httpBody = "apikey \(apiKey),name \(game?.name), fields players, filter \(gdbPlatformID) ".data(using: .utf8, allowLossyConversion: false)
-        requestHeader.httpMethod = "GET"
-        requestHeader.setValue("application/json", forHTTPHeaderField: "Accept")
-        URLSession.shared.dataTask(with: requestHeader) { (data, response, error) in
-
-            if error == nil {
-                do {
+                let apiKey = "\(Constants.gameDBAPIKey)"
+                
+                let url = URL(string: "https://api.thegamesdb.net/v1/Games/Images?apikey=\(apiKey)&games_id=\(gameData)&filter%5Btype%5D=clearlogo%20%2C%20fanart")!
+                
+                var requestHeader = URLRequest.init(url: url)
+                //        requestHeader.httpBody = "apikey \(apiKey),name \(game?.name), fields players, filter \(gdbPlatformID) ".data(using: .utf8, allowLossyConversion: false)
+                requestHeader.httpMethod = "GET"
+                requestHeader.setValue("application/json", forHTTPHeaderField: "Accept")
+                URLSession.shared.dataTask(with: requestHeader) { (data, response, error) in
+                    
+                    if error == nil {
+                        do {
                             let json = String(data: data!, encoding: .utf8)
                             print("\(json)")
-
-                            self.gameData = try JSONDecoder().decode(GameDB.self, from: data!)
-
+                            
+                            self.gameDataImages = try JSONDecoder().decode(GameDBData.self, from: data!)
+                            
                             DispatchQueue.main.async {
                                 completed()
                             }
                         } catch {
-
+                            
                             print(error)
-
+                            
                         }
                     }
                 }.resume()
-
-
+                
+                
+            }
         }
-
+        
+    }
+    
+    func downloadGameDBGameInfoJSON(completed: @escaping () -> () ) {
+        if let gameName = game?.name?.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) {
+            let apiKey = "\(Constants.gameDBAPIKey)"
+            
+            let url = URL(string: "https://api.thegamesdb.net/v1.1/Games/ByGameName?apikey=\(apiKey)&name=\(gameName)&fields=players&filter%5Bplatform%5D=\(gdbPlatformID)")!
+            
+            var requestHeader = URLRequest.init(url: url)
+            //        requestHeader.httpBody = "apikey \(apiKey),name \(game?.name), fields players, filter \(gdbPlatformID) ".data(using: .utf8, allowLossyConversion: false)
+            requestHeader.httpMethod = "GET"
+            requestHeader.setValue("application/json", forHTTPHeaderField: "Accept")
+            URLSession.shared.dataTask(with: requestHeader) { (data, response, error) in
+                
+                if error == nil {
+                    do {
+                        let json = String(data: data!, encoding: .utf8)
+                        print("\(json)")
+                        
+                        self.gameData = try JSONDecoder().decode(GameDB.self, from: data!)
+                        
+                        DispatchQueue.main.async {
+                            completed()
+                        }
+                    } catch {
+                        
+                        print(error)
+                        
+                    }
+                }
+            }.resume()
+            
+            
         }
+        
+    }
     
     
     func downloadScreenScraperJSON(completed: @escaping () -> () ) {
         
-       
+        
         if let gameName = game?.name?.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) {
-        print("\(gameName)")
+            print("\(gameName)")
             let url = URL(string: "https://www.screenscraper.fr/api2/jeuInfos.php?devid=\(Constants.screenScaperDevID)&devpassword=\(Constants.screenScraperDevPassword)&softname=collector&output=json&romnom=\(gameName)")!
-        var requestHeader = URLRequest.init(url: url )
-//        requestHeader.httpBody = "fields name;limit 50;".data(using: .utf8, allowLossyConversion: false)
-        requestHeader.httpMethod = "GET"
-//        requestHeader.setValue(apiKey, forHTTPHeaderField: "user-key")
-//        requestHeader.setValue("application/json", forHTTPHeaderField: "Accept")
-        URLSession.shared.dataTask(with: requestHeader) { (data, response, error) in
-            
-            if error == nil {
-                do {
-                    let json = String(data: data!, encoding: .utf8)
-                    print("\(json)")
-                    
-                    self.response = try JSONDecoder().decode(Response.self, from: data!)
-                    
-                    DispatchQueue.main.async {
-                        completed()
+            var requestHeader = URLRequest.init(url: url )
+            //        requestHeader.httpBody = "fields name;limit 50;".data(using: .utf8, allowLossyConversion: false)
+            requestHeader.httpMethod = "GET"
+            //        requestHeader.setValue(apiKey, forHTTPHeaderField: "user-key")
+            //        requestHeader.setValue("application/json", forHTTPHeaderField: "Accept")
+            URLSession.shared.dataTask(with: requestHeader) { (data, response, error) in
+                
+                if error == nil {
+                    do {
+                        let json = String(data: data!, encoding: .utf8)
+                        print("\(json)")
+                        
+                        self.response = try JSONDecoder().decode(Response.self, from: data!)
+                        
+                        DispatchQueue.main.async {
+                            completed()
+                        }
+                    } catch {
+                        
+                        print(error)
+                        
                     }
-                } catch {
-                    
-                    print(error)
-                    
                 }
-            }
-        }.resume()
-    }
-    
+            }.resume()
+        }
+        
     }
     
     func setImage(from url: String, imageViewNamed: UIImageView) {

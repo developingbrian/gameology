@@ -38,22 +38,17 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         
         self.platformPicker.delegate = self
         self.platformPicker.dataSource = self
+        tableView.delegate = self
+        tableView.dataSource = self
+        
+        let tap = UITapGestureRecognizer(target: self.view, action: #selector(UIView.endEditing(_:)))
+        tap.cancelsTouchesInView = false
+        view.addGestureRecognizer(tap)
         
         games.removeAll()
         
         pickerData = ["NES", "SNES", "Nintendo 64", "Gamecube", "Game Boy", "Gameboy Advance", "Sega Genesis", "Sega CD"]
         
-        
-        
-        //        if searchTextField.text == nil {
-        //            clearButton.titleLabel?.text = nil
-        //            searchString =  nil
-        //        } else {
-        //            clearButton.titleLabel?.text = "clear"
-        //            searchString = "search \"\(gameName)\";"
-        //        }
-        //
-        print("out")
         
         downloadJSON(platformSelected: "18", gameName: nil, offset: nil) {
             
@@ -75,32 +70,14 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
             self.tableView.reloadData()
         }
         
-        
-        //        downloadJSONPostman(platformSelected: 18) {
-        //            self.tableView.reloadData()
-        //        }
-        
-        //        downloadCompaniesJSON {
-        //            print("Success Companies JSON")
-        //        }
-        //////
-        //        downloadPlatformsJSON {
-        //            print("Success Platforms JSON")
-        //        }
-        //
-        
-        tableView.delegate = self
-        tableView.dataSource = self
-        
-        let tap = UITapGestureRecognizer(target: self.view, action: #selector(UIView.endEditing(_:)))
-        tap.cancelsTouchesInView = false
-        view.addGestureRecognizer(tap)
-        
         // Do any additional setup after loading the view.
     }
     
+    
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        
         return games.count
+        
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -144,12 +121,12 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         }
         
         
-//        if game1.genres != nil {
-            cell.tableViewGenreLabel.text = game1.genres.compactMap { $0.name }.joined(separator: " / ")
-
-//        } else {
-//            cell.tableViewAgeRatingLabel.text = " "
-//        }
+        //        if game1.genres != nil {
+        cell.tableViewGenreLabel.text = game1.genres.compactMap { $0.name }.joined(separator: " / ")
+        
+        //        } else {
+        //            cell.tableViewAgeRatingLabel.text = " "
+        //        }
         
         switch game1.ageRating?[0].rating {
             
@@ -174,7 +151,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         
         
         
- 
+        
         
         
         
@@ -227,9 +204,14 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
             
         }
     }
-    //cover.image_id,name,summary, total_rating,platforms.category,platforms,popularity
-  
+    
+    
+    
+    
     func downloadJSON(platformSelected: String?, gameName: String?, offset: String?, completed: @escaping () -> () ) {
+        // Downloading JSON data from the IGDB.com api and parse it for use as an object
+        
+        
         print("downloadJSON() triggered")
         let fields = "age_ratings.rating, age_ratings.category, genres.name,  cover.image_id, name, first_release_date, summary, involved_companies.company.name, total_rating, platforms.category, platforms, cover.id, popularity, platforms.versions.platform_logo.image_id, platforms.platform_logo.image_id, platforms.platform_logo.url, screenshots.image_id"
         let gameCategory = "1"
@@ -243,17 +225,16 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
             searchString = "\"\(gameName!)\""
             print(searchString!)
         }
-
+        
         var parameters = ""
         if platformSelected != nil { if currentOffset == 0 {
             parameters = "fields \(fields);\nlimit \(limit);\noffset 0;\nwhere platforms = \(platformSelected!);\nsort \(sortField) asc;"
         } else {parameters = "fields \(fields);\nlimit \(limit);\noffset \(currentOffset);\nwhere platforms = \(platformSelected!);\nsort \(sortField) asc;" }
             
-            } else if gameName != nil  {
+        } else if gameName != nil && currentOffset < 5000 {
             parameters =  "fields \(fields);\nlimit \(limit);\nsearch \(searchString!);\noffset \(offset);"}
         let postData = parameters.data(using: .utf8)
-        print("\(platformSelected)")
-        //        let url = URL(string: "https://api-v3.igdb.com/games/?where=platforms=\(platformSelected)%26category=\(gameCategory)&fields=\(fields)&limit=\(limit)&offset=\(offset)&order=\(sortField):asc")!
+        
         let url = URL(string: "https://api-v3.igdb.com/games/")!
         let apiKey = "\(Constants.igdbAPIKey)"
         var requestHeader = URLRequest.init(url: url )
@@ -274,13 +255,15 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
                     let json = String(data: data!, encoding: .utf8)
                     print("\(json)")
                     
-//                    self.games = try JSONDecoder().decode([Game].self, from: data!)
+                    //                    self.games = try JSONDecoder().decode([Game].self, from: data!)
                     
                     let decodedJSON = try JSONDecoder().decode([Game]?.self, from: data!)
                     if let parseJSON = decodedJSON {
                         
                         var items = self.games
                         items.append(contentsOf: parseJSON)
+                        
+                        
                         
                         if self.initialOffset < items.count {
                             self.games = items
@@ -291,9 +274,9 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
                         } else {
                             self.games = items
                         }
-//                        DispatchQueue.main.async {
-//                            self.tableView.reloadData()
-//                        }
+                        //                        DispatchQueue.main.async {
+                        //                            self.tableView.reloadData()
+                        //                        }
                         
                     }
                     
@@ -313,6 +296,8 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         
     }
     func downloadCompaniesJSON(completed: @escaping () -> () ) {
+        //likely unneeded, will remove at a later date
+
         let url = URL(string: "https://api-v3.igdb.com/companies")!
         let apiKey = "\(Constants.igdbAPIKey)"
         var requestHeader = URLRequest.init(url: url )
@@ -344,6 +329,8 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
     
     
     func downloadPlatformsJSON(completed: @escaping () -> () ) {
+        //likely unneeded, will remove at a later date
+
         let url = URL(string: "https://api-v3.igdb.com/platforms")!
         let apiKey = "\(Constants.igdbAPIKey)"
         var requestHeader = URLRequest.init(url: url )
@@ -375,24 +362,26 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
     
     
     
-    // Number of columns of data
     func numberOfComponents(in pickerView: UIPickerView) -> Int {
+    // Number of columns of data
         return 1
     }
     
-    // The number of rows of data
+    
     func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
+    // The number of rows of data
         return pickerData.count
     }
     
-    // The data to return fopr the row and component (column) that's being passed in
+   
     func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
+    // The data to return for the row and component (column) that's being passed in
         return pickerData[row]
     }
     
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
         print("\(row), \(component)")
-        
+    //Will allow user to choose the preferred console platform and will present a specific image corresponding to the chosen platform.
         
         
         switch row {
@@ -433,12 +422,15 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         default:
             print("invalid selection")
         }
+        
         self.games.removeAll()
         self.tableView.reloadData()
+        initialOffset = 0
+        
         downloadJSON(platformSelected: "\(picked)", gameName: nil, offset: "\(initialOffset)") {
-          
+            
             print("pickview JSON downloaded")
-//            print("platform image id is ** \(self.games[0].platforms?[0].versions?[0].platformLogo?.imageID)?")
+            //            print("platform image id is ** \(self.games[0].platforms?[0].versions?[0].platformLogo?.imageID)?")
             
             //                  if self.games[0].platforms?[0].platformLogo?.imageID != nil {
             //                          let logoID = (self.games[0].platforms?[0].versions?[0].platformLogo?.imageID)!
@@ -454,7 +446,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         }
         
         print("gamesArray \(self.games)")
-
+        
         
         
         
@@ -462,6 +454,8 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
     }
     
     func setPlatformIcon() {
+        //helper function to set the appropriate platform icon when the platform is changed in pickerView
+        
         switch self.games[0].platforms![0].id {
             
         case 18:
@@ -545,6 +539,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         
     }
     @IBAction func searchButtonPressed(_ sender: Any) {
+    //rudimentary search function.  Will take what is entered and run it through the downloadJSON function and return any results
         
         if searchTextField.text != nil {
             gameNamed = searchTextField.text
@@ -559,6 +554,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
     }
     
     @IBAction func clearButtonPressed(_ sender: Any) {
+    //clear out the search field
         
         searchTextField.text = nil
     }
