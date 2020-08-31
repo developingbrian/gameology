@@ -55,24 +55,43 @@ class DetailViewController: UIViewController, UICollectionViewDataSource, UIColl
     
     @IBOutlet weak var clearLogoImageView: UIImageView!
     
-    var game : Game?
-    var games : [Game] = []
+    var game : GameDBData?
+//    var games : [GameDBData] = []
+    var games : GDBGamesPlatform?
+    var boxart : Boxart?
     var response : Response?
     var responses = [Response]()
-    var company : Companies?
-    var platform: Platform?
+//    var company : Companies?
+//    var platform: Platform?
     var imageName = ""
     var searchValue = ""
     var media = [Media]()
     var gdbPlatformID = 7
-    var gameData : GameDB?
+    //    var gameData : GameDB?
     var gameDataImages : GameDBData?
-    
+    let network = Networking()
+    let images = [Images.Inner]()
+    let images1 : [Images.Inner] = []
+    let fields = "players,publishers,genres,overview,last_updated,rating,platform,coop,youtube,os,processor,ram,hdd,video,sound,alternates"
+    let include = "boxart,platform"
+//    var viewController : ViewController
+//    var game1 =
     //    let inner : Images.Inner?
+    var frontImageName : String = ""
+    var backImageName : String = ""
+    var fanartArray : [Images.Inner]? = []
+    var screenshotsArray : [Images.Inner]? = []
+    var genre : GenreData?
+    var cover : UIImage?
     
+    
+    //MARK: viewDidLoad()
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        print(gameDataImages?.data?.images.innerArray)
+        screenshotCollectionView.delegate = self
+        screenshotCollectionView.dataSource = self
         // Do any additional setup after loading the view.
         //        downloadScreenScraperJSON {
         //            print ("Screen Scraper Success")
@@ -84,102 +103,102 @@ class DetailViewController: UIViewController, UICollectionViewDataSource, UIColl
         //            setFanartImage(from: index.url)
         //        }
         
-        switch game?.platforms?[0].id {
-        case 18:
-            //NES
-            gdbPlatformID = 7
-        case 19:
-            //SNES
-            gdbPlatformID = 6
-        case 4:
-            //N64
-            gdbPlatformID = 3
-        case 21:
-            //GC
-            gdbPlatformID = 2
-        case 33:
-            //GB
-            gdbPlatformID = 4
-        case 24:
-            //GBA
-            gdbPlatformID = 5
-        case 29:
-            //SG
-            gdbPlatformID = 18
-        case 78:
-            //SCD
-            gdbPlatformID = 21
-            
-        default:
-            print("invalid platform")
-        }
+        print("test game title = \(games?.gameTitle)")
+
+        print(games?.gameTitle)
+        print()
+//        network.downloadGamesByGameNameJSON(gameNamed: "\(games!.gameTitle)", fields: self.fields, filterByPlatformID: "7", include: self.include) {
+//              print("downloadGamesByGameNameJSON Success")
+//        self.network.gameData[0].players
+//            
+//            print("GameDB Success")
+//            //
+//            //            if let playerData = self.gameData!.data.games[0].players {
+//            //
+//            //
+//            //            }
+//        if ((self.network.gameData.count)) > 0 {
+//                if let players = self.network.gameData[0].players {
+//                    self.numberOfPlayersLbl.text = "\(players)"
+//                }
+//                //                self.numberOfPlayersLbl.text = "\(self.gameData!.data.games[0].players)"
+//            }
+//            
+//            
+//            
+//        }
         
-        downloadGameDBGameInfoJSON {
-            print("GameDB Success")
-            //
-            //            if let playerData = self.gameData!.data.games[0].players {
-            //
-            //
-            //            }
-            if (self.gameData?.data.games.count)! > 0 {
-                if let players = self.gameData?.data.games[0].players {
-                    self.numberOfPlayersLbl.text = "\(players)"
-                }
-                //                self.numberOfPlayersLbl.text = "\(self.gameData!.data.games[0].players)"
-            }
-            
-            self.downloadGameDBGameImageJSON {
-                print("GameDB Image Success")
-                var array:[Images.Inner]? = []
-                var fanartFileName : String
-                var clearLogoFileName : String
-                let inner = self.gameDataImages?.data.images.innerArray
-                for (_, value) in inner! {
-                    array = value
-                }
-                let fanartArray = array?.filter({$0.type == "fanart"})
-                
-                if fanartArray!.count > 0 {
-                    fanartFileName = (fanartArray?[0].fileName)!
-                    self.setFanartImage(from: "https://cdn.thegamesdb.net/images/small/\(fanartFileName)")
-                    
-                    print("fanartFileName = \(fanartFileName)")
-                    
-                    if self.fanartImageView.image != nil {
-                        self.backgroundImage.image = self.fanartImageView.image
-                    }
-                    
-                }
-                
-                let clearLogoArray = array?.filter({$0.type == "clearlogo"})
-                if clearLogoArray!.count > 0 {
-                    clearLogoFileName = (clearLogoArray?[0].fileName)!
-                    self.setImage(from: "https://cdn.thegamesdb.net/images/small/\(clearLogoFileName)", imageViewNamed: self.clearLogoImageView)
-                    
-                }
-                
-                //                let clearlogoFileName = array?.filter({$0.type == "clearlogo"})[0].fileName
-                //
-                //                print("clearLogoFileName = \(clearlogoFileName)")
-                
-                
-                
+        //MARK:  viewDidLoad() - Additional Images
+        print("games?.id = \(games?.id)")
+        if games?.id != nil {
+        self.network.downloadGameImageJSON(gameID: games?.id!) {
+           
+            print("GameDB Image Success")
+            print("self.images = \(self.images)")
+            print("network.gameImageData = \(self.network.gameImageData)")
+            var fanartfileName = self.getImageFileName(imageType: "fanart", imageData: self.network.gameImageData!)
+            self.fanartImageView.loadImage(from: "https://cdn.thegamesdb.net/images/small/\(fanartfileName)") {
                 
             }
+    
+            print("fileName = \(fanartfileName)")
+            var clearlogoFileName = self.getImageFileName(imageType: "clearlogo", imageData: self.network.gameImageData!)
+            print("clearlogoFileName = \(clearlogoFileName)")
+            let innerfanartArray = self.network.gameImageData?.filter({$0.type == "fanart"})
+            print("fanartArray = \(innerfanartArray)")
+            if innerfanartArray != nil {
+                self.fanartArray = innerfanartArray!
+            }
+            let innerScreenshotArray = self.network.gameImageData?.filter({$0.type == "screenshot"})
+            if innerScreenshotArray != nil {
+                self.screenshotsArray = innerScreenshotArray!
+            }
+//            let fanartFileName = self.getImageFileName(imageType: "fanart", imageData: self.images1)
+//
+//                                 print("fanartFileName = \(fanartFileName)")
+//                                 print(self.fanartImageView.image)
+//                                 if self.fanartImageView.image != nil {
+//                                     self.backgroundImage.image = self.fanartImageView.image
+//                                 }
+                   
+//                     let clearLogoFileName = self.getImageFileName(imageType: "clearlogo")
+//                   //            let clearLogoArray = array?.filter({$0.type == "clearlogo"})
+//                   //            if clearLogoArray!.count > 0 {
+//                   //                clearLogoFileName = (clearLogoArray?[0].fileName)!
+//
+//                                   self.clearLogoImageView.loadImage(from: "https://cdn.thegamesdb.net/images/small/\(clearLogoFileName)")
+            
+//            var array:[Images.Inner]? = []
+//            var clearLogoFileName : String
+//            let inner = self.network.gameDataImages?.data?.images.innerArray
+//            for (_, value) in inner! {
+//                array = value
+//            }
+//            let fanartArray = array?.filter({$0.type == "fanart"})
+//
+//            if fanartArray!.count > 0 {
+//                fanartFileName = (fanartArray?[0].fileName)!
+//                self.fanartImageView.loadImage(from: "https://cdn.thegamesdb.net/images/small/\(fanartFileName)")
+////                self.setFanartImage(from: "https://cdn.thegamesdb.net/images/small/\(fanartFileName)")
+////
+          
+//
+//            }
+          
+//                self.setImage(from: "https://cdn.thegamesdb.net/images/small/\(clearLogoFileName)", imageViewNamed: self.clearLogoImageView)
+                
+//            }
+            
+            //                let clearlogoFileName = array?.filter({$0.type == "clearlogo"})[0].fileName
+            //
+            //                print("clearLogoFileName = \(clearlogoFileName)")
+            self.screenshotCollectionView.reloadData()
+            }
         }
         
+       
+       
         
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        screenshotCollectionView.delegate = self
-        screenshotCollectionView.dataSource = self
         //        print("rating \(game?.ageRating?[0].rating)")
         //
         //        print("rating 2 \(game?.ageRating?[0].rating?.description)")
@@ -198,172 +217,140 @@ class DetailViewController: UIViewController, UICollectionViewDataSource, UIColl
         //        print("rating \(game?.ageRating?.rating)")
         //print("rating \(game?.ageRating?.category)")
         
-        print("\(game?.cover?.imageID)")
-        print("platform logo image id is \(game?.platforms?[0].platformLogo?.imageID)")
-        print("\(game?.platforms?[0].platformLogo?.url)")
-        print("\(game?.platforms?[0].versions?[0].platformLogo?.imageID)")
-        //        print("platformVersion image is  \(game?.platforms?[0].versions?[0].platformLogo?.imageID)")
-        if (game?.cover?.imageID) != nil {
-            let coverID = ((game?.cover?.imageID)!)
-            setCoverImage(from: "https://images.igdb.com/igdb/image/upload/t_cover_big/\(coverID).jpg")
+//        print("\(game?.cover?.imageID)")
+//        print("platform logo image id is \(game?.platforms?[0].platformLogo?.imageID)")
+//        print("\(game?.platforms?[0].platformLogo?.url)")
+//        print("\(game?.platforms?[0].versions?[0].platformLogo?.imageID)")
+//        //        print("platformVersion image is  \(game?.platforms?[0].versions?[0].platformLogo?.imageID)")
+        
+        
+       //MARK: Boxart Image
+        
+        print(games?.id)
+        print("file name info = \(boxart?.data["\(games!.id!)"]?[0].filename)")
+        
+        boxArtImage.layer.cornerRadius = 20
+        boxArtImage.layer.masksToBounds = true
+        
+        let largeBaseURL = boxart?.baseURL.large
+        if boxart?.data["\(games!.id!)"]?[0].side == .front {
+            print(boxart?.data["\(games!.id!)"]?[0].filename)
+            frontImageName = boxart?.data["\(games!.id!)"]?[0].filename as! String
             
-        } else {
-            boxArtImage.image = UIImage(named: "noArtNES")
+        } else if boxart?.data["\(games!.id!)"]?[0].side == .back {
+            backImageName = boxart?.data["\(games!.id!)"]?[0].filename as! String
             
         }
+        if boxart?.data["\(games?.id)"]?[1] != nil {
+        if boxart?.data["\(games!.id!)"]?[1].side == .front {
+            print(boxart?.data["\(games!.id!)"]?[1].filename)
+            frontImageName = boxart?.data["\(games!.id!)"]?[1].filename as! String
+            
+        } else if boxart?.data["\(games!.id!)"]?[1].side == .back {
+            backImageName = boxart?.data["\(games!.id!)"]?[1].filename as! String
+            
+        }
+        }
+        
+        var imageURL = "\(largeBaseURL!)" + "\(frontImageName)"
+        print("frontImageName = \(frontImageName)")
+        print("backImageName = \(backImageName)")
+        print(imageURL)
+        if frontImageName != nil {
+//            setCoverImage(from: "\(imageURL)")
+//            boxArtImage.loadImage(from: imageURL)
+            boxArtImage.image = cover
+        } else {
+            boxArtImage.image = UIImage(named: "noArtNES")
+
+        }
+        
+        
+   //MARK: Tap Gesture
         
         let tap = UITapGestureRecognizer(target: self.view, action: #selector(UIView.endEditing(_:)))
         view.addGestureRecognizer(tap)
         
-        genreLabel.text = game?.genres.compactMap { $0.name }.joined(separator: " / ")
-        print("gameData \(gameData?.data.games[0].players)")
-        print("games.count \(gameData?.data.games.count)")
+        var genreArray : [String] = []
+        print("games.genre = \(games?.genres)")
+        for genreID in games!.genres! {
+//            genreArray.append("\(network.gameGenreData["\(genreID)"]!.name)")
+            genreArray.append("\(genre?.data .genres["\(genreID)"]?.name)")
+//            games.
+        }
+        genreLabel.text = genreArray.joined(separator: " | ")
+//        genreLabel.text = game?.genres.compactMap { $0.name }.joined(separator: " / ")
+//        print("gameData \(network.gameData?.data.games[0].players)")
+//        print("games.count \(network.gameData?.data.games.count)")
         //        game?.genres.map(\.name).joined(separator: " / ")
         
         
-        if game?.firstReleaseDate != nil {
-            let date = Date(timeIntervalSince1970: (game?.firstReleaseDate!)!)
-            let dateFormatter = DateFormatter()
-            dateFormatter.timeZone = TimeZone(abbreviation: "MST") //Set timezone that you want
-            dateFormatter.locale = NSLocale.current
-            dateFormatter.dateFormat = "MM-dd-yyyy" //Specify your format that you want
-            let strDate = dateFormatter.string(from: date)
-            if strDate != nil {
-                releaseDateLabel.text =  strDate
-            } else {
-                releaseDateLabel.text = " "
-            }
-        }
+//        if game?.firstReleaseDate != nil {
+//            let date = Date(timeIntervalSince1970: (game?.firstReleaseDate!)!)
+//            let dateFormatter = DateFormatter()
+//            dateFormatter.timeZone = TimeZone(abbreviation: "MST") //Set timezone that you want
+//            dateFormatter.locale = NSLocale.current
+//            dateFormatter.dateFormat = "MM-dd-yyyy" //Specify your format that you want
+//            let strDate = dateFormatter.string(from: date)
+//            if strDate != nil {
+//                releaseDateLabel.text =  strDate
+//            } else {
+//                releaseDateLabel.text = " "
+//            }
+//        }
+        
+   //MARK: Game Rating Icon
         
         
-        switch game?.ageRating?[0].rating {
-        //setting the ESRB label based on age rating from api
-        case 7:
+        switch games?.rating {
+        //setting the ESRB label icon based on age rating from api
+        case "EC- Early Childhood":
             ageRatingImageView.image = UIImage(named: "ESRB-EC")
-        case 8:
+        case "E - Everyone":
             ageRatingImageView.image = UIImage(named: "ESRB-E")
-        case 9:
+        case "E10+ - Everyone 10+":
             ageRatingImageView.image = UIImage(named: "ESRB-E10Plus")
-        case 10:
+        case "T - Teen":
             ageRatingImageView.image = UIImage(named: "ESRB-T")
-        case 11:
+        case "M - Mature 17+":
             ageRatingImageView.image = UIImage(named: "ESRB-M")
-        case 12:
+        case "A - Adults Only":
             ageRatingImageView.image = UIImage(named: "ESRB-AO")
         default:
             ageRatingImageView.image = UIImage(named: "ESRB-NR")
-            print("Invalid Age Rating")
+            print("Invalid Age Rating -- age rating = \(games?.rating)")
         }
+
+        //MARK: Platform Logo
+        
+        let platformLogo = setPlatformIcon(platformID: games!.platform, mode: traitCollection.userInterfaceStyle)
+        logoImage.image = UIImage(named: platformLogo)
         
         
-        print("platform ID is ** **\(game!.platforms![0].id)")
         
-        switch game!.platforms![0].id {
-        //setting the game platform logo
-        case 18:
-            if traitCollection.userInterfaceStyle == .light {
-                //Light Mode
-                imageName = "NESLogo"
-            } else {
-                //Dark Mode
-                imageName = "NESLogoInverse"
-                
-            }
-            
-        case 19:
-            if self.traitCollection.userInterfaceStyle == .light {
-                //Light Mode
-                self.imageName = "SNESLogo1"
-            } else {
-                //Dark Mode
-                self.imageName = "SNESLogo1Inverse"
-                
-            }
-        case 4:
-            if self.traitCollection.userInterfaceStyle == .light {
-                //Light Mode
-                self.imageName = "N64Logo"
-            } else {
-                //Dark Mode
-                self.imageName = "N64LogoInverse"
-                
-            }
-        case 21:
-            if self.traitCollection.userInterfaceStyle == .light {
-                //Light Mode
-                self.imageName = "GCLogo"
-            } else {
-                //Dark Mode
-                self.imageName = "GCLogoInverse"
-                
-            }
-        case 33:
-            if self.traitCollection.userInterfaceStyle == .light {
-                //Light Mode
-                self.imageName = "GBLogo"
-            } else {
-                //Dark Mode
-                self.imageName = "GBLogoInverse"
-                
-            }
-        case 24:
-            if self.traitCollection.userInterfaceStyle == .light {
-                //Light Mode
-                self.imageName = "GBALogo"
-            } else {
-                //Dark Mode
-                self.imageName = "gbaLogoInverse"
-                
-            }
-        case 29:
-            if self.traitCollection.userInterfaceStyle == .light {
-                //Light Mode
-                self.imageName = "SegaGenesisLogo"
-            } else {
-                //Dark Mode
-                self.imageName = "SegaGenesisLogoInverse"
-                
-            }
-        case 78:
-            if self.traitCollection.userInterfaceStyle == .light {
-                //Light Mode
-                self.imageName = "SegaCDLogo"
-            } else {
-                //Dark Mode
-                self.imageName = "SegaCDLogoInverse"
-                
-            }
-            
-        default:
-            print("Invalid Platform")
-            
-        }
         
-        logoImage.image = UIImage(named: "\(imageName)")
-        
-        print("screenshots count is  \(game?.screenshots?.count)")
-        
-        boxArtImage.layer.cornerRadius = 20
-        boxArtImage.layer.masksToBounds = true
         titleView.layer.cornerRadius = 10
         titleView.layer.masksToBounds = false
         gameDetailView.layer.cornerRadius = 10
         gameDetailView.layer.masksToBounds = false
-        gameNameLabel.text = game?.name
-        summaryText.text = game?.summary
-        publisherLabel.text = game?.involvedCompanies?[0].company?.name
+        gameNameLabel.text = games?.gameTitle
+        summaryText.text = games?.overview
+//        publisherLabel.text = game?.involvedCompanies?[0].company?.name
         
         
         print("\(boxArtImage.image)")
-        if game?.totalRating != nil {
-        //IGDB gives ratings in 1-100 results, however this app displays 1-5 stars.  This takes those values and converts them to a 1-5 rating, and then displays the result as varying images.
+        var placeholder = 1
+//        if game?.totalRating != nil {
+        if placeholder != nil {
+            //IGDB gives ratings in 1-100 results, however this app displays 1-5 stars.  This takes those values and converts them to a 1-5 rating, and then displays the result as varying images.
             
-            let ratingConvert = (((game!.totalRating!)/10)/2)
+//            let ratingConvert = (((game!.totalRating!)/10)/2)
+            let ratingConvert = 1.0
             
             print(ratingConvert)
             
             switch ratingConvert {
-            
+                
             case 0.5..<1:
                 let halfRating = String(format: "%.2f", ratingConvert)
                 ratingLabel.text = String(halfRating)
@@ -523,41 +510,45 @@ class DetailViewController: UIViewController, UICollectionViewDataSource, UIColl
             ratingStarFive.image = UIImage(systemName: "star")
             
         }
-    }
-    
-    
-    func setCoverImage(from url: String) {
-        guard let imageURL = URL(string: url) else { return }
         
-        // just not to cause a deadlock in UI!
-        DispatchQueue.global().async {
-            guard let imageData = try? Data(contentsOf: imageURL) else { return }
-            
-            let image = UIImage(data: imageData)
-            DispatchQueue.main.async {
-                self.boxArtImage.image = image
-                self.backgroundImage.image = image
-                
-            }
-        }
-    }
-    
-    func setLogoImage(from url: String) {
-        guard let imageURL = URL(string: url) else { return }
-        // just not to cause a deadlock in UI!
-        DispatchQueue.global().async {
-            guard let imageData = try? Data(contentsOf: imageURL) else { return }
-            
-            let image = UIImage(data: imageData)
-            DispatchQueue.main.async {
-                self.logoImage.image = image
-            }
-        }
+        print("network.gameImageData = \(network.gameImageData)")
+
         
     }
+    
+    
+//    func setCoverImage(from url: String) {
+//        guard let imageURL = URL(string: url) else { return }
+//
+//        // just not to cause a deadlock in UI!
+//        DispatchQueue.global().async {
+//            guard let imageData = try? Data(contentsOf: imageURL) else { return }
+//
+//            let image = UIImage(data: imageData)
+//            DispatchQueue.main.async {
+//                self.boxArtImage.image = image
+//                self.backgroundImage.image = image
+//
+//            }
+//        }
+//    }
+//
+//    func setLogoImage(from url: String) {
+//        guard let imageURL = URL(string: url) else { return }
+//        // just not to cause a deadlock in UI!
+//        DispatchQueue.global().async {
+//            guard let imageData = try? Data(contentsOf: imageURL) else { return }
+//
+//            let image = UIImage(data: imageData)
+//            DispatchQueue.main.async {
+//                self.logoImage.image = image
+//            }
+//        }
+//
+//    }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        let item = sender as! Game
+//        let item = sender as! Game
         
         if segue.identifier == "imageViewController" {
             if let vc = segue.destination as? ImageViewController {
@@ -579,12 +570,12 @@ class DetailViewController: UIViewController, UICollectionViewDataSource, UIColl
                 
                 
                 
-                if (item.screenshots?[0].imageID) != nil {
-                    
-                    let coverID = ((item.screenshots?[0].imageID)!)
-                    setScreenShotImage(from: "https://images.igdb.com/igdb/image/upload/t_cover_big/\(coverID).jpg")
-                    
-                }
+//                if (item.screenshots?[0].imageID) != nil {
+//
+//                    let coverID = ((item.screenshots?[0].imageID)!)
+//                    setScreenShotImage(from: "https://images.igdb.com/igdb/image/upload/t_cover_big/\(coverID).jpg")
+//
+//                }
                 //                if (game?.cover?.imageID) != nil {
                 //                           let coverID = ((game?.cover?.imageID)!)
                 //                           setScreenShotImage(from: "https://images.igdb.com/igdb/image/upload/t_cover_big/\(coverID).jpg")
@@ -607,9 +598,9 @@ class DetailViewController: UIViewController, UICollectionViewDataSource, UIColl
     
     // MARK - CollctionView Stubs
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        
-        if game?.screenshots != nil {
-            return (game?.screenshots!.count)!
+        print("screenshotsArray \(screenshotsArray)")
+        if screenshotsArray != nil {
+            return (screenshotsArray?.count)!
         } else {
             return 1
         }
@@ -633,140 +624,56 @@ class DetailViewController: UIViewController, UICollectionViewDataSource, UIColl
         
         let cell = screenshotCollectionView.dequeueReusableCell(withReuseIdentifier: "cell", for: indexPath) as! DetailVCCollectionViewCell
         
-        
-        func setScreenShotImage(from url: String) {
-            guard let imageURL = URL(string: url) else { return }
-            
-            // just not to cause a deadlock in UI!
-            DispatchQueue.global().async {
-                guard let imageData = try? Data(contentsOf: imageURL) else { return }
+
+        print("screenshots array = \(screenshotsArray)")
+        if screenshotsArray?[indexPath.row].fileName != nil {
+            let coverID = screenshotsArray?[indexPath.row].fileName
+            print("coverID = \(coverID)")
+            cell.screenshotImageView.loadImage(from: "https://cdn.thegamesdb.net/images/small/\(coverID!)") {
                 
-                let image = UIImage(data: imageData)
-                DispatchQueue.main.async {
-                    cell.screenshotImageView.image = image
-                }
+                
             }
         }
-        
-        
-        
-        if (game?.screenshots?[indexPath.row].imageID) != nil {
-            
-            let coverID = ((game?.screenshots?[indexPath.row].imageID)!)
-            setScreenShotImage(from: "https://images.igdb.com/igdb/image/upload/t_cover_big/\(coverID).jpg")
-            
-        }
-        
+
         
         return cell
         
     }
     
-    func downloadGameDBGameImageJSON(completed: @escaping () -> () ) {
-        if (gameData?.data.games.count)! > 0  {
-            if let gameData = gameData?.data.games[0].id {
-                print("gameData = \(gameData)")
-                let apiKey = "\(Constants.gameDBAPIKey)"
-                
-                let url = URL(string: "https://api.thegamesdb.net/v1/Games/Images?apikey=\(apiKey)&games_id=\(gameData)&filter%5Btype%5D=clearlogo%20%2C%20fanart")!
-                
-                var requestHeader = URLRequest.init(url: url)
-                //        requestHeader.httpBody = "apikey \(apiKey),name \(game?.name), fields players, filter \(gdbPlatformID) ".data(using: .utf8, allowLossyConversion: false)
-                requestHeader.httpMethod = "GET"
-                requestHeader.setValue("application/json", forHTTPHeaderField: "Accept")
-                URLSession.shared.dataTask(with: requestHeader) { (data, response, error) in
-                    
-                    if error == nil {
-                        do {
-                            let json = String(data: data!, encoding: .utf8)
-                            print("\(json)")
-                            
-                            self.gameDataImages = try JSONDecoder().decode(GameDBData.self, from: data!)
-                            
-                            DispatchQueue.main.async {
-                                completed()
-                            }
-                        } catch {
-                            
-                            print(error)
-                            
-                        }
-                    }
-                }.resume()
-                
-                
-            }
-        }
-        
-    }
     
-    func downloadGameDBGameInfoJSON(completed: @escaping () -> () ) {
-        if let gameName = game?.name?.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) {
-            let apiKey = "\(Constants.gameDBAPIKey)"
-            
-            let url = URL(string: "https://api.thegamesdb.net/v1.1/Games/ByGameName?apikey=\(apiKey)&name=\(gameName)&fields=players&filter%5Bplatform%5D=\(gdbPlatformID)")!
-            
-            var requestHeader = URLRequest.init(url: url)
-            //        requestHeader.httpBody = "apikey \(apiKey),name \(game?.name), fields players, filter \(gdbPlatformID) ".data(using: .utf8, allowLossyConversion: false)
-            requestHeader.httpMethod = "GET"
-            requestHeader.setValue("application/json", forHTTPHeaderField: "Accept")
-            URLSession.shared.dataTask(with: requestHeader) { (data, response, error) in
-                
-                if error == nil {
-                    do {
-                        let json = String(data: data!, encoding: .utf8)
-                        print("\(json)")
-                        
-                        self.gameData = try JSONDecoder().decode(GameDB.self, from: data!)
-                        
-                        DispatchQueue.main.async {
-                            completed()
-                        }
-                    } catch {
-                        
-                        print(error)
-                        
-                    }
-                }
-            }.resume()
-            
-            
-        }
-        
-    }
     
     
     func downloadScreenScraperJSON(completed: @escaping () -> () ) {
         
         
-        if let gameName = game?.name?.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) {
-            print("\(gameName)")
-            let url = URL(string: "https://www.screenscraper.fr/api2/jeuInfos.php?devid=\(Constants.screenScaperDevID)&devpassword=\(Constants.screenScraperDevPassword)&softname=collector&output=json&romnom=\(gameName)")!
-            var requestHeader = URLRequest.init(url: url )
-            //        requestHeader.httpBody = "fields name;limit 50;".data(using: .utf8, allowLossyConversion: false)
-            requestHeader.httpMethod = "GET"
-            //        requestHeader.setValue(apiKey, forHTTPHeaderField: "user-key")
-            //        requestHeader.setValue("application/json", forHTTPHeaderField: "Accept")
-            URLSession.shared.dataTask(with: requestHeader) { (data, response, error) in
-                
-                if error == nil {
-                    do {
-                        let json = String(data: data!, encoding: .utf8)
-                        print("\(json)")
-                        
-                        self.response = try JSONDecoder().decode(Response.self, from: data!)
-                        
-                        DispatchQueue.main.async {
-                            completed()
-                        }
-                    } catch {
-                        
-                        print(error)
-                        
-                    }
-                }
-            }.resume()
-        }
+//        if let gameName = game?.name?.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) {
+//            print("\(gameName)")
+//            let url = URL(string: "https://www.screenscraper.fr/api2/jeuInfos.php?devid=\(Constants.screenScaperDevID)&devpassword=\(Constants.screenScraperDevPassword)&softname=collector&output=json&romnom=\(gameName)")!
+//            var requestHeader = URLRequest.init(url: url )
+//            //        requestHeader.httpBody = "fields name;limit 50;".data(using: .utf8, allowLossyConversion: false)
+//            requestHeader.httpMethod = "GET"
+//            //        requestHeader.setValue(apiKey, forHTTPHeaderField: "user-key")
+//            //        requestHeader.setValue("application/json", forHTTPHeaderField: "Accept")
+//            URLSession.shared.dataTask(with: requestHeader) { (data, response, error) in
+//
+//                if error == nil {
+//                    do {
+//                        let json = String(data: data!, encoding: .utf8)
+//                        print("\(json)")
+//
+//                        self.response = try JSONDecoder().decode(Response.self, from: data!)
+//
+//                        DispatchQueue.main.async {
+//                            completed()
+//                        }
+//                    } catch {
+//
+//                        print(error)
+//
+//                    }
+//                }
+//            }.resume()
+//        }
         
     }
     
@@ -784,19 +691,19 @@ class DetailViewController: UIViewController, UICollectionViewDataSource, UIColl
         }
     }
     
-    func setFanartImage(from url: String) {
-        guard let imageURL = URL(string: url) else { return }
-        
-        // just not to cause a deadlock in UI!
-        DispatchQueue.global().async {
-            guard let imageData = try? Data(contentsOf: imageURL) else { return }
-            
-            let image = UIImage(data: imageData)
-            DispatchQueue.main.async {
-                self.fanartImageView.image = image
-            }
-        }
-    }
+//    func setFanartImage(from url: String) {
+//        guard let imageURL = URL(string: url) else { return }
+//
+//        // just not to cause a deadlock in UI!
+//        DispatchQueue.global().async {
+//            guard let imageData = try? Data(contentsOf: imageURL) else { return }
+//
+//            let image = UIImage(data: imageData)
+//            DispatchQueue.main.async {
+//                self.fanartImageView.image = image
+//            }
+//        }
+//    }
     
     
 }
