@@ -4,6 +4,7 @@
 //   let byPlatformIDData = try? newJSONDecoder().decode(ByPlatformIDData.self, from: jsonData)
 
 import Foundation
+import RealmSwift
 
 // MARK: - ByPlatformIDData
 struct ByPlatformIDData: Codable {
@@ -74,7 +75,7 @@ struct Include: Codable {
 // MARK: - Boxart
 struct Boxart: Codable {
     let baseURL: BaseURL
-    let data: [String: [ImageData]]
+    var data: [String: [ImageData]]
 
     enum CodingKeys: String, CodingKey {
         case baseURL = "base_url"

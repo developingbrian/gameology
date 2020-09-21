@@ -16,7 +16,29 @@ struct GameDBData : Decodable {
 struct GameDataImages : Decodable {
     
     let images : Images
+    let baseURL : DetailBaseURL
     
+    enum CodingKeys: String, CodingKey {
+        case images
+        case baseURL = "base_url"
+    }
+}
+struct DetailBaseURL : Decodable {
+    let original : String
+    let small : String
+    let thumb : String
+    let croppedCenterThumb: String
+    let medium : String
+    let large: String
+    
+    enum CodingKeys: String, CodingKey {
+        case original
+        case small
+        case thumb
+        case medium
+        case large
+        case croppedCenterThumb = "cropped_center_thumb"
+    }
 }
 
 struct Images : Decodable {

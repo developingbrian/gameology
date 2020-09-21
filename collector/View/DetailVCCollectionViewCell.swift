@@ -11,7 +11,9 @@ import UIKit
 class DetailVCCollectionViewCell: UICollectionViewCell {
     
     
-    @IBOutlet weak var screenshotImageView: UIImageView!
+//    @IBOutlet weak var screenshotImageView: UIImageView!
+    
+    @IBOutlet weak var screenshotImageView: UIImageView!    
     
     
 }

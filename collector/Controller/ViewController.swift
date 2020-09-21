@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import SDWebImage
 
 class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSource,UITableViewDelegate, UITableViewDataSource {
     
@@ -14,7 +15,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
     @IBOutlet weak var platformPicker: UIPickerView!
     @IBOutlet weak var tableviewPlatformImage: UIImageView!
     @IBOutlet weak var searchTextField: UITextField!
-    @IBOutlet weak var clearButton: UIButton!
+    @IBOutlet weak var platformLabel: UILabel!
     
     var games = [Game]()
 //    var game : Game?
@@ -39,42 +40,88 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
     var initialOffset = 0
 //    let networking = NetworkService()
     let network = Networking()
-    var frontImageName : String = ""
-    var backImageName : String = ""
+    var gradient : CAGradientLayer!
     
     let fields = "players,publishers,genres,overview,last_updated,rating,platform,coop,youtube,os,processor,ram,hdd,video,sound,alternates"
     let include = "boxart,platform"
     let test = Networking()
     var coverImage : UIImage?
+    var rearCoverImage : UIImage?
     var pageURL: String?
     var countInt = 0
     var imageArray: [UIImageView] = []
     var imageToArray = UIImageView()
     var gameObject : [GDBGamesPlatform]?
     var cache : NSCache<AnyObject, AnyObject>!
+    var rearImageCache : NSCache<AnyObject, AnyObject>!
+    var gameCartImageCache : NSCache<AnyObject, AnyObject>!
     var tableData: [AnyObject]!
+    var fetchingMore = false
+//    let rearImageView: UIImageView
     
 //    let test2: ByPlatformIDData
+    var segueFrontImageName : String?
+    var segueRearImageName : String?
     
     
     
 //MARK: viewDidLoad
     override func viewDidLoad() {
         super.viewDidLoad()
-        games.removeAll()
+        
+         if self.traitCollection.userInterfaceStyle == .light {
+        
+                tableView.backgroundColor = UIColor(red: (246/255), green: (246/255), blue: (246/255), alpha: 1)
+              
+            } else {
+
+                tableView.backgroundColor = UIColor(red: (15/255), green: (15/255), blue: (15/255), alpha: 1)
+
+        }
+        
+        self.network.downloadDevelopersJSON {
+        print("Developer JSON downloaded")
+           }
+        self.network.downloadGenreJSON {
+            print("Genre JSON downloaded")
+            
+        
+        }
+        
+        
+        
+        
+        
+//        gradient = CAGradientLayer()
+//        gradient.frame = 
+        
+        searchTextField.borderStyle = .roundedRect
+        var searchButton = UIButton(frame: CGRect(x: 0, y: 0, width: 24, height: 24))
+        searchButton.setTitle( "🔍", for: .normal)
+        searchTextField.rightViewMode = .always
+        searchTextField.rightView = searchButton
+        searchButton.layer.opacity = 0.5
+        searchButton.addTarget(self, action: #selector(searchButtonPressed(_:)), for: .touchUpInside)
+        searchTextField.layer.shadowOffset = CGSize(width: 5, height: 5)
+        searchTextField.layer.shadowRadius = 5
+        searchTextField.layer.shadowOpacity = 0.1
+        searchTextField.layer.masksToBounds = false
+        searchTextField.clipsToBounds = false
+        setForDarkMode()
+//        searchButton.backgroundColor = UIColor.black
+
 //        cache.removeAllObjects()
         
         self.cache = NSCache()
+        self.rearImageCache = NSCache()
+        self.gameCartImageCache = NSCache()
         self.tableData = []
         
         gameObject = network.games
         
-        self.network.games.removeAll()
+//        self.network.games.removeAll()
 
-        self.network.downloadDevelopersJSON {
-            print("Developer JSON downloaded")
-            self.tableView.reloadData()
-               }
+        
 //        self.network.downloadPublishersJSON {
 //            print("Publisher JSON downloaded")
 //            self.tableView.reloadData()
@@ -85,6 +132,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         tableView.delegate = self
         tableView.dataSource = self
         
+        
         let tap = UITapGestureRecognizer(target: self.view, action: #selector(UIView.endEditing(_:)))
         tap.cancelsTouchesInView = false
         view.addGestureRecognizer(tap)
@@ -93,24 +141,18 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         
         pickerData = ["NES", "SNES", "Nintendo 64", "Gamecube", "Game Boy", "Gameboy Advance", "Sega Genesis", "Sega CD"]
         
-        self.network.downloadGenreJSON {
-            print("Genre JSON downloaded")
-        }
+        
        
         
         
         network.downloadGamesByPlatformIDJSON(platformID: 7, fields: fields, include: include, pageURL: nil) {
-            print(self.test.gamesByPlatformID?.data?.games.count)
-            print(self.network.gamesData?.data?.games.count)
-            self.tableView.reloadData()
-                              print("donwloadGamesByPlatformIDJSON Success")
-//            self.setPlatformIcon()
+        
+            print("donwloadGamesByPlatformIDJSON Success")
             let platformImage = self.setPlatformIcon(platformID: self.network.games[0].platform, mode: self.traitCollection.userInterfaceStyle)
             self.tableviewPlatformImage.image = UIImage(named: platformImage)
             
             self.tableView.reloadData()
 
-//            Return Data
                           }
        
 //        network.downloadGamesByPlatformIDJSON(platformID: 3, fields: fields, include: include, page: nil) { (_, _) -> (Data?, Error?) in
@@ -166,33 +208,43 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
     
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+//        let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath) as! ViewControllerTableViewCell
+        tableView.register(UINib(nibName: "TableViewCell", bundle: nil), forCellReuseIdentifier: "cell")
         let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath) as! ViewControllerTableViewCell
+        
+        cell.configureCells()
+//
+// 
+        print("boxart data \(network.boxart?.data)")
+        
+//        cell.tag = indexPath.row
         
         //creating game object
         let game1 : GDBGamesPlatform?
         game1 = network.games[indexPath.row]
-//        gameObject = game1
-//        print("tableview gameobject title = \(gameObject?.gameTitle)")
-        games.removeAll()
+        cell.tag = game1?.id! as! Int
         print(network.games.count - 1)
         print(network.page?.next)
-        if indexPath.row == (network.games.count - 1) && network.page?.next != nil {
-            pageURL = network.page?.next
-            print("pagination, bitches!! \(pageURL)")
-            
-            network.downloadGamesByPlatformIDJSON(platformID: nil, fields: nil, include: nil, pageURL: network.page?.next) {
-                print("pagination successful")
-                tableView.reloadData()
-                
-            }
-        }
-        
-        
-        
-        
-//        game1 = self.network.games[indexPath.row]
-//        game1 = game?.data[indexPath.row]
-//        game1 = network.gamesByPlatformID?.data.games.[indexPath.row].
+//        network.downloadScreenScraperJSON(gameName: game1!.gameTitle) {
+//             let boxImages = self.network.gameDetailsSS?.response.jeu.medias.filter({ $0.type == "support-2D" && $0.region == "us"} )
+//            if boxImages?.count != 0 {
+//            let url = URL(string: (boxImages?[0].url)!)
+//
+//            cell.gameCartImage.sd_setImage(with: url) { (image, error, cacheType, url) in
+//                if (error != nil) {
+//                    print("Error, could not download.  Download reason \(error?.localizedDescription)")
+//                    
+//                } else {
+//                    print("Successfully downloaded game cart image from \(url)")
+//                    
+//                }
+//            }
+//            
+//            }
+//            
+//            
+//        
+//        }
         
         print(network.gamesByPlatformID?.data?.games.count)
 //        print("genre = \(game1?.data.games[0].genres)")
@@ -210,7 +262,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         
         if game1?.releaseDate != nil {
            
-            var gdbDate = game1?.releaseDate
+            let gdbDate = game1?.releaseDate
             
             let dateFormatter = DateFormatter()
             dateFormatter.dateFormat = "yyyy-MM-DD"
@@ -227,27 +279,20 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         
         
         
-        print("developers = \(game1!.developers![0])")
         //Setting the Company label{
+        if game1?.developers != nil {
         if network.gameDeveloperData["\(game1!.developers![0])"] != nil {
-            var developerText = "\(network.gameDeveloperData["\(game1!.developers![0])"]!.name)"
-//        if game1.involvedCompanies?[0].company?.name != nil {
+            let developerText = "\(network.gameDeveloperData["\(game1!.developers![0])"]!.name)"
             print("developerText = \(developerText)")
             cell.tableViewCompanyLabel.text = "\(developerText)"
-//            involvedCompanies?[0].company?.name
         } else {
             cell.tableViewCompanyLabel.text = " "
         }
-//        var genreHolder = genreData["\(game1?.genres)"]
+        }
+        
         
         var genreText = " \(network.gameGenreData["\(game1?.genres)"])"
-//        network.games[indexPath.row].gameTitle
-//        var genreText = genreHolder["\(game1.data.games[0].genres)"]?.name
-//        var genreText = genreHolder["\(game1?.genres)"]
-        
-        //Setting the Genere label
-//        game1.data.games[0].
-//        cell.tableViewGenreLabel.text = game1?.genres?.compactMap { $0.name }.joined(separator: " / ")
+
         var genreArray : [String] = []
         if game1?.genres != nil {
         for genre in game1!.genres! {
@@ -262,7 +307,11 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         cell.tableViewGenreLabel.text = genreArray.joined(separator: " | ")
         
         }
+        
+        
+        
         //Setting the Age Rating label
+        
         if game1?.rating != nil {
         cell.tableViewAgeRatingLabel.text = game1?.rating
         } else {
@@ -271,96 +320,102 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
             
         }
 
-        
-        //Used to download the image file
-        
-//        func setCoverImage(from url: String) {
-//            print("setCoverImage()")
-//
-//
-//            guard let imageURL = URL(string: url) else { return }
-//
-//            // just not to cause a deadlock in UI!
-//            DispatchQueue.global().async {
-//                guard let imageData = try? Data(contentsOf: imageURL) else { return }
-//
-//                let image = UIImage(data: imageData)
-//                DispatchQueue.main.async {
-//                    cell.tableViewCoverImage.image = image
-//                }
-//            }
-//        }
+        print("TEST TEST \(network.boxart?.baseURL)")
+        print(network.baseURL)
         
         //retrieving the filename information based on the game id
-        if network.boxart?.data["\(game1!.id!)"]?[0].side == .front {
-            print(network.boxart?.data["\(game1!.id!)"]?[0].filename)
-            frontImageName = network.boxart?.data["\(game1!.id!)"]?[0].filename as! String
+        
+        var frontImageName : String = ""
+        var backImageName : String = ""
+        
+        if network.boxarts["\(game1!.id!)"]?[0].side == .front {
+            print(network.boxarts["\(game1!.id!)"]?[0].filename)
+            frontImageName = network.boxarts["\(game1!.id!)"]?[0].filename as! String
             
-        } else if network.boxart?.data["\(game1!.id!)"]?[0].side == .back {
-            backImageName = network.boxart?.data["\(game1!.id!)"]?[0].filename as! String
+        } else if network.boxarts["\(game1!.id!)"]?[0].side == .back {
+            backImageName = network.boxarts["\(game1!.id!)"]?[0].filename as! String
             
         }
         
-        if network.boxart?.data["\(game1!.id!)"]?.count == 2 {
-        if network.boxart?.data["\(game1!.id!)"]?[1].side == .front {
-            frontImageName = network.boxart?.data["\(game1!.id!)"]?[1].filename as! String
+        if network.boxarts["\(game1!.id!)"]?.count == 2 {
+        if network.boxarts["\(game1!.id!)"]?[1].side == .front {
+            frontImageName = network.boxarts["\(game1!.id!)"]?[1].filename as! String
                        
-        } else if network.boxart?.data["\(game1!.id!)"]?[1].side == .back {
-            backImageName = network.boxart?.data["\(game1!.id!)"]?[1].filename as! String
+        } else if network.boxarts["\(game1!.id!)"]?[1].side == .back {
+            backImageName = network.boxarts["\(game1!.id!)"]?[1].filename as! String
                        
         }
         }
-        print("baseurl test \(network.boxart?.baseURL)")
-        
-        print("network.baseURL = \(network.baseURL)")
-        //creating image url string
-        var imageUrl = network.baseURL!.medium + frontImageName
-        print(imageUrl)
+   
         
         
-        //if data exists- download it, otherwise show default image
-        if frontImageName != nil {
-            cell.tableViewCoverImage.image = UIImage(named: "noArtNES")
-//            cell.tableViewCoverImage.loadImage(from: imageUrl) {
-//                print("image loaded")
-//            }
-            if (self.cache.object(forKey: (indexPath as NSIndexPath).row as AnyObject) != nil) {
-                //use cache
-                print("Cached image used, no need to download it.")
-                cell.tableViewCoverImage.image = self.cache.object(forKey: (indexPath as NSIndexPath).row as AnyObject) as? UIImage
-
-            } else {
-                //download image
-                print("Downloading image from \(imageUrl)...")
-                var image : UIImage?
-                    cell.tableViewCoverImage.loadImage(from: imageUrl, completed: {
-                        print("Image Downloaded")
-                        image = cell.tableViewCoverImage.image!
-                        self.cache?.setObject(image!, forKey: (indexPath as NSIndexPath).row as AnyObject)
-                    })
-//
-//
-//
-//
-//
-//
-            }
+       
+        
+        //if data exists for the front cover image download it, otherwise show default image
+        if frontImageName != "" {
             
-//            cell.tableViewCoverImage.loadImage(from: imageUrl) { print("tableViewCoverImage loaded!")
-//                self.network.imageArray.append(cell.tableViewCoverImage.image)
-//                self.coverImage = cell.tableViewCoverImage.image!
-//                cell.tableViewCoverImage.image = self.network.imageArray[indexPath.row]
+            //creating image url string
+                   var imageUrlString = network.baseURL!.small + frontImageName
+                   print(imageUrlString)
+                   let imageURL = URL(string: imageUrlString)
+                   
+                   
+                   
+            cell.loadCoverImageWith(urlString: imageUrlString, gameID: (game1?.id)!)
+//            cell.tableViewCoverImage.setImageAnimated(imageUrl: imageURL!, placeholderImage: UIImage(named: "noArtNES")!)
+//
+//              if tableView.indexPath(for: cell) == indexPath {
+//            cell.loadCoverImageWith(urlString: imageUrlString)
+//            }
+//            cell.loadCoverImageWith(urlString: imageUrlString, gameID: (game1?.id)!)
+//       SDWebImageManager.shared.loadImage(with: imageURL, options: SDWebImageOptions.highPriority, progress: nil) { (image, data, error, cacheType, downloading, downloadURL) in
+//
+//                         if let error = error {
+//                             print("Error downloading the image \(error.localizedDescription)")
+//                         }
+//                         else {
+//                             print("Successfully downloaded image from \(downloadURL?.absoluteString)")
+//                            print("game1.id = \(game1?.id)")
+//                            print("cell.tag = \(cell.tag)")
+//                         
+////                            let edgeColor = image?.edgeColor(UIEdgeInsets(top: 1, left: 1, bottom: 1, right: 1), defaultColor: .black)
+////                              cell.tableViewCoverImage.image = image
+////
+////                            cell.coverImageShadow.image = image
+////                            cell.shadowView.image = image
+////                            let edgeColor = cell.tableViewCoverImage.image?.edgeColor()
+//                            //                            cell.tableViewCoverImage.layer.shadowColor = edgeColor?.cgColor
+//                          
+//                                
+////                                cell.tableViewCoverImage.layer.shadowColor = edgeColor!.cgColor
+//                            
+//
+//                         }
+//
 //
 //
 //            }
-     
-        }
-        else {
+            
+        } else {
             cell.tableViewCoverImage.image = UIImage(named: "noArtNES")
 
         }
-  
         
+        
+        
+        //if data exists for the rear cover image download it, otherwise show default image
+        
+        if backImageName != nil {
+
+            var rearImageURLString = network.baseURL!.medium + backImageName
+                    cell.loadRearCoverImageWith(urlString: rearImageURLString)
+                    
+                    
+        } else {
+            cell.tableViewCoverRearImage.image = UIImage(named: "noArtNES")
+
+        }
+
         return cell
         
     }
@@ -370,24 +425,34 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         //Assigning the image at the selected cell to coverImage, so that it may be passed to the DetailViewController to avoid redownloading
         let cell = tableView.cellForRow(at: indexPath) as! ViewControllerTableViewCell
+        print("test \(cell.frontImageName)")
+//        segueFrontImageName = cell.frontImageName
+//        segueRearImageName = cell.rearImageName
         coverImage = cell.tableViewCoverImage.image
-    
+        print("seguefrontimagename = \(segueFrontImageName)")
+        rearCoverImage = cell.tableViewCoverRearImage?.image!
+        print(rearCoverImage)
         //Segue to DetailViewController
         performSegue(withIdentifier: "showDetails", sender: self)
         
     }
     
-    
+//image
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         
         if let destination = segue.destination as? DetailViewController {
 //            let cell = tableView.cellForRow(at: <#T##IndexPath#>)
+//            destination.frontImageName = segueFrontImageName!
+//            destination.backImageName = segueRearImageName!
+            destination.network = network
             destination.cover = coverImage!
+            destination.rearCover = rearCoverImage
 //            destination.cover = tableView.cellForRow(at: IndexPath.row)
             destination.genre = network.genre
-            destination.games = network.games[tableView.indexPathForSelectedRow!.row]
+            destination.games =  network.games[tableView.indexPathForSelectedRow!.row]
             destination.boxart = network.boxart
+            destination.developerData = network.gameDeveloperData
 //            destination.boxart = network.boxarts[tableView.indexPathForSelectedRow!.row]
 //            destination.frontImageName = frontImageName
 //            destination.backImageName = backImageName
@@ -472,8 +537,9 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
 //        network.gamesByPlatformID?.data.games.removeAll()
 //        self.games.removeAll()
         self.network.games.removeAll()
+        self.network.boxart?.data.removeAll()
 //        self.networking.games.removeAll()
-        self.tableView.reloadData()
+//        self.tableView.reloadData()
         network.currentOffset = 0
         
         print("picked = \(gdbPlatformID)")
@@ -481,7 +547,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
 //        self.networking.downloadJSON(platformSelected: gdbPlatformID, gameName: nil, offset: network.currentOffset) {
         self.network.downloadGamesByPlatformIDJSON(platformID: gdbPlatformID, fields: fields, include: include, pageURL: nil) {
                 
-                
+            self.setForDarkMode()
                 
             
             print("pickerview JSON downloaded")
@@ -495,7 +561,17 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
 //            self.tableviewPlatformImage.image = UIImage(named: "\(self.imageName)")
             //            self.networking.games.removeAll()
             self.cache.removeAllObjects()
+            self.rearImageCache.removeAllObjects()
             self.tableView.reloadData()
+            if self.traitCollection.userInterfaceStyle == .light {
+                   
+                self.tableView.backgroundColor = UIColor(red: (246/255), green: (246/255), blue: (246/255), alpha: 1)
+                         
+                       } else {
+
+                self.tableView.backgroundColor = UIColor(red: (15/255), green: (15/255), blue: (15/255), alpha: 1)
+
+                   }
             
             print("test after")
         }
@@ -514,21 +590,24 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
     
     
     
-    @IBAction func searchButtonPressed(_ sender: Any) {
+    @objc func searchButtonPressed(_ sender: UIButton!) {
         //rudimentary search function.  Will take what is entered and run it through the downloadJSON function and return any results
         
-        if searchTextField.text != nil {
-            gameNamed = searchTextField.text
-            print("game named \(gameNamed!)")
-//            self.network.games.removeAll()
-            self.games.removeAll()
-            self.tableView.reloadData()
-//            self.networking.downloadJSON(platformSelected: nil, gameName: gameNamed, offset: 0) {
+        
+        
+        print("searchButtonPressed")
+//        if searchTextField.text != nil {
+//            gameNamed = searchTextField.text
+//            print("game named \(gameNamed!)")
+////            self.network.games.removeAll()
+//            self.games.removeAll()
+//            self.tableView.reloadData()
+////            self.networking.downloadJSON(platformSelected: nil, gameName: gameNamed, offset: 0) {
 //                print("search executed")
 //                self.tableView.reloadData()
 //            }
             
-        }
+//        }
         
     }
     
@@ -537,6 +616,71 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         
         searchTextField.text = nil
     }
+    
+    func setForDarkMode() {
+        if self.traitCollection.userInterfaceStyle == .light {
+                   view.backgroundColor = #colorLiteral(red: 0.9647058824, green: 0.9647058824, blue: 0.9647058824, alpha: 1)
+               platformLabel.backgroundColor = #colorLiteral(red: 0.9647058824, green: 0.9647058824, blue: 0.9647058824, alpha: 1)
+               platformPicker.backgroundColor = #colorLiteral(red: 0.9647058824, green: 0.9647058824, blue: 0.9647058824, alpha: 1)
+            searchTextField.layer.shadowColor = UIColor.black.cgColor
+
+
+                   } else {
+                    view.backgroundColor = #colorLiteral(red: 0.05882352941, green: 0.05882352941, blue: 0.05882352941, alpha: 1)
+               platformLabel.backgroundColor = #colorLiteral(red: 0.05882352941, green: 0.05882352941, blue: 0.05882352941, alpha: 1)
+               platformPicker.backgroundColor = #colorLiteral(red: 0.05882352941, green: 0.05882352941, blue: 0.05882352941, alpha: 1)
+               searchTextField.layer.shadowColor = UIColor.white.cgColor
+
+               
+                   }
+        
+    }
+    
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        let offsetY = scrollView.contentOffset.y
+        let contentHeight = scrollView.contentSize.height
+        
+        if offsetY > contentHeight - scrollView.frame.size.height {
+            
+            if fetchingMore == false {
+                print("end of table")
+                beginBatchFetch()
+            }
+        }
+    }
+    func beginBatchFetch() {
+        fetchingMore = true
+        print("fetching data")
+        network.downloadGamesByPlatformIDJSON(platformID: nil, fields: nil, include: nil, pageURL: network.page?.next) {
+            print("pagination successful")
+            self.fetchingMore = false
+            self.tableView.reloadData()
+
+                  }
+        
+    }
+
+
+    //Pagination
+//    func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
+//
+//        print("scrollViewDidEndDragging")
+//        if ((tableView.contentOffset.y + tableView.frame.size.height) >= tableView.contentSize.height)
+//        {
+//            if !isDataLoading{
+//                isDataLoading = true
+//                self.pageNo=self.pageNo+1
+//                self.limit=self.limit+10
+//                self.offset=self.limit * self.pageNo
+////                loadCallLogData(offset: self.offset, limit: self.limit)
+//  network.downloadGamesByPlatformIDJSON(platformID: nil, fields: nil, include: nil, pageURL: network.page?.next) {
+//                  print("pagination successful")
+//    self.tableView.reloadData()
+//                  
+//              }
+//            }
+//        }
+//    }
     
     
 //    func downloadImages() {

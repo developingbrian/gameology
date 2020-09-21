@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import WebKit
 
 class DetailViewController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegate {
     
@@ -55,6 +56,14 @@ class DetailViewController: UIViewController, UICollectionViewDataSource, UIColl
     
     @IBOutlet weak var clearLogoImageView: UIImageView!
     
+    @IBOutlet weak var webView: WKWebView!
+    
+    @IBOutlet weak var playButton: UIButton!
+    
+    @IBOutlet weak var fanartTitleLabel: UILabel!
+    
+    
+    
     var game : GameDBData?
 //    var games : [GameDBData] = []
     var games : GDBGamesPlatform?
@@ -69,44 +78,120 @@ class DetailViewController: UIViewController, UICollectionViewDataSource, UIColl
     var gdbPlatformID = 7
     //    var gameData : GameDB?
     var gameDataImages : GameDBData?
-    let network = Networking()
+    var network = Networking()
     let images = [Images.Inner]()
     let images1 : [Images.Inner] = []
+    
     let fields = "players,publishers,genres,overview,last_updated,rating,platform,coop,youtube,os,processor,ram,hdd,video,sound,alternates"
     let include = "boxart,platform"
 //    var viewController : ViewController
 //    var game1 =
     //    let inner : Images.Inner?
-    var frontImageName : String = ""
-    var backImageName : String = ""
+    var frontImageName : String?
+    var backImageName : String?
     var fanartArray : [Images.Inner]? = []
     var screenshotsArray : [Images.Inner]? = []
+    var coverArray : [Images.Inner]? = []
     var genre : GenreData?
     var cover : UIImage?
+    var rearCover : UIImage?
+    var screenshotImage : UIImage?
+    var gradient : CAGradientLayer!
+    var coverGradient : CAGradientLayer!
+//    var testButton : UIButton!
+    var developerData : [String: Developer] = [:]
+    var coverImageArray : [UIImage?] = []
+    var ssImageArray : [UIImage?] = []
+    var indexPathSegue : Int = 0
+//    var screenScraperData = response
+    var gameDetailsSS : ScreenScraper?
+
+    @IBOutlet weak var boxartImageButton: UIButton!
     
-    
+    @IBOutlet weak var testImage: UIImageView!
     //MARK: viewDidLoad()
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        
+        network.downloadScreenScraperJSON(gameName: games!.gameTitle) {
+            print ("Screen Scraper Success")
+                                     
+            var cartImages = self.network.gameDetailsSS!.response.jeu.medias.filter({$0.type == "support-2D" })
+                                     
+                                     print("cartImages = \(cartImages)")
+            let boxImages = self.network.gameDetailsSS!.response.jeu.medias.filter({ $0.type == "support-2D" && $0.region == "us"} )
+                 
+                                     print(boxImages)
+                 
+            
+        }
+                       
+        
+        definesPresentationContext = true
+
+        screenshotCollectionView.allowsMultipleSelection = false
+        
+        view.backgroundColor = .clear
+        let blurEffect = UIBlurEffect(style: .systemUltraThinMaterial)
+        let blurView = UIVisualEffectView(effect: blurEffect)
+        blurView.translatesAutoresizingMaskIntoConstraints = false
+        backgroundImage.insertSubview(blurView, at: 0)
+        
+       NSLayoutConstraint.activate([
+        blurView.heightAnchor.constraint(equalTo: backgroundImage.heightAnchor),
+        blurView.widthAnchor.constraint(equalTo: backgroundImage.widthAnchor),
+        ])
+        
+        
+        
+//        boxartImageButton.bounds = boxArtImage.bounds
+        
+        
+        var largeBaseURL = network.baseURL?.large
+        var smallBaseURL = network.baseURL?.small
+        
+        boxartImageButton.layer.zPosition = 5
+        
         print(gameDataImages?.data?.images.innerArray)
         screenshotCollectionView.delegate = self
         screenshotCollectionView.dataSource = self
+        
+        gradient = CAGradientLayer()
+        gradient.frame = fanartImageView.bounds
+        gradient.colors = [UIColor.black.cgColor, UIColor.clear.cgColor ]
+        gradient.locations = [0.5, 1]
+        fanartImageView.layer.mask = gradient
+        
+        coverGradient = CAGradientLayer()
+        coverGradient.frame = boxArtImage.bounds
+        coverGradient.colors = [UIColor.black.cgColor, UIColor.clear.cgColor ]
+        coverGradient.locations = [0.75, 1]
+        boxArtImage.layer.mask = coverGradient
+        
+        if games?.youtube == nil {
+            
+            playButton.isHidden = true
+            webView.isHidden = true
+        }
+
+        
+        
         // Do any additional setup after loading the view.
-        //        downloadScreenScraperJSON {
-        //            print ("Screen Scraper Success")
-        //        }
+
         //
         //
-        //        if let index = media.first(where: { $0.type == "fanart" } ) {
-        //             print("\(index.url)")
-        //            setFanartImage(from: index.url)
-        //        }
+       
         
         print("test game title = \(games?.gameTitle)")
 
         print(games?.gameTitle)
         print()
+        
+        if games?.players != nil {
+        self.numberOfPlayersLbl.text = "\(games!.players!)"
+        }
 //        network.downloadGamesByGameNameJSON(gameNamed: "\(games!.gameTitle)", fields: self.fields, filterByPlatformID: "7", include: self.include) {
 //              print("downloadGamesByGameNameJSON Success")
 //        self.network.gameData[0].players
@@ -129,17 +214,79 @@ class DetailViewController: UIViewController, UICollectionViewDataSource, UIColl
 //        }
         
         //MARK:  viewDidLoad() - Additional Images
+        
         print("games?.id = \(games?.id)")
         if games?.id != nil {
         self.network.downloadGameImageJSON(gameID: games?.id!) {
-           
+            print("url small \(self.gameDataImages?.data?.baseURL.small)")
+            
+            largeBaseURL = self.network.imagesBaseURL?.large
+            smallBaseURL = self.network.imagesBaseURL?.small
+            let coverImageArray = self.network.gameImageData?.filter({$0.type == "boxart"})
+print("********")
+            print(coverImageArray)
+            if coverImageArray != nil {
+                self.coverArray = coverImageArray!
+                print(self.coverArray)
+            }
+            ////        let largeBaseURL = boxart?.baseURL.large
+            //        if network.boxarts["\(games!.id!)"]?[0].side == .front
+            print("range \(self.coverArray![0].fileName.contains("front"))")
+            if self.coverArray![0].fileName.contains("front") == true {
+                print("setting image name \(self.network.boxarts["\(self.games!.id!)"]?[0].filename)")
+                print("\(self.coverArray![0].fileName)")
+                self.frontImageName = self.coverArray![0].fileName
+                        
+            } else if self.coverArray![0].type.contains("back") {
+            //        else if network.boxarts["\(games!.id!)"]?[0].side == .back {
+                self.backImageName = self.coverArray![0].fileName
+                        
+                    }
+            if self.coverArray![1].fileName.contains("back") {
+//                if self.network.boxarts["\(self.games!.id!)"]?[1].side == .front {
+                    print(self.coverArray![1].fileName)
+                    self.backImageName = self.coverArray![1].fileName as! String
+                        
+            } else if self.coverArray![1].fileName.contains("front") {
+                self.frontImageName = self.coverArray![1].fileName as! String
+                        
+                    
+                    }
+            var coverimageFileName = self.getImageFileName(imageType: "boxart", imageData: self.network.gameImageData!)
+            print("coverimageFileName = \(coverimageFileName) ")
             print("GameDB Image Success")
             print("self.images = \(self.images)")
             print("network.gameImageData = \(self.network.gameImageData)")
             var fanartfileName = self.getImageFileName(imageType: "fanart", imageData: self.network.gameImageData!)
-            self.fanartImageView.loadImage(from: "https://cdn.thegamesdb.net/images/small/\(fanartfileName)") {
-                
+            self.fanartImageView.loadImage(from: largeBaseURL! + fanartfileName) {
+//                self.backgroundImage.image = self.fanartImageView.image
             }
+//            self.backgroundImage.loadImage(from: "https://cdn.thegamesdb.net/images/large31/\(fanartfileName)") {
+//                
+//            }
+            
+            
+            var imageURL = "\(largeBaseURL!)" + "\(self.frontImageName!)"
+            print("frontImageName = \(self.frontImageName)")
+            print("backImageName = \(self.backImageName)")
+                    print(imageURL)
+            if self.frontImageName != nil {
+            //            setCoverImage(from: "\(imageURL)")
+            //            boxArtImage.loadImage(from: imageURL)
+                self.boxArtImage.sd_setImage(with: URL(string: imageURL)) { (image, error, cacheType, url) in
+                            if error != nil {
+                                print("Error downloading.  Error description: \(error?.localizedDescription)")
+                            } else {
+                                print("Image successfully downloaded from \(url)")
+                            }
+                        }
+            //            boxArtImage.image = cover
+                    } else {
+                self.boxArtImage.image = UIImage(named: "noArtNES")
+
+                    }
+            
+            self.backgroundImage.image = self.cover
     
             print("fileName = \(fanartfileName)")
             var clearlogoFileName = self.getImageFileName(imageType: "clearlogo", imageData: self.network.gameImageData!)
@@ -153,6 +300,8 @@ class DetailViewController: UIViewController, UICollectionViewDataSource, UIColl
             if innerScreenshotArray != nil {
                 self.screenshotsArray = innerScreenshotArray!
             }
+            
+            
 //            let fanartFileName = self.getImageFileName(imageType: "fanart", imageData: self.images1)
 //
 //                                 print("fanartFileName = \(fanartFileName)")
@@ -186,7 +335,17 @@ class DetailViewController: UIViewController, UICollectionViewDataSource, UIColl
 //            }
           
 //                self.setImage(from: "https://cdn.thegamesdb.net/images/small/\(clearLogoFileName)", imageViewNamed: self.clearLogoImageView)
-                
+            if clearlogoFileName != "" {
+                let clearLogoURL = "\(smallBaseURL!)\(clearlogoFileName)"
+                print("\(clearLogoURL)")
+            self.clearLogoImageView.loadImage(from: clearLogoURL) {
+                print("clear logo loaded")
+            }
+            } else {
+                self.fanartTitleLabel.text = self.games?.gameTitle
+                self.fanartTitleLabel.isHidden = false
+                self.clearLogoImageView.isHidden = false
+            }
 //            }
             
             //                let clearlogoFileName = array?.filter({$0.type == "clearlogo"})[0].fileName
@@ -225,57 +384,30 @@ class DetailViewController: UIViewController, UICollectionViewDataSource, UIColl
         
         
        //MARK: Boxart Image
-        
+        print(network.baseURL)
         print(games?.id)
-        print("file name info = \(boxart?.data["\(games!.id!)"]?[0].filename)")
+        print("file name info = \(network.boxarts["\(games?.id)"]?[0].filename)")
         
         boxArtImage.layer.cornerRadius = 20
         boxArtImage.layer.masksToBounds = true
         
-        let largeBaseURL = boxart?.baseURL.large
-        if boxart?.data["\(games!.id!)"]?[0].side == .front {
-            print(boxart?.data["\(games!.id!)"]?[0].filename)
-            frontImageName = boxart?.data["\(games!.id!)"]?[0].filename as! String
-            
-        } else if boxart?.data["\(games!.id!)"]?[0].side == .back {
-            backImageName = boxart?.data["\(games!.id!)"]?[0].filename as! String
-            
-        }
-        if boxart?.data["\(games?.id)"]?[1] != nil {
-        if boxart?.data["\(games!.id!)"]?[1].side == .front {
-            print(boxart?.data["\(games!.id!)"]?[1].filename)
-            frontImageName = boxart?.data["\(games!.id!)"]?[1].filename as! String
-            
-        } else if boxart?.data["\(games!.id!)"]?[1].side == .back {
-            backImageName = boxart?.data["\(games!.id!)"]?[1].filename as! String
-            
-        }
-        }
-        
-        var imageURL = "\(largeBaseURL!)" + "\(frontImageName)"
-        print("frontImageName = \(frontImageName)")
-        print("backImageName = \(backImageName)")
-        print(imageURL)
-        if frontImageName != nil {
-//            setCoverImage(from: "\(imageURL)")
-//            boxArtImage.loadImage(from: imageURL)
-            boxArtImage.image = cover
-        } else {
-            boxArtImage.image = UIImage(named: "noArtNES")
 
-        }
+        
+  
         
         
    //MARK: Tap Gesture
         
         let tap = UITapGestureRecognizer(target: self.view, action: #selector(UIView.endEditing(_:)))
         view.addGestureRecognizer(tap)
+        tap.cancelsTouchesInView = false
         
         var genreArray : [String] = []
         print("games.genre = \(games?.genres)")
+        if games?.genres != nil {
         for genreID in games!.genres! {
 //            genreArray.append("\(network.gameGenreData["\(genreID)"]!.name)")
-            genreArray.append("\(genre?.data .genres["\(genreID)"]?.name)")
+            genreArray.append((genre?.data.genres["\(genreID)"]!.name)!)
 //            games.
         }
         genreLabel.text = genreArray.joined(separator: " | ")
@@ -283,7 +415,7 @@ class DetailViewController: UIViewController, UICollectionViewDataSource, UIColl
 //        print("gameData \(network.gameData?.data.games[0].players)")
 //        print("games.count \(network.gameData?.data.games.count)")
         //        game?.genres.map(\.name).joined(separator: " / ")
-        
+        }
         
 //        if game?.firstReleaseDate != nil {
 //            let date = Date(timeIntervalSince1970: (game?.firstReleaseDate!)!)
@@ -298,6 +430,22 @@ class DetailViewController: UIViewController, UICollectionViewDataSource, UIColl
 //                releaseDateLabel.text = " "
 //            }
 //        }
+        
+        if games?.releaseDate != nil {
+           
+            let gdbDate = games?.releaseDate
+            
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateFormat = "yyyy-MM-DD"
+            dateFormatter.timeZone = TimeZone(abbreviation: "MST") //Set timezone that you want
+            dateFormatter.locale = NSLocale.current
+            
+            let strDate = dateFormatter.date(from: gdbDate!)
+            dateFormatter.dateFormat = "MM-dd-yyyy" //Specify your format that you want
+            let finalDate = dateFormatter.string(from: strDate!)
+            
+            releaseDateLabel.text = finalDate
+        }
         
    //MARK: Game Rating Icon
         
@@ -333,9 +481,26 @@ class DetailViewController: UIViewController, UICollectionViewDataSource, UIColl
         titleView.layer.masksToBounds = false
         gameDetailView.layer.cornerRadius = 10
         gameDetailView.layer.masksToBounds = false
+        fanartImageView.layer.cornerRadius = 10
+        fanartImageView.layer.masksToBounds = false
+        webView.layer.cornerRadius = 10
+        webView.layer.masksToBounds = false
         gameNameLabel.text = games?.gameTitle
         summaryText.text = games?.overview
-//        publisherLabel.text = game?.involvedCompanies?[0].company?.name
+    
+        if games?.developers != nil {
+         if developerData["\(games!.developers![0])"] != nil {
+                    var developerText = "\(developerData["\(games!.developers![0])"]!.name)"
+
+                    print("detailviewcontroller developerText = \(developerText)")
+            publisherLabel.text = developerText
+
+                } else {
+            publisherLabel.text = ""
+            print("developerData == nil")
+                }
+        
+        }
         
         
         print("\(boxArtImage.image)")
@@ -547,51 +712,19 @@ class DetailViewController: UIViewController, UICollectionViewDataSource, UIColl
 //
 //    }
     
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-//        let item = sender as! Game
-        
-        if segue.identifier == "imageViewController" {
-            if let vc = segue.destination as? ImageViewController {
-                
-                
-                func setScreenShotImage(from url: String) {
-                    guard let imageURL = URL(string: url) else { return }
-                    
-                    // just not to cause a deadlock in UI!
-                    DispatchQueue.global().async {
-                        guard let imageData = try? Data(contentsOf: imageURL) else { return }
-                        
-                        let image = UIImage(data: imageData)
-                        DispatchQueue.main.async {
-                            vc.imageFromCollectionView.image = image
-                        }
-                    }
-                }
-                
-                
-                
-//                if (item.screenshots?[0].imageID) != nil {
-//
-//                    let coverID = ((item.screenshots?[0].imageID)!)
-//                    setScreenShotImage(from: "https://images.igdb.com/igdb/image/upload/t_cover_big/\(coverID).jpg")
-//
-//                }
-                //                if (game?.cover?.imageID) != nil {
-                //                           let coverID = ((game?.cover?.imageID)!)
-                //                           setScreenShotImage(from: "https://images.igdb.com/igdb/image/upload/t_cover_big/\(coverID).jpg")
-                //                vc.imageFromCollectionView.image = set
-                //                item.screenshots?[0].imageID
-            }
-            
-        }
+
+    
+    override func viewWillAppear(_ animated: Bool) {
+     let width = boxArtImage.bounds.width
+        let height = boxArtImage.bounds.height
+        boxartImageButton.frame = CGRect(x: boxArtImage.frame.origin.x, y: boxArtImage.frame.origin.y, width: width, height: height)
+        self.view.bringSubviewToFront(boxartImageButton)
     }
-    
-    
-    
+
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        
+
         textField.resignFirstResponder()
-        
+
         return true
     }
     
@@ -606,18 +739,35 @@ class DetailViewController: UIViewController, UICollectionViewDataSource, UIColl
         }
     }
     
-    //    func collectionView(_ collectionView: UICollectionView,
-    //                               didSelectItemAt indexPath: IndexPath) {
-    //        var selectedImage : String
-    //        let gameImage = games[indexPath.item]
-    //        if gameImage.screenshots?[0].imageID != nil {
-    //        selectedImage = (gameImage.screenshots?[0].imageID)!
-    //        }
-    //        performSegue(withIdentifier: "imageViewController", sender: gameImage)
-    //
-    //
-    //           }
-    //
+    
+    func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
+        let cell = collectionView.cellForItem(at: indexPath) as! DetailVCCollectionViewCell
+              print("screenshot before \(screenshotImage)")
+              screenshotImage = cell.screenshotImageView.image
+              print("screenshot after \(screenshotImage)")
+
+              print("didSelectItem at screenshot image = \(screenshotImage)")
+    
+                    print("indexPath.row = \(indexPath.row)")
+                    self.indexPathSegue = indexPath.row
+        
+        
+        
+        return true
+    }
+    
+//        func collectionView(_ collectionView: UICollectionView,
+//                                   didSelectItemAt indexPath: IndexPath) {
+//
+//
+//            let cell = collectionView.cellForItem(at: indexPath) as! DetailVCCollectionViewCell
+//            print("screenshot before \(screenshotImage)")
+//            screenshotImage = cell.screenshotImageView.image
+//            print("screenshot after \(screenshotImage)")
+//
+//            print("didSelectItem at screenshot image = \(screenshotImage)")
+//            performSegue(withIdentifier: "showScreenshot", sender: self)
+//    }
     
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
@@ -629,8 +779,8 @@ class DetailViewController: UIViewController, UICollectionViewDataSource, UIColl
         if screenshotsArray?[indexPath.row].fileName != nil {
             let coverID = screenshotsArray?[indexPath.row].fileName
             print("coverID = \(coverID)")
-            cell.screenshotImageView.loadImage(from: "https://cdn.thegamesdb.net/images/small/\(coverID!)") {
-                
+            cell.screenshotImageView.loadImage(from: "https://cdn.thegamesdb.net/images/medium/\(coverID!)") {
+                self.ssImageArray.append(cell.screenshotImageView.image)
                 
             }
         }
@@ -640,40 +790,80 @@ class DetailViewController: UIViewController, UICollectionViewDataSource, UIColl
         
     }
     
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+//        print("indexPath.row = \(indexPath.row)")
+//        self.indexPathSegue = indexPath.row
+//        print(indexPathSegue)
+//                    performSegue(withIdentifier: "showScreenshot", sender: self)
+//
+//        screenshotCollectionView.selectItem(at: indexPath, animated: false, scrollPosition: .right)
+
+        
+        
+
     
+    }
     
+        override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+
+                 if let destination = segue.destination as? CoverImageViewController {
+                    
+                    switch segue.identifier
+                    {
+                    case "showCoverImage":
+                        destination.frontCoverImage = cover
+                        destination.rearCoverImage = rearCover
+                        destination.tag = 1
+                        destination.imageIndexPath = indexPathSegue
+                    
+                    case "showScreenshot":
+ 
+                        destination.screenshotImage = screenshotImage
+                        destination.screenshotsArray = ssImageArray
+                        destination.tag = 2
+                        print("switch indexPathSegue = \(indexPathSegue)")
+                        destination.imageIndexPath = indexPathSegue
+                        
+                    default:
+                        break
+                        
+                        
+                    }     
+    }
+        
+}
     
     func downloadScreenScraperJSON(completed: @escaping () -> () ) {
         
         
-//        if let gameName = game?.name?.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) {
-//            print("\(gameName)")
-//            let url = URL(string: "https://www.screenscraper.fr/api2/jeuInfos.php?devid=\(Constants.screenScaperDevID)&devpassword=\(Constants.screenScraperDevPassword)&softname=collector&output=json&romnom=\(gameName)")!
-//            var requestHeader = URLRequest.init(url: url )
-//            //        requestHeader.httpBody = "fields name;limit 50;".data(using: .utf8, allowLossyConversion: false)
-//            requestHeader.httpMethod = "GET"
-//            //        requestHeader.setValue(apiKey, forHTTPHeaderField: "user-key")
-//            //        requestHeader.setValue("application/json", forHTTPHeaderField: "Accept")
-//            URLSession.shared.dataTask(with: requestHeader) { (data, response, error) in
-//
-//                if error == nil {
-//                    do {
-//                        let json = String(data: data!, encoding: .utf8)
-//                        print("\(json)")
-//
-//                        self.response = try JSONDecoder().decode(Response.self, from: data!)
-//
-//                        DispatchQueue.main.async {
-//                            completed()
-//                        }
-//                    } catch {
-//
-//                        print(error)
-//
-//                    }
-//                }
-//            }.resume()
-//        }
+        if let gameName = games?.gameTitle.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) {
+            print("\(gameName)")
+            let url = URL(string: "https://www.screenscraper.fr/api2/jeuInfos.php?devid=\(Constants.screenScaperDevID)&devpassword=\(Constants.screenScraperDevPassword)&softname=collector&output=json&romnom=\(gameName)")!
+            var requestHeader = URLRequest.init(url: url )
+            //        requestHeader.httpBody = "fields name;limit 50;".data(using: .utf8, allowLossyConversion: false)
+            requestHeader.httpMethod = "GET"
+            //        requestHeader.setValue(apiKey, forHTTPHeaderField: "user-key")
+            //        requestHeader.setValue("application/json", forHTTPHeaderField: "Accept")
+            URLSession.shared.dataTask(with: requestHeader) { (data, response, error) in
+
+                if error == nil {
+                    do {
+                        let json = String(data: data!, encoding: .utf8)
+                        print("Screen scraper JSON \(json)")
+
+                        self.gameDetailsSS = try JSONDecoder().decode(ScreenScraper.self, from: data!)
+
+                        DispatchQueue.main.async {
+                            completed()
+                        }
+                    } catch {
+
+                        print(error)
+
+                    }
+                }
+            }.resume()
+        }
         
     }
     
@@ -690,6 +880,55 @@ class DetailViewController: UIViewController, UICollectionViewDataSource, UIColl
             }
         }
     }
+    @IBAction func testButtonPressed(_ sender: Any) {
+        //            let cell = collectionView.cellForItem(at: indexPath) as! DetailVCCollectionViewCell
+        //            screenshotImage = cell.screenshotImageView.image
+        
+        performSegue(withIdentifier: "showScreenshot", sender: self)
+    }
+    
+    @IBAction func playButtonPressed(_ sender: Any) {
+        webView.isHidden = false
+            let embedURLString = Constants.youtubeEmbedURL
+        var url : URL
+        if games?.youtube != nil {
+        if (games?.youtube?.hasPrefix("https"))! {
+            url = URL(string: (games?.youtube!)!)!
+        } else {
+            url = URL(string: embedURLString + (games?.youtube)!)!
+        }
+        print ("youtube URL = \(url)")
+        let request = URLRequest(url: url)
+               webView.load(request)
+        } else {
+            playButton.isHidden = true
+            webView.isHidden = true
+        }
+        
+    }
+    
+    
+    @IBAction func boxArtImageButtonPressed(_ sender: Any) {
+        
+//        modalCoverView.isHidden = false
+//        modalCoverImage.image = cover
+//        print(rearCover)
+//        if rearCover != nil {
+//            modalNextButton.isHidden = false
+//        }
+        
+        
+    }
+    
+
+        
+        
+
+    
+
+    
+    
+    
     
 //    func setFanartImage(from url: String) {
 //        guard let imageURL = URL(string: url) else { return }

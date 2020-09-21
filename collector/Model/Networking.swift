@@ -26,7 +26,7 @@ class Networking {
     var gamePublisherData : [String: Publisher] = [:]
     var gamesData: ByPlatformIDData?
     var games = [GDBGamesPlatform]()
-    var boxarts = [Boxart]()
+    var boxarts = [String : [ImageData]]()
     var boxart : Boxart?
     var gameNameBoxart : GameNameBoxart?
     var images : [String: [ImageData]] = [:]
@@ -37,7 +37,9 @@ class Networking {
     var test : ViewController?
     var genre : GenreData?
     var baseURL : BaseURL?
+    var imagesBaseURL : DetailBaseURL?
     var page : Pages?
+    var gameDetailsSS : ScreenScraper?
     var imageArray : [UIImage?] = []
     
     func downloadGamesByGameNameJSON(gameNamed: String?, fields: String?, filterByPlatformID: String?, include: String?, completed: @escaping () -> () ) {
@@ -120,6 +122,7 @@ class Networking {
                             if let jsonDecodedGameImages = try JSONDecoder().decode(GameDBData?.self, from: data!) {
                                 self.gameImageData = jsonDecodedGameImages.data?.images.innerArray["\(gameData)"]
                                 self.gametestImageData = jsonDecodedGameImages.data?.images.innerArray["\(gameData)"]?[0]
+                                self.imagesBaseURL = jsonDecodedGameImages.data?.baseURL
                                 print("inside downloadGameImageJSON-gameImageData = \(self.gameImageData)")
                                 print("gametestImageData \(self.gametestImageData)")
                             }
@@ -183,7 +186,7 @@ class Networking {
                     
                     do {
                         let json = String(data:data!, encoding: .utf8)
-                        print("\(json)")
+//                        print("\(json)")
                         
     //                    self.gameGenreData
                         if let jsonDecodedGenre = try JSONDecoder().decode(DeveloperData?.self, from: data!){
@@ -279,29 +282,38 @@ class Networking {
                     if let jsonDecodedPlatforms = try JSONDecoder().decode(ByPlatformIDData?.self, from: data!) {
                         
                         print(jsonDecodedPlatforms)
-                        let decodedJSON = jsonDecodedPlatforms.data?.games
-                        self.boxart = jsonDecodedPlatforms.include.boxart
+//                        self.gameData = jsonDecodedByGameName.data?.games as! [Game]
+
+                        let decodedJSON = jsonDecodedPlatforms.data!.games as [GDBGamesPlatform]
+//                        let decodedBoxart = jsonDecodedPlatforms.include.boxart.data
+                        
                         self.baseURL = jsonDecodedPlatforms.include.boxart.baseURL
                         self.page = jsonDecodedPlatforms.pages
+                        let decodedBoxart = jsonDecodedPlatforms.include.boxart.data
+                        print ("test A \(decodedBoxart)")
+                        self.boxarts.merge(decodedBoxart, uniquingKeysWith: { (first, _) in first })
+//                        self.boxart?.data.mer
+                        print("test b \(self.boxarts)")
+                        self.games.append(contentsOf: decodedJSON)
                         
-                        if let parseJSON = decodedJSON {
-                     
-                            var items = self.games
-                            var boxarts = self.imageArray
-                            items.append(contentsOf: parseJSON)
-                            
-                            if self.initialOffset < items.count {
-                                self.games = items
-                                self.imageArray = boxarts
-                                self.initialOffset = items.count
-                                
-                            } else {
-                                self.games = items
-                                self.imageArray = boxarts
-                            }
-                            
-                            
-                        }
+//                        if let parseJSON = decodedJSON {
+//
+//                            var items = self.games
+//                            var boxarts = self.imageArray
+//                            items.append(contentsOf: parseJSON)
+//
+//                            if self.initialOffset < items.count {
+//                                self.games = items
+//                                self.imageArray = boxarts
+//                                self.initialOffset = items.count
+//
+//                            } else {
+//                                self.games = items
+//                                self.imageArray = boxarts
+//                            }
+//
+//
+//                        }
                         
                         
                     }
@@ -318,6 +330,41 @@ class Networking {
             }
             
         }.resume()
+        
+    }
+    
+    
+    func downloadScreenScraperJSON(gameName: String, completed: @escaping () -> () ) {
+        
+        
+        if let gameName = gameName.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) {
+            print("\(gameName)")
+            let url = URL(string: "https://www.screenscraper.fr/api2/jeuInfos.php?devid=\(Constants.screenScaperDevID)&devpassword=\(Constants.screenScraperDevPassword)&softname=collector&output=json&romnom=\(gameName)")!
+            var requestHeader = URLRequest.init(url: url )
+            //        requestHeader.httpBody = "fields name;limit 50;".data(using: .utf8, allowLossyConversion: false)
+            requestHeader.httpMethod = "GET"
+            //        requestHeader.setValue(apiKey, forHTTPHeaderField: "user-key")
+            //        requestHeader.setValue("application/json", forHTTPHeaderField: "Accept")
+            URLSession.shared.dataTask(with: requestHeader) { (data, response, error) in
+
+                if error == nil {
+                    do {
+                        let json = String(data: data!, encoding: .utf8)
+                        print("Screen scraper JSON \(json)")
+
+                        self.gameDetailsSS = try JSONDecoder().decode(ScreenScraper.self, from: data!)
+
+                        DispatchQueue.main.async {
+                            completed()
+                        }
+                    } catch {
+
+                        print(error)
+
+                    }
+                }
+            }.resume()
+        }
         
     }
     
