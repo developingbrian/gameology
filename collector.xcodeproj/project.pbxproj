@@ -122,7 +122,6 @@
 			children = (
 				D339252B24DA77C500BA3D25 /* Networking.swift */,
 				D3B97ADE24EDA35B003CA7D1 /* Common.swift */,
-				D3C2E760245E83F700F82332 /* Constants.swift */,
 				D35F2CA025183ECB0050CBF5 /* TheGamesDB.swift */,
 				D31D72ED24EB1D0200884B2A /* Publishers.swift */,
 				D31D72EB24EAFDEF00884B2A /* developers.swift */,
@@ -188,6 +187,7 @@
 				D38932B5242682CB00C10B54 /* NetworkService.swift */,
 				D38932B72426839900C10B54 /* State.swift */,
 				D3AFF6782462403E00DA8EB0 /* Constants.swift */,
+				D3C2E760245E83F700F82332 /* Constants.swift */,
 				D3EE915024310F70003800E7 /* ImageViewController.swift */,
 				D3DACCE82511438D00583999 /* ShadowImageView.swift */,
 				D389B571241005B900B8BA54 /* SceneDelegate.swift */,

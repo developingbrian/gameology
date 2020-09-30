@@ -8,6 +8,7 @@
 
 import UIKit
 import SDWebImage
+import RealmSwift
 
 class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSource,UITableViewDelegate, UITableViewDataSource {
     
@@ -68,6 +69,11 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
 //MARK: viewDidLoad
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+//        let realm = try! Realm()
+//        self.network.initialDownload {
+//            print("full db downloaded")
+//        }
         
          if self.traitCollection.userInterfaceStyle == .light {
         
