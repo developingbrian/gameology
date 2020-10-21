@@ -45,8 +45,8 @@ func setPlatformIcon(platformID: Int?, mode: UIUserInterfaceStyle?) -> String {
     
     var platformImageName: String = ""
     print("setPlatformIcon()")
-    
-    switch platformID {
+    print("\(platformID)")
+    switch platformID! {
         case 7:
             
             if mode == .light {
@@ -132,32 +132,17 @@ func setPlatformIcon(platformID: Int?, mode: UIUserInterfaceStyle?) -> String {
 }
     
     
-    func getImageFileName(imageType: String, imageData: [Images.Inner]) -> String {
+    func getImageFileName(imageType: String, imageData: [GameImages.Inner]) -> String {
         print("outside imageData \(imageData)")
-        let testtest : Images.Inner?
         let network = Networking()
-        print(network.gameImageData)
+        
         let images = imageData
-        var image1 = [Images.Inner]()
-        var array:[Images.Inner]?
+
         var imageFileName : String = ""
-        let imagetest = Networking().gameImageData
-        let inner = images
-//            network.gameDataImages?.data?.images.innerArray
-//        for (_, value) in inner! {
-//
-//            array = value
-//        }
-//        print(testtest)
-        print("\(imagetest)")
-        array = network.gameImageData
-        print("images = \(images)")
-        print("image1 = \(image1)")
-        print("array = \(array)")
-        print("imageType = \(imageType)")
+
         let testArray = images.filter({$0.type == "\(imageType)"})
 print("testArray = \(testArray)")
-        //        let fanartArray = array?.filter({$0.type == "\(imageType)"})
+
         if testArray.count > 0 && imageType == "fanart"{
             imageFileName = (testArray.randomElement()?.fileName)!
             

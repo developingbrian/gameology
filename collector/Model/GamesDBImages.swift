@@ -41,6 +41,22 @@ struct DetailBaseURL : Decodable {
     }
 }
 
+struct Image: Decodable {
+   
+    var bannerArray : [String]?
+    var boxartArray: [String]?
+    var clearLogoArray : [String]?
+    var fanartArray : [String]?
+    var screenshotArray : [String]?
+    var titleScreenArray : [String]?
+    var clearLogo: String?
+    var banner : String?
+    var fanart: String?
+    var screenshot : String?
+
+}
+
+
 struct Images : Decodable {
     
     var innerArray: [String?: [Inner]]

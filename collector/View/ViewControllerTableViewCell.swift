@@ -9,7 +9,17 @@
 import UIKit
 import SDWebImage
 
+protocol ViewControllerTableViewCellDelegate: class {
+    
+    
+    
+    func addGameToLibraryPressed(_ sender: ViewControllerTableViewCell)
+    
+}
+
 class ViewControllerTableViewCell: UITableViewCell {
+    
+    
     @IBOutlet weak var tableViewCoverImage: UIImageView!
     @IBOutlet weak var tableViewGameName: UILabel!
     @IBOutlet weak var tableViewGenreLabel: UILabel!
@@ -19,11 +29,18 @@ class ViewControllerTableViewCell: UITableViewCell {
     @IBOutlet weak var backgroundCell: UIView!
     @IBOutlet weak var tableViewCoverRearImage: UIImageView!
     @IBOutlet weak var coverImageShadow: UIImageView!
+    @IBOutlet weak var addToLibraryButton: UIButton!
+    weak var delegate: ViewControllerTableViewCellDelegate?
+    
     var network = Networking()
     var frontImageName : String?
     var rearImageName : String?
     var gradient : CAGradientLayer!
-    
+    var gameID: Int?
+    var game: GameObject?
+    var platform : Platform?
+    var platformID: Int?
+    var platformName: String?
     
     override func prepareForReuse() {
            super.prepareForReuse()
@@ -38,6 +55,7 @@ class ViewControllerTableViewCell: UITableViewCell {
     override func awakeFromNib() {
         super.awakeFromNib()
         // Initialization code
+//        self.delegate = self
         let effect = UIBlurEffect(style: .regular)
                 let effectView = UIVisualEffectView(effect: effect)
         
@@ -140,8 +158,15 @@ class ViewControllerTableViewCell: UITableViewCell {
         }
     }
     
+    
+    @IBAction func addToLibrary() {
+        
+        delegate?.addGameToLibraryPressed(self)
+//              delegate?.addGameToLibraryPressed(self)
+    }
+    
+    
     func configureCells() {
-       
 //        tableViewCoverImage.layer.shadowOffset = CGSize(width: -5, height: 8)
 //        tableViewCoverImage.layer.shadowRadius = 10
 //        tableViewCoverImage.layer.shadowOpacity = 1
@@ -182,6 +207,9 @@ class ViewControllerTableViewCell: UITableViewCell {
         if self.traitCollection.userInterfaceStyle == .light {
             backgroundCell.layer.shadowColor = UIColor.black.cgColor
             backgroundCell.layer.backgroundColor = UIColor.white.cgColor
+            addToLibraryButton.setTitleColor(UIColor.black, for: .normal)
+            addToLibraryButton.tintColor = UIColor.black
+            
 //
 //            if let image = tableViewCoverImage.image {
 //                        let ratio = image.size.width / image.size.height
@@ -206,11 +234,12 @@ class ViewControllerTableViewCell: UITableViewCell {
 //                    }
             print("test 1")
         } else {
+            
+            print("Test 2")
             backgroundCell.layer.shadowColor = UIColor.white.cgColor
             backgroundCell.layer.backgroundColor = UIColor.black.cgColor
-
-            print("Test 2")
-            
+            addToLibraryButton.setTitleColor(UIColor.white, for: .normal)
+            addToLibraryButton.tintColor = UIColor.white
 //            if let image = tableViewCoverImage.image {
 //                let ratio = image.size.width / image.size.height
 //                if image.size.width > image.size.height {

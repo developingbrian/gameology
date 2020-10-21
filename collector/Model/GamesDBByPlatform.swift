@@ -31,8 +31,8 @@ struct ByPlatformIDDataData: Codable {
 
 // MARK: - Game
 struct GDBGamesPlatform: Codable {
-    let id: Int?
-    let gameTitle: String
+    var id: Int?
+    var gameTitle: String
     let releaseDate: String?
     let platform, players: Int?
     let overview, lastUpdated: String?
@@ -44,6 +44,7 @@ struct GDBGamesPlatform: Codable {
     let developers, genres, publishers: [Int]?
     let alternates: [String]?
 
+
     enum CodingKeys: String, CodingKey {
         case id
         case gameTitle = "game_title"
@@ -54,9 +55,44 @@ struct GDBGamesPlatform: Codable {
     }
 }
 
+
 enum Coop: String, Codable {
     case no = "No"
     case yes = "Yes"
+}
+
+struct GameObject: Codable {
+    
+    var title : String?
+    var id : Int?
+    var overview : String?
+    var boxartFrontImage : String?
+    var boxartRearImage: String?
+    var fanartImage : String?
+    var rating : String?
+    var releaseDate: String?
+    var owned : Bool?
+    var index: Int?
+    var developerIDs, genreIDs, pusblisherIDs : [Int]?
+    var youtubePath: String?
+    var platformID : Int?
+    var maxPlayers : Int?
+    var genreDescriptions : String?
+    var developer : String?
+
+}
+
+struct GameImages : Codable {
+    
+    var innerArray : [String?: [Inner]]
+    
+    struct Inner: Codable {
+        
+        let id: Int
+        let fileName: String
+        let type: String
+    }
+    
 }
 
 //enum Rating: String, Codable {
@@ -69,7 +105,7 @@ enum Coop: String, Codable {
 // MARK: - Include
 struct Include: Codable {
     let boxart: Boxart
-    let platform: Platform
+    let platform: PlatformByPlatform
 }
 
 // MARK: - Boxart
@@ -114,7 +150,7 @@ enum TypeEnum: String, Codable {
 }
 
 // MARK: - Platform
-struct Platform: Codable {
+struct PlatformByPlatform: Codable {
     let data: [String: PlatformIDData]
 }
 

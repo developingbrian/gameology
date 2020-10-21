@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="17192" systemVersion="20A5395g" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
+    <entity name="Platform" representedClassName="Platform" syncable="YES" codeGenerationType="class">
+        <attribute name="id" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="name" optional="YES" attributeType="String"/>
+        <relationship name="games" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="SavedGames" inverseName="platform" inverseEntity="SavedGames"/>
+    </entity>
+    <entity name="SavedGames" representedClassName="SavedGames" syncable="YES" codeGenerationType="class">
+        <attribute name="boxartImage" optional="YES" attributeType="Binary"/>
+        <attribute name="boxartImageURL" optional="YES" attributeType="String"/>
+        <attribute name="clearlogoImage" optional="YES" attributeType="Binary"/>
+        <attribute name="clearlogoImageURL" optional="YES" attributeType="String"/>
+        <attribute name="developerName" optional="YES" attributeType="String"/>
+        <attribute name="fanartImage" optional="YES" attributeType="Binary"/>
+        <attribute name="fanartImageURL" optional="YES" attributeType="String"/>
+        <attribute name="gameID" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="genre" optional="YES" attributeType="String"/>
+        <attribute name="maxPlayers" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="overview" optional="YES" attributeType="String"/>
+        <attribute name="owned" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="platformID" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="rating" optional="YES" attributeType="String"/>
+        <attribute name="releaseDate" optional="YES" attributeType="String"/>
+        <attribute name="title" optional="YES" attributeType="String"/>
+        <attribute name="youtubeURL" optional="YES" attributeType="String"/>
+        <relationship name="platform" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="Platform" inverseName="games" inverseEntity="Platform"/>
+    </entity>
+    <elements>
+        <element name="SavedGames" positionX="-63" positionY="-18" width="128" height="299"/>
+        <element name="Platform" positionX="-54" positionY="117" width="128" height="74"/>
+    </elements>
+</model>
