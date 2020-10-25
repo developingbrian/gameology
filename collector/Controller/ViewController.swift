@@ -114,30 +114,32 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
             self.network.downloadPlatformJSON {
                 print("platforms downloaded")
 //                self.savePlatformToCoreData(7)
-            }
-            self.network.downloadGenreJSON {
-         print("Genre JSON downloaded")
-         
-        self.network.downloadGamesByPlatformIDJSON(platformID: 7, fields: self.fields, include: self.include, pageURL: nil) {
-        
-            print("donwloadGamesByPlatformIDJSON Success")
+                
+                self.network.downloadGenreJSON {
+             print("Genre JSON downloaded")
+             
+            self.network.downloadGamesByPlatformIDJSON(platformID: 7, fields: self.fields, include: self.include, pageURL: nil) {
             
-            
-//            for i in 1..<self.network.games.count {
-//
-//                self.network.games[i].owned = self.checkForGameInLibrary(title: self.network.games[i].gameTitle, id: self.network.games[i].id!)
-//            }
-            self.gameArray = self.network.gameArray
-            let platformImage = self.setPlatformIcon(platformID: self.gameArray?[0].platformID, mode: self.traitCollection.userInterfaceStyle)
-            self.tableviewPlatformImage.image = UIImage(named: platformImage)
-            self.tableView.reloadData()
-            
-            
+                print("donwloadGamesByPlatformIDJSON Success")
+                
+                
+    //            for i in 1..<self.network.games.count {
+    //
+    //                self.network.games[i].owned = self.checkForGameInLibrary(title: self.network.games[i].gameTitle, id: self.network.games[i].id!)
+    //            }
+                self.gameArray = self.network.gameArray
+                let platformImage = self.setPlatformIcon(platformID: self.gameArray?[0].platformID, mode: self.traitCollection.userInterfaceStyle)
+                self.tableviewPlatformImage.image = UIImage(named: platformImage)
+                self.tableView.reloadData()
+                
+                
 
-                          }
-        
-        
-     }
+                              }
+            
+            
+         }
+            }
+
             
             
         }
@@ -189,9 +191,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         network.delegate = self
         
         
-        let tap = UITapGestureRecognizer(target: self.view, action: #selector(UIView.endEditing(_:)))
-        tap.cancelsTouchesInView = false
-        view.addGestureRecognizer(tap)
+
 //        self.network.gamesByPlatformID?.data.games.removeAll()
 //        games.removeAll()
         
@@ -573,6 +573,8 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         //Assigning the image at the selected cell to coverImage, so that it may be passed to the DetailViewController to avoid redownloading
+        
+        print("****DIDSELECTROW in main VC called****")
         let cell = tableView.cellForRow(at: indexPath) as! ViewControllerTableViewCell
         print("test \(cell.frontImageName)")
         segueObject = gameArray?[indexPath.row]
@@ -875,7 +877,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
                     }
                 return
             }
-            
+            }
                 print("not owned")
                 print(cell.platformName)
                 print(cell.platformID)
@@ -948,7 +950,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
           
             
             }
-        }
+//        }
         
         
 //        

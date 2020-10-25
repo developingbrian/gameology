@@ -78,6 +78,7 @@ struct GameObject: Codable {
     var platformID : Int?
     var maxPlayers : Int?
     var genreDescriptions : String?
+    var genres : [String]?
     var developer : String?
 
 }

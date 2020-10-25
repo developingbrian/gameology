@@ -469,6 +469,7 @@ class Networking {
                             }
                             
                             if let genreID = game.genreIDs {
+                                game.genres = fetchGenreNames(genreIDs: genreID)
                                 
                                 game.genreDescriptions = fetchGenreNames(genreIDs: genreID).joined(separator: " | ")
                             }

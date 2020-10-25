@@ -8,64 +8,92 @@
 import Foundation
 import UIKit
 import CoreData
-
-
-
+ 
 class OwnedGamesViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, OwnedGameDelegate {
-
+    
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var platformImage: UIImageView!
     
     let persistenceManager = PersistenceManager.shared
-    var ownedGames : [SavedGames] = [SavedGames]()
+    var ownedGames: [SavedGames] = [SavedGames]()
     var indexPath: IndexPath?
     var selectedGameID: String?
     let network = Networking()
-//    var savedGames : [SavedGames] = [SavedGames]()
     var savedPlatforms: [Platform] = [Platform]()
     var savedGameIndex: IndexPath = [0,0]
-    var gameName : String?
-
+    var gameName: String?
+    var platformID: Int?
+    var filterVC: FilterVC?
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Filter", style: .plain, target: self, action: "selectFilter:")
-        tableView.delegate = self
+        
+        print("platformID \(platformID)")
+        navigationItem.rightBarButtonItem = UIBarButtonItem(
+            title: "Filter",
+            style: .plain,
+            target: self,
+            action: "selectFilter:"
+        )
+        
+        self.navigationItem.leftBarButtonItem = UIBarButtonItem(customView: makeBackButton())
+        
+        if let filterViewController = UIStoryboard(
+            name: "Main",
+            bundle: nil).instantiateViewController(withIdentifier: "FilterVC") as? FilterVC {
+            filterVC = filterViewController
+        } else {
+            print("Can't load VC. Check name")
+        }
+        
+        let filterAction = UIAction(title: "") { action in
+            //Enter your Button Action Code here
+        }
+        
+        let firstAction = UIAction(title: "Filter by name", image: UIImage(systemName: "doc.on.doc")) { action in  }
+        let secondAction = UIAction(title: "Filter by genre", image: UIImage(systemName: "pencil")) { action in
+            self.navigationController?.present(self.filterVC!, animated: true, completion: nil)
+        }
+        let thirdAction = UIAction(
+            title: "Filter by release date",
+            image: UIImage(systemName: "plus.square.on.square")
+        ) { action in }
+        
+        let fourthAction = UIAction(
+            title: "Filter by number of players",
+            image: UIImage(systemName: "folder")
+        ) { action in }
+        
+        let filterMenu = UIMenu(title: "", children: [firstAction, secondAction, thirdAction, fourthAction])
+        
+        if #available(iOS 14.0, *) {
+            let filterButton = UIBarButtonItem(image: UIImage(systemName: "square.and.arrow.down"), menu: filterMenu)
+            navigationItem.rightBarButtonItem = filterButton
+        } else {
+            // Fallback on earlier versions
+        }
+        
         tableView.dataSource = self
         tableView.reloadData()
-        ownedGames = persistenceManager.fetchAscending(SavedGames.self)
-//            persistenceManager.fetch(SavedGames.self)
-        
-        
-        
-        if self.traitCollection.userInterfaceStyle == .light {
-       
-               tableView.backgroundColor = UIColor(red: (246/255), green: (246/255), blue: (246/255), alpha: 1)
-             
-           } else {
-
-               tableView.backgroundColor = UIColor(red: (15/255), green: (15/255), blue: (15/255), alpha: 1)
-
-       }
-        // Do any additional setup after loading the view.
     }
     
     override func viewWillAppear(_ animated: Bool) {
-        ownedGames = persistenceManager.fetchAscending(SavedGames.self)
-//            persistenceManager.fetch(SavedGames.self)
+        
+        if platformID! == 0 {
+            ownedGames = persistenceManager.fetchAscending(SavedGames.self)
+        } else {
+            ownedGames = persistenceManager.fetchGameFilteredByPlatform(SavedGames.self, platformID: platformID!)
+        }
+        self.navigationController?.setNavigationBarHidden(false, animated: animated)
+        
         tableView.reloadData()
     }
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
+    
+    override func viewDidAppear(_ animated: Bool) {
+        self.tabBarController?.tabBar.isHidden = false
+        
     }
-    */
-
+    
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return ownedGames.count
     }
@@ -84,77 +112,46 @@ class OwnedGamesViewController: UIViewController, UITableViewDelegate, UITableVi
         print(urlString)
         var url = URL(string: urlString)!
         cell?.boxartImageView.setImageAnimated(imageUrl: url, placeholderImage: UIImage(named: "noArtNES")!)
-//        cell?.boxartShadowImageView.setImageAnimated(imageUrl: url, placeholderImage: UIImage(named: "noArtNES")!)
         cell?.boxartShadowImageView.image = cell?.boxartImageView.image
         cell?.gameTitleLabel.text = ownedGames[indexPath.row].title
         cell?.releaseDateLabel.text = ownedGames[indexPath.row].releaseDate
         cell?.developerLabel.text = ownedGames[indexPath.row].developerName
         let platformName = self.setPlatformIcon(platformID: Int(self.ownedGames[indexPath.row].platformID), mode: self.traitCollection.userInterfaceStyle)
         cell?.platformImage.image = UIImage(named: platformName)
-//        cell?.genreLabel.text = ownedGames[indexPath.row].genre
-//        cell?.ratingLabel.text = ownedGames[indexPath.row].rating
-        
-        
-        
         return cell!
     }
     
     
     func removeFromLibrary(index: IndexPath) {
         deleteGameFromCoreData(index: index)
-//        persistenceManager.delete(ownedGames[index.row])
-        ownedGames = persistenceManager.fetchAscending(SavedGames.self)
-        tableView.reloadData()
+        ownedGames = persistenceManager.fetchGameFilteredByPlatform(SavedGames.self, platformID: platformID!)
         
-//        for currentGame in ownedGames {
-//
-//            if currentGame.title == ownedGames[index.row].title && currentGame.gameID == ownedGames[index.row].gameID {
-//                let savedPlatform = persistenceManager.fetch(Platform.self)
-//                let platformName = ownedGames[index.row].platformName ?? ""
-//                let platformID = Int(ownedGames[index.row].platformID)
-//
-//                if savedPlatform.count >= 1 {
-//
-//                if checkForPlatformInLibrary(name: platformName, id: platformID) {
-//                    print("Platform already exists--retreiving and adding game to platform")
-//                    let existingPlatform = fetchCoreDataPlatformObject(id: platformID)
-//                    print("existing platform is \(existingPlatform)")
-//                    existingPlatform.addToGames(currentGame)
-//
-//                }
-//                else {
-//                    print("Platform doesnt exist--creating platform then adding game to platform")
-//                   savePlatformToCoreData(platformID)
-//                    let newPlatform = fetchCoreDataPlatformObject(id: platformID)
-//                    print("new platform is \(newPlatform)")
-//                    newPlatform.addToGames(currentGame)
-//                }
-//
-//                } else {
-//                    print("Platform doesnt exist--creating platform then adding game to platform")
-//                   savePlatformToCoreData(platformID)
-//                    let newPlatform = fetchCoreDataPlatformObject(id: platformID)
-//                    print("new platform is \(newPlatform)")
-//                    newPlatform.addToGames(currentGame)
-//                }
-                
-                
-
-            
-            }
+        tableView.reloadData()
+    }
     
     func fetchPlatformObject(platformID: Int) -> PlatformObject {
         let platform = PlatformObject(id: network.platforms["\(platformID)"]!.id, name: network.platforms["\(platformID)"]!.name, alias: network.platforms["\(platformID)"]!.alias, icon: network.platforms["\(platformID)"]!.icon, console: network.platforms["\(platformID)"]!.console, controller: network.platforms["\(platformID)"]?.controller, developer: network.platforms["\(platformID)"]?.developer, manufacturer: network.platforms["\(platformID)"]?.controller, media: network.platforms["\(platformID)"]?.media, cpu: network.platforms["\(platformID)"]?.cpu, memory: network.platforms["\(platformID)"]?.memory, graphics: network.platforms["\(platformID)"]?.graphics, sound: network.platforms["\(platformID)"]?.sound, maxcontrollers: network.platforms["\(platformID)"]?.maxcontrollers, display: network.platforms["\(platformID)"]?.display, overview: network.platforms["\(platformID)"]!.overview, youtube: network.platforms["\(platformID)"]?.youtube)
-
+        
         return platform
         
     }
     
+    func makeBackButton() -> UIButton {
+        let backButton = UIButton(type: .custom)
+        backButton.tintColor = .blue
+        backButton.setTitle("  Back", for: .normal)
+        backButton.setTitleColor(.blue, for: .normal)
+        backButton.addTarget(self, action: #selector(self.backButtonPressed), for: .touchUpInside)
+        return backButton
+    }
     
+    @objc func backButtonPressed() -> Void {
+        dismiss(animated: true, completion: nil)
+        
+    }
     
-                
-        }
-    
-
-    
-
+    func segueToFilterVC() {
+        let filterVC = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "FilterVC") as! FilterVC
+        self.navigationController?.present(filterVC, animated: true, completion: nil)
+    }
+}

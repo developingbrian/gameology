@@ -153,7 +153,7 @@ extension OwnedGamesViewController {
 //            game.platform?.id = Int32(platformObject.id)
 //            game.platform?.name = platformObject.name
             game.genre = cell.game?.genreDescriptions
-            
+            game.genres = cell.game?.genres
 //            let platformObject1 = savePlatformToCoreData(platformObject.id)
 //            platformObject1.addToGames(game)
 //            platform.addToGames(game)
@@ -244,11 +244,18 @@ extension OwnedGamesViewController {
                     print(currentGame)
                     print("platform.removefromgames")
 //                    platform.removeFromGames(currentGame)
+                    print(platform1.games!.count)
                     platform1.removeFromGames(currentGame)
+                    print(platform1.games?.count)
 
                     print("persistencemanager.delete(currentGame)")
  
                     persistenceManager.delete(currentGame)
+                    
+                    if platform1.games!.count < 1 {
+                        persistenceManager.delete(platform1)
+                        
+                    }
 //                    print("persistencemanager.delete(platform)")
 //                    persistenceManager.delete(platform)
 

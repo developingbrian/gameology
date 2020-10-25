@@ -15,6 +15,7 @@
         <attribute name="fanartImageURL" optional="YES" attributeType="String"/>
         <attribute name="gameID" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="genre" optional="YES" attributeType="String"/>
+        <attribute name="genres" optional="YES" attributeType="Transformable" customClassName="Array&lt;String&gt;"/>
         <attribute name="maxPlayers" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="overview" optional="YES" attributeType="String"/>
         <attribute name="owned" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
@@ -27,7 +28,7 @@
         <relationship name="platform" optional="YES" maxCount="1" deletionRule="Deny" destinationEntity="Platform" inverseName="games" inverseEntity="Platform"/>
     </entity>
     <elements>
-        <element name="Platform" positionX="-45" positionY="0" width="128" height="88"/>
-        <element name="SavedGames" positionX="225.06103515625" positionY="22.48655700683594" width="128" height="328"/>
+        <element name="Platform" positionX="-35.3587646484375" positionY="42.01126098632812" width="128" height="88"/>
+        <element name="SavedGames" positionX="225.06103515625" positionY="22.48655700683594" width="128" height="343"/>
     </elements>
 </model>

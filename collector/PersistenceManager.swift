@@ -87,6 +87,23 @@ final class PersistenceManager {
         
     }
     
+    
+    func fetchPlatformsAscending<T: NSManagedObject>(_ objectType: T.Type) -> [T] {
+        let entityName = String(describing: objectType)
+        let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: entityName)
+        let sortAscending = NSSortDescriptor(key: "name", ascending: true)
+        fetchRequest.sortDescriptors = [sortAscending]
+        do {
+            let fetchedObjects = try context.fetch(fetchRequest) as? [T]
+            return fetchedObjects ?? [T]()
+        } catch {
+            print("error")
+            return [T]()
+        }
+    
+        
+    }
+    
     func fetchFilteredByPlatform<T: NSManagedObject>(_ objectType: T.Type, platformID: Int) -> [T]{
         let entityName = String(describing: objectType)
         let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: entityName)
@@ -106,4 +123,46 @@ final class PersistenceManager {
         
     }
     
+    
+    func fetchFilteredByGenre<T: NSManagedObject>(_ objectType: T.Type) -> [T] {
+        let entityName = String(describing: objectType)
+        let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: entityName)
+        let genres = ["Adventure", "Platform", "Racing"]
+        let filterPredicates = genres.map {
+            NSPredicate(format: "genre CONTAINS %@", $0)
+        }
+        let filterPredicate = NSCompoundPredicate(orPredicateWithSubpredicates: filterPredicates)
+        let sortAscending = NSSortDescriptor(key: "title", ascending: true)
+        fetchRequest.predicate = filterPredicate
+        fetchRequest.sortDescriptors = [sortAscending]
+        do {
+            let fetchedObjects = try context.fetch(fetchRequest) as? [T]
+            return fetchedObjects ?? [T]()
+        } catch {
+            print("error")
+            return [T]()
+        }
+    }
+    
+    
+    
+    
+    func fetchGameFilteredByPlatform<T: NSManagedObject>(_ objectType: T.Type, platformID: Int) -> [T]{
+        let entityName = String(describing: objectType)
+        let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: entityName)
+        let filterPredicate = NSPredicate(format: "platformID == \(Int32(platformID))")
+        let sortAscending = NSSortDescriptor(key: "title", ascending: true)
+        fetchRequest.predicate = filterPredicate
+        fetchRequest.sortDescriptors = [sortAscending]
+        do {
+            let fetchedObjects = try context.fetch(fetchRequest) as? [T]
+            return fetchedObjects ?? [T]()
+        } catch {
+            print("error")
+            return [T]()
+        }
+    
+        
+        
+    }
 }

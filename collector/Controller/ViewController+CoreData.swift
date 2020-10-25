@@ -155,6 +155,7 @@ extension ViewController {
 //            game.platform?.id = Int32(platformObject.id)
 //            game.platform?.name = platformObject.name
             game.genre = cell.game?.genreDescriptions
+            game.genres = cell.game?.genres!
             
 //            let platformObject1 = savePlatformToCoreData(platformObject.id)
 //            platformObject1.addToGames(game)

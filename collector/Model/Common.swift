@@ -122,6 +122,17 @@ func setPlatformIcon(platformID: Int?, mode: UIUserInterfaceStyle?) -> String {
                 
             }
             
+    case 0:
+        
+        if mode == .light {
+            //Light Mode
+            platformImageName = "allPlatformLogo"
+        } else {
+            //Dark Mode
+            platformImageName = "allPlatformLogoInverse"
+            
+        }
+            
         default:
             print("Invalid Platform")
             
