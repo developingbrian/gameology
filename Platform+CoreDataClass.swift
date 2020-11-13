@@ -2,7 +2,7 @@
 //  Platform+CoreDataClass.swift
 //  collector
 //
-//  Created by Brian on 10/24/20.
+//  Created by Brian on 10/28/20.
 //  Copyright © 2020 Brian. All rights reserved.
 //
 //

@@ -57,9 +57,9 @@ class PlatformsVC: UIViewController, UITableViewDelegate, UITableViewDataSource 
         self.tableView.dataSource = self
         self.tableView.allowsSelection = true
 
-        let tap = UITapGestureRecognizer(target: self.view, action: #selector(UIView.endEditing(_:)))
-        tap.cancelsTouchesInView = false
-        tableView.addGestureRecognizer(tap)
+//        let tap = UITapGestureRecognizer(target: self.view, action: #selector(UIView.endEditing(_:)))
+//        tap.cancelsTouchesInView = false
+//        tableView.addGestureRecognizer(tap)
         
 
         tableView.reloadData()
@@ -110,7 +110,7 @@ class PlatformsVC: UIViewController, UITableViewDelegate, UITableViewDataSource 
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if let destination = segue.destination as? OwnedGamesViewController {
             print("segueID \(segueID)")
-            destination.platformID = segueID
+            destination.platformID = segueID!
             
         }
     }

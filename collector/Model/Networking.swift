@@ -35,6 +35,7 @@ class Networking {
     var games = [GDBGamesPlatform]()
     var gameArray = [GameObject]()
     var boxarts = [String : [ImageData]]()
+    var boxartsGameName = [String : [GameData]]()
     var boxart : Boxart?
     var gameNameBoxart : GameNameBoxart?
     var images : [String: [ImageData]] = [:]
@@ -47,6 +48,7 @@ class Networking {
     var baseURL : BaseURL?
     var imagesBaseURL : DetailBaseURL?
     var page : Pages?
+    var pages : GameNamePages?
     var gameDetailsSS : ScreenScraper?
 //    var imageArray : [UIImage?] = []
     var fullDB = List<GameInformation>()
@@ -88,15 +90,24 @@ class Networking {
         }.resume()
     }
     
-    func downloadGamesByGameNameJSON(gameNamed: String?, fields: String?, filterByPlatformID: String?, include: String?, completed: @escaping () -> () ) {
+    func downloadGamesByGameNameJSON(gameNamed: String?, fields: String?, filterByPlatformID: String?, include: String?,pageURL: String?, completed: @escaping () -> () ) {
+        var gameName : String?
+        var urlString = ""
+//        guard let gameName = gameNamed?.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) else { return }
         
-        
-        if let gameName = gameNamed!.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) {
+//        if let gameName = gameNamed!.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) {
             
             print(fields)
             print(gameName)
             print(apiKey)
-        var urlString = "https://api.thegamesdb.net/v1.1/Games/ByGameName?apikey=\(apiKey)&name=\(gameName)"
+//            if pageURL == nil {
+        if gameNamed != nil {
+            gameName = gameNamed
+         urlString = "https://api.thegamesdb.net/v1.1/Games/ByGameName?apikey=\(apiKey)&name=\(gameName!)"
+        }
+        
+        if pageURL == nil {
+            
         if fields != nil {
             urlString = urlString + "&fields=" + fields!
         }
@@ -108,7 +119,9 @@ class Networking {
 
             urlString = urlString + "&include=" + include!
         }
-        
+        }  else {
+                urlString = pageURL!
+            }
             
         print("urlString = \(urlString)")
         let url = URL(string: urlString)!
@@ -116,7 +129,7 @@ class Networking {
         var requestHeader = URLRequest.init(url: url)
         requestHeader.httpMethod = "GET"
         requestHeader.setValue("application/json", forHTTPHeaderField: "Accept")
-        URLSession.shared.dataTask(with: requestHeader) {
+            URLSession.shared.dataTask(with: requestHeader) { [self]
             (data,response, error) in
             
             if error == nil {
@@ -124,10 +137,60 @@ class Networking {
                     let json = String(data: data!, encoding: .utf8)
                     print("\(json)")
                     
+                    var array = [GameObject]()
+                    
                     if let jsonDecodedByGameName = try JSONDecoder().decode(ByGameName?.self, from: data!) {
                         
-                        self.gameData = jsonDecodedByGameName.data?.games as! [Game]
-                        self.gameNameBoxart = jsonDecodedByGameName.include?.boxart
+                        let decodedByGameName = jsonDecodedByGameName.data?.games as! [Game]
+                        let boxartByGameName = jsonDecodedByGameName.include.boxart?.data
+                        self.boxartsGameName.merge(boxartByGameName!, uniquingKeysWith:  { (first, _) in first })
+                        
+                        for item in decodedByGameName {
+                            
+                            var game = GameObject()
+                            game.id = item.id
+                                game.title = item.gameTitle
+                            print("gamename item.releaseDate \(item.releaseDate)")
+                            if let unformattedDate = item.releaseDate{
+                                
+                                    game.releaseDate = formatDate(releaseDate: unformattedDate)
+                            } else {
+                                game.releaseDate = ""
+                            }
+                                game.maxPlayers = item.players
+                                game.overview = item.overview
+                                game.rating = item.rating
+                                game.youtubePath = item.youtube
+                                game.platformID = item.platform
+                                game.genreIDs = item.genres
+                                game.developerIDs = item.developers
+                                if let developerID = game.developerIDs {
+                                    game.developer = self.fetchDeveloperName(developerIDs: developerID)
+                                    
+                                }
+                                
+                                if let genreID = game.genreIDs {
+                                    game.genres = fetchGenreNames(genreIDs: genreID)
+                                    
+                                    game.genreDescriptions = fetchGenreNames(genreIDs: genreID).joined(separator: " | ")
+                                }
+                                
+                                guard let name = game.title else { return }
+                                guard let id = game.id else { return }
+                              
+                                game.boxartFrontImage = fetchFrontBoxart(id: id)
+                                    
+                                game.boxartRearImage = fetchRearBoxart(id: id)
+                            
+                                game.owned = delegate?.checkForGameInLibrary(name: name, id: id)
+
+                                print(game)
+                            array.append(game)
+                            self.tempArray = array
+                        }
+                        
+                        gameArray.append(contentsOf: tempArray)
+                        pages = jsonDecodedByGameName.pages!
                         
                     }
                     DispatchQueue.main.async {
@@ -139,7 +202,8 @@ class Networking {
                 }
             }
         }.resume()
-    }
+//    }
+        
 }
     
     func downloadGameImageJSON(gameID: Int?, completed: @escaping () -> () ) {
@@ -161,10 +225,10 @@ class Networking {
                 var requestHeader = URLRequest.init(url: url!)
                 requestHeader.httpMethod = "GET"
                 requestHeader.setValue("application/json", forHTTPHeaderField: "Accept")
-                
+            
                 URLSession.shared.dataTask(with: requestHeader) { [self] (data, response, error) in
                     print("url session")
-            
+                
                     
                     if error == nil {
                         do {
@@ -203,6 +267,7 @@ class Networking {
                                
                             }
                             
+                            
                             DispatchQueue.main.async {
                                 completed()
                             }
@@ -212,8 +277,10 @@ class Networking {
                             
                      
                         }
+                    
                                                 
                     }
+                
                 }.resume()
             }
             
@@ -401,6 +468,7 @@ class Networking {
         var requestHeader = URLRequest.init(url: url)
         requestHeader.httpMethod = "GET"
         requestHeader.setValue("application/json", forHTTPHeaderField: "Accept")
+        
         
         URLSession.shared.dataTask(with: requestHeader) { [self] (data, response, error) in
             
@@ -608,6 +676,62 @@ class Networking {
         
         return developerText
     }
+    
+    
+    func fetchFrontBoxart(id: Int) -> String {
+        var frontImageName : String = ""
+        var backImageName : String = ""
+        
+        if boxartsGameName["\(id)"]?[0].side == .front {
+            print(boxartsGameName["\(id)"]?[0].filename)
+            frontImageName = boxartsGameName["\(id)"]?[0].filename as! String
+            
+        } else if boxartsGameName["\(id)"]?[0].side == .back {
+            backImageName = boxartsGameName["\(id)"]?[0].filename as! String
+            
+        }
+        
+        if boxartsGameName["\(id)"]?.count == 2 {
+        if boxartsGameName["\(id)"]?[1].side == .front {
+            frontImageName = boxartsGameName["\(id)"]?[1].filename as! String
+                       
+        } else if boxartsGameName["\(id)"]?[1].side == .back {
+            backImageName = boxartsGameName["\(id)"]?[1].filename as! String
+                       
+        }
+        }
+        
+        return frontImageName
+        
+    }
+    
+    func fetchRearBoxart(id: Int) -> String {
+        var frontImageName : String = ""
+        var backImageName : String = ""
+        
+        if boxartsGameName["\(id)"]?[0].side == .front {
+            print(boxartsGameName["\(id)"]?[0].filename)
+            frontImageName = boxartsGameName["\(id)"]?[0].filename as! String
+            
+        } else if boxartsGameName["\(id)"]?[0].side == .back {
+            backImageName = boxartsGameName["\(id)"]?[0].filename as! String
+            
+        }
+        
+        if boxartsGameName["\(id)"]?.count == 2 {
+        if boxartsGameName["\(id)"]?[1].side == .front {
+            frontImageName = boxartsGameName["\(id)"]?[1].filename as! String
+                       
+        } else if boxartsGameName["\(id)"]?[1].side == .back {
+            backImageName = boxartsGameName["\(id)"]?[1].filename as! String
+                       
+        }
+        }
+        
+        return backImageName
+    }
+    
+    
     
     func fetchFrontBoxartFilename(id: Int) -> String {
         var frontImageName : String = ""

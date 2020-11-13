@@ -54,6 +54,13 @@ class ViewControllerTableViewCell: UITableViewCell {
     
     override func awakeFromNib() {
         super.awakeFromNib()
+        
+        addToLibraryButton.layer.cornerRadius = 10
+        addToLibraryButton.layer.shadowColor = UIColor.black.cgColor
+        addToLibraryButton.layer.shadowOffset = CGSize(width: 0, height: 5)
+        addToLibraryButton.layer.shadowRadius = 5
+        addToLibraryButton.layer.shadowOpacity = 0.5
+        
         // Initialization code
 //        self.delegate = self
         let effect = UIBlurEffect(style: .regular)

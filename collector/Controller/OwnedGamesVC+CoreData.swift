@@ -143,6 +143,7 @@ extension OwnedGamesViewController {
             cell.platformName = platformObject.name
             game.boxartImageURL = cell.game?.boxartFrontImage
             game.releaseDate = cell.game?.releaseDate
+            
             game.rating = cell.game?.rating
             game.developerName = cell.game?.developer
             game.owned = true

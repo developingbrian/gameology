@@ -11,14 +11,37 @@ import SDWebImage
 import CoreData
 
 
-class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSource,UITableViewDelegate, UITableViewDataSource, ViewControllerTableViewCellDelegate, NetworkingDelegate{
+class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSource,UITableViewDelegate, UITableViewDataSource, ViewControllerTableViewCellDelegate, NetworkingDelegate, UISearchBarDelegate{
+//    func updateSearchResults(for searchController: UISearchController) {
+//        guard let text = searchController.searchBar.text else { return }
+//        print(text)
+////        searchController.searchBar.showsCancelButton = false
+//        self.searchText = text
+//        // to limit network activity, reload half a second after last key press.
+//        if text == "" || text == " " {
+//            print("text == \(text)")
+//            NSObject.cancelPreviousPerformRequests(withTarget: self, selector: #selector(self.reload), object: nil)
+//            self.perform(#selector(self.cancelSearch), with: nil, afterDelay: 4)
+//        } else {
+//            print("reload called")
+//        NSObject.cancelPreviousPerformRequests(withTarget: self, selector: #selector(self.reload), object: nil)
+//            self.perform(#selector(self.reload), with: nil, afterDelay: 4)
+//        }
+//        
+//        
+//    }
+    
     
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var platformPicker: UIPickerView!
     @IBOutlet weak var tableviewPlatformImage: UIImageView!
-    @IBOutlet weak var searchTextField: UITextField!
     @IBOutlet weak var platformLabel: UILabel!
+
+    @IBOutlet weak var searchView: UIView!
+    @IBOutlet weak var searchBar: UISearchBar!
     
+    var gameDelegate : GameDelegate?
+    var search : UISearchController?
     var games = [GDBGamesPlatform]()
     var gameTest : [GDBGamesPlatform]?
 //    var game : Game?
@@ -77,6 +100,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
     var gameID : Int?
     var gameArray : [GameObject]?
     var segueObject : GameObject?
+    var searchText : String?
     
     
     override func viewWillAppear(_ animated: Bool) {
@@ -89,6 +113,9 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
     override func viewDidLoad() {
         super.viewDidLoad()
         print("app started")
+        searchBar.delegate = self
+//
+        
 
 //        deleteAllPlatforms()
         
@@ -107,7 +134,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
                 tableView.backgroundColor = UIColor(red: (15/255), green: (15/255), blue: (15/255), alpha: 1)
 
         }
-        
+        self.showSpinner(onView: self.view)
         self.network.downloadDevelopersJSON {
         print("Developer JSON downloaded")
         
@@ -118,23 +145,30 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
                 self.network.downloadGenreJSON {
              print("Genre JSON downloaded")
              
-            self.network.downloadGamesByPlatformIDJSON(platformID: 7, fields: self.fields, include: self.include, pageURL: nil) {
-            
-                print("donwloadGamesByPlatformIDJSON Success")
-                
-                
-    //            for i in 1..<self.network.games.count {
-    //
-    //                self.network.games[i].owned = self.checkForGameInLibrary(title: self.network.games[i].gameTitle, id: self.network.games[i].id!)
-    //            }
-                self.gameArray = self.network.gameArray
-                let platformImage = self.setPlatformIcon(platformID: self.gameArray?[0].platformID, mode: self.traitCollection.userInterfaceStyle)
-                self.tableviewPlatformImage.image = UIImage(named: platformImage)
-                self.tableView.reloadData()
-                
-                
-
-                              }
+                    self.network.downloadGamesByGameNameJSON(gameNamed:"", fields: self.fields, filterByPlatformID: "7", include: self.include, pageURL: nil) {
+                        self.gameArray = self.network.gameArray
+                        let platformImage = self.setPlatformIcon(platformID: self.gameArray?[0].platformID, mode: self.traitCollection.userInterfaceStyle)
+                        self.tableviewPlatformImage.image = UIImage(named: platformImage)
+                        self.tableView.reloadData()
+                        self.removeSpinner()
+                    }
+//            self.network.downloadGamesByPlatformIDJSON(platformID: 7, fields: self.fields, include: self.include, pageURL: nil) {
+//                self.removeSpinner()
+//                print("donwloadGamesByPlatformIDJSON Success")
+//
+//
+//    //            for i in 1..<self.network.games.count {
+//    //
+//    //                self.network.games[i].owned = self.checkForGameInLibrary(title: self.network.games[i].gameTitle, id: self.network.games[i].id!)
+//    //            }
+//                self.gameArray = self.network.gameArray
+//                let platformImage = self.setPlatformIcon(platformID: self.gameArray?[0].platformID, mode: self.traitCollection.userInterfaceStyle)
+//                self.tableviewPlatformImage.image = UIImage(named: platformImage)
+//                self.tableView.reloadData()
+//
+//
+//
+//                              }
             
             
          }
@@ -152,18 +186,18 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
 //        gradient = CAGradientLayer()
 //        gradient.frame = 
         
-        searchTextField.borderStyle = .roundedRect
-        var searchButton = UIButton(frame: CGRect(x: 0, y: 0, width: 24, height: 24))
-        searchButton.setTitle( "🔍", for: .normal)
-        searchTextField.rightViewMode = .always
-        searchTextField.rightView = searchButton
-        searchButton.layer.opacity = 0.5
-        searchButton.addTarget(self, action: #selector(searchButtonPressed(_:)), for: .touchUpInside)
-        searchTextField.layer.shadowOffset = CGSize(width: 5, height: 5)
-        searchTextField.layer.shadowRadius = 5
-        searchTextField.layer.shadowOpacity = 0.1
-        searchTextField.layer.masksToBounds = false
-        searchTextField.clipsToBounds = false
+//        searchTextField.borderStyle = .roundedRect
+//        var searchButton = UIButton(frame: CGRect(x: 0, y: 0, width: 24, height: 24))
+//        searchButton.setTitle( "🔍", for: .normal)
+//        searchTextField.rightViewMode = .always
+//        searchTextField.rightView = searchButton
+//        searchButton.layer.opacity = 0.5
+//        searchButton.addTarget(self, action: #selector(searchButtonPressed(_:)), for: .touchUpInside)
+//        searchTextField.layer.shadowOffset = CGSize(width: 5, height: 5)
+//        searchTextField.layer.shadowRadius = 5
+//        searchTextField.layer.shadowOpacity = 0.1
+//        searchTextField.layer.masksToBounds = false
+//        searchTextField.clipsToBounds = false
         setForDarkMode()
 //        searchButton.backgroundColor = UIColor.black
 
@@ -291,22 +325,26 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
             print("release date \(game.releaseDate)")
             cell.tableViewReleaseDateLabel.text = game.releaseDate!
             if let imageFileName = game.boxartFrontImage {
-                var imageURLString = network.baseURL!.small + imageFileName
+                
+                var imageURLString = baseURL.small.rawValue + imageFileName
                 cell.loadCoverImageWith(urlString: imageURLString, gameID: game.id!)
                 
             }
             
             if let imageFileName = game.boxartRearImage {
-                var imageURLString = network.baseURL!.medium + imageFileName
+                var imageURLString = baseURL.medium.rawValue + imageFileName
                 cell.loadRearCoverImageWith(urlString: imageURLString)
                 
             }
             cell.addToLibraryButton.tag = indexPath.row
             
+            let ownedImage = fetchSaveToLibraryBtnImg(platformID: (cell.platformID)!, owned: true)
+            let unownedImage = fetchSaveToLibraryBtnImg(platformID: (cell.platformID)!, owned: false)
+            
             if checkForGameInLibrary(name: game.title!, id: game.id!) {
-                cell.addToLibraryButton.setImage(UIImage(systemName: "checkmark.rectangle"), for: .normal)
+                cell.addToLibraryButton.setImage(UIImage(named: ownedImage), for: .normal)
             } else {
-                cell.addToLibraryButton.setImage(UIImage(systemName: "rectangle"), for: .normal)
+                cell.addToLibraryButton.setImage(UIImage(named: unownedImage), for: .normal)
             }
         }
         
@@ -581,11 +619,18 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
 //        segueFrontImageName = cell.frontImageName
 //        segueRearImageName = cell.rearImageName
         coverImage = cell.tableViewCoverImage.image
+        self.gameDelegate?.didSelectRow(row: indexPath as NSIndexPath, game: segueObject!)
+        if let VC = UIViewController.self as? DetailViewController {
+            VC.game = segueObject!
+        }
+        print("segueObject = \(segueObject!)")
         print("seguefrontimagename = \(segueFrontImageName)")
         rearCoverImage = cell.tableViewCoverRearImage?.image!
         print(rearCoverImage)
         //Segue to DetailViewController
-        performSegue(withIdentifier: "showDetails", sender: self)
+//        performSegue(withIdentifier: "showDetails", sender: self)
+                performSegue(withIdentifier: "paging", sender: self)
+
         
     }
     
@@ -593,7 +638,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         
-        if let destination = segue.destination as? DetailViewController {
+        if let destination = segue.destination as? PagingDetailVC {
 //            let cell = tableView.cellForRow(at: <#T##IndexPath#>)
 //            destination.frontImageName = segueFrontImageName!
 //            destination.backImageName = segueRearImageName!
@@ -652,36 +697,45 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         switch row {
         case 0:
             //NES
+            //folder image available
             picked = 18
             gdbPlatformID = 7
         //            image.
         case 1:
             //SNES
+            //folder image available
             picked = 19
             gdbPlatformID = 6
         case 2:
             //N64
+            //folder image available
             picked = 4
             gdbPlatformID = 3
         case 3:
             //GC
+            // cd folder image available
             picked = 21
             gdbPlatformID = 2
         case 4:
             //GB
+            //folder image available
             picked = 33
             gdbPlatformID = 4
         case 5:
             //GBA
+            //folder image available
             picked = 24
             gdbPlatformID = 5
             
         case 6:
             //SG
+            //folder image available
             picked = 29
             gdbPlatformID = 18
         case 7:
             //SCD
+            //cd folder image available
+
             picked = 78
             gdbPlatformID = 21
         default:
@@ -702,8 +756,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         print("picked = \(gdbPlatformID)")
         
 //        self.networking.downloadJSON(platformSelected: gdbPlatformID, gameName: nil, offset: network.currentOffset) {
-        self.network.downloadGamesByPlatformIDJSON(platformID: gdbPlatformID, fields: fields, include: include, pageURL: nil) {
-                
+        self.network.downloadGamesByGameNameJSON(gameNamed: "", fields: fields, filterByPlatformID: "\(gdbPlatformID)", include: include, pageURL: nil) {
             self.setForDarkMode()
             self.gameArray = self.network.gameArray
 
@@ -733,7 +786,44 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
                    }
             
             print("test after")
+            
+            
+            
+            
         }
+        
+//        self.network.downloadGamesByPlatformIDJSON(platformID: gdbPlatformID, fields: fields, include: include, pageURL: nil) {
+//                
+//            self.setForDarkMode()
+//            self.gameArray = self.network.gameArray
+//
+//            
+//            print("pickerview JSON downloaded")
+//            
+//            //setting the platform image name
+////            self.setPlatformIcon()
+//            print(self.gameArray?[0].platformID)
+//            let platformLogos = self.setPlatformIcon(platformID: self.gameArray?[0].platformID, mode: self.traitCollection.userInterfaceStyle)
+//            
+//            self.tableviewPlatformImage.image = UIImage(named: platformLogos)
+//            //loading the platform image
+////            self.tableviewPlatformImage.image = UIImage(named: "\(self.imageName)")
+//            //            self.networking.games.removeAll()
+//            self.cache.removeAllObjects()
+//            self.rearImageCache.removeAllObjects()
+//            self.tableView.reloadData()
+//            if self.traitCollection.userInterfaceStyle == .light {
+//                   
+//                self.tableView.backgroundColor = UIColor(red: (246/255), green: (246/255), blue: (246/255), alpha: 1)
+//                         
+//                       } else {
+//
+//                self.tableView.backgroundColor = UIColor(red: (15/255), green: (15/255), blue: (15/255), alpha: 1)
+//
+//                   }
+//            
+//            print("test after")
+//        }
         
         print("gamesArray \(network.gamesByPlatformID?.data?.games)")
         
@@ -773,7 +863,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
     @IBAction func clearButtonPressed(_ sender: Any) {
         //clear out the search field
         
-        searchTextField.text = nil
+//        searchTextField.text = nil
     }
     
     func setForDarkMode() {
@@ -781,14 +871,14 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
                    view.backgroundColor = #colorLiteral(red: 0.9647058824, green: 0.9647058824, blue: 0.9647058824, alpha: 1)
                platformLabel.backgroundColor = #colorLiteral(red: 0.9647058824, green: 0.9647058824, blue: 0.9647058824, alpha: 1)
                platformPicker.backgroundColor = #colorLiteral(red: 0.9647058824, green: 0.9647058824, blue: 0.9647058824, alpha: 1)
-            searchTextField.layer.shadowColor = UIColor.black.cgColor
+//            searchTextField.layer.shadowColor = UIColor.black.cgColor
             
 
                    } else {
                     view.backgroundColor = #colorLiteral(red: 0.05882352941, green: 0.05882352941, blue: 0.05882352941, alpha: 1)
                platformLabel.backgroundColor = #colorLiteral(red: 0.05882352941, green: 0.05882352941, blue: 0.05882352941, alpha: 1)
                platformPicker.backgroundColor = #colorLiteral(red: 0.05882352941, green: 0.05882352941, blue: 0.05882352941, alpha: 1)
-               searchTextField.layer.shadowColor = UIColor.white.cgColor
+//               searchTextField.layer.shadowColor = UIColor.white.cgColor
 
                
                    }
@@ -810,14 +900,22 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
     func beginBatchFetch() {
         fetchingMore = true
         print("fetching data")
-        network.downloadGamesByPlatformIDJSON(platformID: nil, fields: nil, include: nil, pageURL: network.page?.next) {
+        print(network.pages!.next!)
+        
+        network.downloadGamesByGameNameJSON(gameNamed: nil, fields: nil, filterByPlatformID: nil, include: nil, pageURL: network.pages!.next!) {
             self.gameArray = self.network.gameArray
             print("pagination successful")
             self.fetchingMore = false
             self.tableView.reloadData()
-//            self.network.owned = self.checkForGameInLibrary(<#T##title: String##String#>, <#T##id: Int##Int#>)
-
-                  }
+        }
+//        network.downloadGamesByPlatformIDJSON(platformID: nil, fields: nil, include: nil, pageURL: network.page?.next) {
+//            self.gameArray = self.network.gameArray
+//            print("pagination successful")
+//            self.fetchingMore = false
+//            self.tableView.reloadData()
+////            self.network.owned = self.checkForGameInLibrary(<#T##title: String##String#>, <#T##id: Int##Int#>)
+//
+//                  }
         
     }
     
@@ -847,10 +945,13 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
 //            guard let owned = cell.game?.owned else { return }
             print("\(cell.game)")
             let owned = cell.game?.owned
+            let ownedImage = fetchSaveToLibraryBtnImg(platformID: cell.platformID!, owned: true)
+            let unownedImage = fetchSaveToLibraryBtnImg(platformID: cell.platformID!, owned: false)
+            
             if owned != nil {
                 print("owned = \(owned)")
                 if owned! {
-                cell.addToLibraryButton.setImage(UIImage(systemName: "rectangle"), for: UIControl.State.normal)
+                    cell.addToLibraryButton.setImage(UIImage(named: unownedImage), for: UIControl.State.normal)
                     cell.game?.owned = false
                 gameArray?[(indexPath?.row)!].owned = false
                     print(" check for platform in lib")
@@ -893,7 +994,9 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
             ViewController.savedGame.index = indexPath?.row ?? 0
                 
             saveGameToCoreData(title, id, imageData!, platform)
-                cell.addToLibraryButton.setImage(UIImage(systemName: "checkmark.rectangle"), for: .normal)
+            let platformButtonImg = self.fetchSaveToLibraryBtnImg(platformID: platformID, owned: true)
+                cell.addToLibraryButton.setImage(UIImage(named: platformButtonImg), for: .normal)
+                
                 cell.game?.owned = true
                 print("cell.game.owned = \(cell.game?.owned)")
                 gameArray?[(indexPath?.row)!].owned = true
@@ -950,6 +1053,10 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
           
             
             }
+        
+        
+        
+        
 //        }
         
         
@@ -1061,10 +1168,147 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
 //
 //
 //}
+    @objc func reload() {
+        self.showSpinner(onView: self.view)
+        self.network.gameArray.removeAll()
+        self.network.boxart?.data.removeAll()
+        print("prints a half second after last key typed")
+        network.downloadGamesByGameNameJSON(gameNamed: searchText, fields: self.fields, filterByPlatformID: nil, include: self.include, pageURL: nil) {
+            
+            self.gameArray = self.network.gameArray
+            self.tableView.reloadData()
+            self.removeSpinner()
+        }
+    }
+    
+    @objc func cancelSearch() {
+        print("cancelSearch called")
+        
+        navigationItem.searchController?.searchBar.showsCancelButton = false
+//        search!.searchBar.showsCancelButton = false
+        search!.searchBar.endEditing(true)
+//        searchController.searchBar.showsCancelButton = false
+//        searchController.searchBar.endEditing(true)
+//        self.showSpinner(onView: self.view)
+//        self.network.gameArray.removeAll()
+//        self.network.boxart?.data.removeAll()
+//        print("prints a half second after last key typed")
+//
+//        network.downloadGamesByGameNameJSON(gameNamed: searchText, fields: self.fields, filterByPlatformID: nil, include: self.include) {
+//
+//            self.gameArray = self.network.gameArray
+//            self.tableView.reloadData()
+//            self.removeSpinner()
+//        }
+    }
+    
+    
+    func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
+        searchBar.showsCancelButton = true
+
+    }
+
+    func searchBarTextDidEndEditing(_ searchBar: UISearchBar) {
+        searchBar.showsCancelButton = false
+    }
+    
+    func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
+        self.searchBar.showsCancelButton = true
+        self.searchBar.endEditing(true)
+
+    }
+    
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        let searchBarText = searchBar.text
+        if searchBarText == "" {
+        self.searchBar.endEditing(true)
+        } else if searchBarText == nil {
+            self.searchBar.endEditing(true)
+        } else {
+            
+        
+        
+            self.searchBar.endEditing(true)
+        self.showSpinner(onView: self.view)
+        self.network.gameArray.removeAll()
+        self.network.boxart?.data.removeAll()
+        print("prints a half second after last key typed")
+            network.downloadGamesByGameNameJSON(gameNamed: searchBarText, fields: self.fields, filterByPlatformID: nil, include: self.include, pageURL: nil) {
+            
+            self.gameArray = self.network.gameArray
+            self.tableView.reloadData()
+            self.removeSpinner()
+        }
+        
+    }
+    }
+    
     func fetchPlatformObject(platformID: Int) -> PlatformObject {
         let platform = PlatformObject(id: network.platforms["\(platformID)"]!.id, name: network.platforms["\(platformID)"]!.name, alias: network.platforms["\(platformID)"]!.alias, icon: network.platforms["\(platformID)"]!.icon, console: network.platforms["\(platformID)"]!.console, controller: network.platforms["\(platformID)"]?.controller, developer: network.platforms["\(platformID)"]?.developer, manufacturer: network.platforms["\(platformID)"]?.controller, media: network.platforms["\(platformID)"]?.media, cpu: network.platforms["\(platformID)"]?.cpu, memory: network.platforms["\(platformID)"]?.memory, graphics: network.platforms["\(platformID)"]?.graphics, sound: network.platforms["\(platformID)"]?.sound, maxcontrollers: network.platforms["\(platformID)"]?.maxcontrollers, display: network.platforms["\(platformID)"]?.display, overview: network.platforms["\(platformID)"]!.overview, youtube: network.platforms["\(platformID)"]?.youtube)
 
         return platform
+        
+    }
+    
+    func fetchSaveToLibraryBtnImg(platformID: Int, owned: Bool) -> String {
+        switch platformID {
+        case 7:
+            if owned {
+                return "nes-minus-inversed"
+            } else {
+               return "nes-plus-inversed"
+            }
+        case 6:
+            if owned {
+                return "snes-minus-inversed"
+            } else {
+                return "snes-plus-inversed"
+            }
+        case 3:
+            if owned {
+                return "n64-minus-inversed"
+            } else {
+                return "n64-plus-inversed"
+            }
+        case 4:
+            if owned {
+                return "gb-minus-inversed"
+            } else {
+                return "gb-plus-inversed"
+            }
+        case 2:
+            if owned {
+                //gamecube
+                return "gc-minus-inversed"
+            } else {
+                return "gc-plus-inversed"
+            }
+        case 5:
+            if owned {
+                return "gba-minus-inversed"
+            } else {
+                return "gba-plus-inversed"
+            }
+        case 18:
+            if owned {
+                return "genesis-minus-inversed"
+            } else {
+                return "genesis-plus-inversed"
+            }
+        case 21:
+            if owned {
+                //Sega CD
+                return "cd-minus-inversed"
+            } else {
+                return "cd-plus-inversed"
+            }
+        default:
+            if owned {
+                return "folder_placeholder_owned_black"
+            } else {
+                return "folder_placeholder_unowned"
+            }
+        }
         
     }
     

@@ -8,10 +8,11 @@
 
 import UIKit
 import SDWebImage
+import NVActivityIndicatorView
 
 var imageCache = NSCache<AnyObject, UIImage>()
 let testimageCache = NSCache<NSString, UIImage>()
-
+var vSpinner : UIView?
 
 extension UICollectionView {
     func scrollToNearestVisibleCollectionViewCell() {
@@ -41,6 +42,98 @@ extension UIViewController {
 
 //var platformImageName : String
 
+        func showSpinner(onView : UIView) {
+//            let spinnerView = UIView.init(frame: onView.bounds)
+            onView.isHidden = false
+            let spinnerView = NVActivityIndicatorView(frame: onView.bounds, type: .pacman, padding: 160)
+            spinnerView.backgroundColor = UIColor.init(red: 0.5, green: 0.5, blue: 0.5, alpha: 0.5)
+            onView.backgroundColor = spinnerView.backgroundColor
+//            let ai = UIActivityIndicatorView.init(style: .whiteLarge)
+            spinnerView.startAnimating()
+            spinnerView.center = spinnerView.center
+            
+            DispatchQueue.main.async {
+//                spinnerView.addSubview(ai)
+                onView.addSubview(spinnerView)
+            }
+            
+            vSpinner = spinnerView
+        }
+        
+    func removeSpinner() {
+            DispatchQueue.main.async {
+                vSpinner?.removeFromSuperview()
+                vSpinner = nil
+            }
+        }
+
+    
+    func fetchAddToButtonIcon(platformID: Int?, owned: Bool?) -> String {
+        
+        var imageName: String = ""
+        
+        switch platformID! {
+        
+        case 7:
+            if owned! {
+                imageName = "nes-minus-inversed"
+            } else {
+                imageName = "nes-plus-inversed"
+            }
+            
+        case 6:
+            if owned! {
+                imageName = "snes-minus-inversed"
+            } else {
+                imageName = "snes-plus-inversed"
+            }
+            
+        case 3:
+            if owned! {
+                imageName = "n64-minus-inversed"
+            } else {
+                imageName = "n64-plus-inversed"
+            }
+        
+        case 2:
+            if owned! {
+                imageName = "gc-minus-inversed"
+            } else {
+                imageName = "gc-plus-inversed"
+            }
+            
+        case 4:
+            if owned! {
+                imageName = "gb-minus-inversed"
+            } else {
+                imageName = "gb-plus-inversed"
+            }
+        case 5:
+            if owned! {
+                imageName = "gba-minus-inversed"
+            } else {
+                imageName = "gba-plus-inversed"
+            }
+        case 18:
+            if owned! {
+                imageName = "genesis-minus-inversed"
+            } else {
+                imageName = "genesis-plus-inversed"
+            }
+        case 21:
+            if owned! {
+                imageName = "cd-minus-inversed"
+            } else {
+                imageName = "cd-plus-inversed"
+            }
+        default:
+            print("Invalid Platform")
+            
+        }
+        return imageName
+
+    }
+    
 func setPlatformIcon(platformID: Int?, mode: UIUserInterfaceStyle?) -> String {
     
     var platformImageName: String = ""

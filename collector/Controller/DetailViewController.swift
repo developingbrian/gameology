@@ -9,16 +9,23 @@
 import UIKit
 import WebKit
 
-class DetailViewController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegate {
+protocol GameDelegate {
+    func didSelectRow(row: NSIndexPath, game: GameObject)
+}
+
+class DetailViewController: UIViewController, GameDelegate {
+    func didSelectRow(row: NSIndexPath, game: GameObject) {
+        self.game = game
+        print(self.game)
+    }
     
     
     
     
-    @IBOutlet weak var backgroundImage: UIImageView!
+    
     
     @IBOutlet weak var boxArtImage: UIImageView!
     
-    @IBOutlet weak var logoImage: UIImageView!
     
     @IBOutlet weak var titleView: UIView!
     
@@ -30,17 +37,7 @@ class DetailViewController: UIViewController, UICollectionViewDataSource, UIColl
     
     @IBOutlet weak var publisherLabel: UILabel!
     
-    @IBOutlet weak var ratingStarOne: UIImageView!
-    
-    @IBOutlet weak var ratingStarTwo: UIImageView!
-    
-    @IBOutlet weak var ratingStarThree: UIImageView!
-    
-    @IBOutlet weak var ratingStarFour: UIImageView!
-    
-    @IBOutlet weak var ratingStarFive: UIImageView!
-    
-    @IBOutlet weak var ratingLabel: UILabel!
+
     
     @IBOutlet weak var screenshotCollectionView: UICollectionView!
     
@@ -63,8 +60,7 @@ class DetailViewController: UIViewController, UICollectionViewDataSource, UIColl
     @IBOutlet weak var fanartTitleLabel: UILabel!
     
     
-    
-    var game = GameObject()
+        var game = GameObject()
     var extraImages : Image?
 //    var games : [GameDBData] = []
     var games : GDBGamesPlatform?
@@ -108,6 +104,7 @@ class DetailViewController: UIViewController, UICollectionViewDataSource, UIColl
     var gameDetailsSS : ScreenScraper?
     
     var gameObject = GameObject()
+    var buttonIconName : String?
 
     @IBOutlet weak var boxartImageButton: UIButton!
     
@@ -116,7 +113,15 @@ class DetailViewController: UIViewController, UICollectionViewDataSource, UIColl
     
     override func viewDidLoad() {
         super.viewDidLoad()
+ 
+        self.edgesForExtendedLayout = UIRectEdge.init(rawValue: 0)
         
+//        titleView.layer.shadowOffset = CGSize(width: 5, height: 5)
+        titleView.layer.shadowRadius = 10
+        titleView.layer.shadowOpacity = 0.5
+        titleView.layer.masksToBounds = false
+
+
         var largeBaseURL = ImageURL.large
         var smallBaseURL = ImageURL.small
         print(game)
@@ -129,7 +134,7 @@ class DetailViewController: UIViewController, UICollectionViewDataSource, UIColl
             print("url small \(self.gameDataImages?.data?.baseURL.small)")
             print(self.game)
             self.extraImages = self.network.image
-            self.screenshotCollectionView.reloadData()
+//            self.screenshotCollectionView.reloadData()
             print("extra images \(self.extraImages)")
             print("extra images ! \(self.extraImages)")
             print("extra images banner array \(self.extraImages!.boxartArray)")
@@ -171,11 +176,11 @@ class DetailViewController: UIViewController, UICollectionViewDataSource, UIColl
 //            print("self.images = \(self.images)")
 //            print("network.gameImageData = \(self.network.gameImages)")
 //            var fanartfileName = self.getImageFileName(imageType: "fanart", imageData: self.network.gameImages!)
-            if (self.extraImages!.fanartArray!.count) > 0 {
-                self.fanartImageView.loadImage(from: ImageURL.medium.rawValue + "\(self.extraImages!.fanartArray![0])") {
-                self.backgroundImage.image = self.fanartImageView.image
-            }
-            }
+//            if (self.extraImages!.fanartArray!.count) > 0 {
+//                self.fanartImageView.loadImage(from: ImageURL.medium.rawValue + "\(self.extraImages!.fanartArray![0])") {
+////                self.backgroundImage.image = self.fanartImageView.image
+//            }
+//            }
 //            self.backgroundImage.loadImage(from: "https://cdn.thegamesdb.net/images/large31/\(fanartfileName)") {
 //
 //            }
@@ -201,7 +206,7 @@ class DetailViewController: UIViewController, UICollectionViewDataSource, UIColl
 
                     }
             
-            self.backgroundImage.image = self.cover
+//            self.backgroundImage.image = self.cover
     
 //            print("fileName = \(fanartfileName)")
 //            var clearlogoFileName = self.getImageFileName(imageType: "clearlogo", imageData: self.network.gameImages)
@@ -251,18 +256,18 @@ class DetailViewController: UIViewController, UICollectionViewDataSource, UIColl
 //            }
           
 //                self.setImage(from: "https://cdn.thegamesdb.net/images/small/\(clearLogoFileName)", imageViewNamed: self.clearLogoImageView)
-            if self.extraImages!.clearLogoArray!.count > 0 {
-                print(self.extraImages?.clearLogoArray)
-                let clearLogoURL = "\(ImageURL.small.rawValue)\(self.extraImages!.clearLogoArray![0])"
-                print("\(clearLogoURL)")
-            self.clearLogoImageView.loadImage(from: clearLogoURL) {
-                print("clear logo loaded")
-            }
-            } else {
-                self.fanartTitleLabel.text = self.game.title
-                self.fanartTitleLabel.isHidden = false
-                self.clearLogoImageView.isHidden = false
-            }
+//            if self.extraImages!.clearLogoArray!.count > 0 {
+//                print(self.extraImages?.clearLogoArray)
+//                let clearLogoURL = "\(ImageURL.small.rawValue)\(self.extraImages!.clearLogoArray![0])"
+//                print("\(clearLogoURL)")
+//            self.clearLogoImageView.loadImage(from: clearLogoURL) {
+//                print("clear logo loaded")
+//            }
+//            } else {
+////                self.fanartTitleLabel.text = self.game.title
+////                self.fanartTitleLabel.isHidden = false
+////                self.clearLogoImageView.isHidden = false
+//            }
 //            }
             
             //                let clearlogoFileName = array?.filter({$0.type == "clearlogo"})[0].fileName
@@ -289,19 +294,19 @@ class DetailViewController: UIViewController, UICollectionViewDataSource, UIColl
         
         definesPresentationContext = true
 
-        screenshotCollectionView.allowsMultipleSelection = false
+//        screenshotCollectionView.allowsMultipleSelection = false
         
-        view.backgroundColor = .clear
-        let blurEffect = UIBlurEffect(style: .systemUltraThinMaterial)
-        let blurView = UIVisualEffectView(effect: blurEffect)
-        blurView.translatesAutoresizingMaskIntoConstraints = false
-        backgroundImage.insertSubview(blurView, at: 0)
-        
-       NSLayoutConstraint.activate([
-        blurView.heightAnchor.constraint(equalTo: backgroundImage.heightAnchor),
-        blurView.widthAnchor.constraint(equalTo: backgroundImage.widthAnchor),
-        ])
-        
+//        view.backgroundColor = .clear
+//        let blurEffect = UIBlurEffect(style: .systemUltraThinMaterial)
+//        let blurView = UIVisualEffectView(effect: blurEffect)
+//        blurView.translatesAutoresizingMaskIntoConstraints = false
+//        backgroundImage.insertSubview(blurView, at: 0)
+//
+//       NSLayoutConstraint.activate([
+//        blurView.heightAnchor.constraint(equalTo: backgroundImage.heightAnchor),
+//        blurView.widthAnchor.constraint(equalTo: backgroundImage.widthAnchor),
+//        ])
+//
         
         
 //        boxartImageButton.bounds = boxArtImage.bounds
@@ -309,17 +314,17 @@ class DetailViewController: UIViewController, UICollectionViewDataSource, UIColl
         
        
         
-        boxartImageButton.layer.zPosition = 5
+//        boxartImageButton.layer.zPosition = 5
         
         print(gameDataImages?.data?.images.innerArray)
-        screenshotCollectionView.delegate = self
-        screenshotCollectionView.dataSource = self
+//        screenshotCollectionView.delegate = self
+//        screenshotCollectionView.dataSource = self
         
-        gradient = CAGradientLayer()
-        gradient.frame = fanartImageView.bounds
-        gradient.colors = [UIColor.black.cgColor, UIColor.clear.cgColor ]
-        gradient.locations = [0.5, 1]
-        fanartImageView.layer.mask = gradient
+//        gradient = CAGradientLayer()
+//        gradient.frame = fanartImageView.bounds
+//        gradient.colors = [UIColor.black.cgColor, UIColor.clear.cgColor ]
+//        gradient.locations = [0.5, 1]
+//        fanartImageView.layer.mask = gradient
         
         coverGradient = CAGradientLayer()
         coverGradient.frame = boxArtImage.bounds
@@ -327,11 +332,11 @@ class DetailViewController: UIViewController, UICollectionViewDataSource, UIColl
         coverGradient.locations = [0.75, 1]
         boxArtImage.layer.mask = coverGradient
         
-        if game.youtubePath == nil {
-            
-            playButton.isHidden = true
-            webView.isHidden = true
-        }
+//        if game.youtubePath == nil {
+//
+//            playButton.isHidden = true
+//            webView.isHidden = true
+//        }
 
         
         
@@ -485,20 +490,20 @@ class DetailViewController: UIViewController, UICollectionViewDataSource, UIColl
 
         //MARK: Platform Logo
         
-        let platformLogo = setPlatformIcon(platformID: game.platformID, mode: traitCollection.userInterfaceStyle)
-        logoImage.image = UIImage(named: platformLogo)
+//        let platformLogo = setPlatformIcon(platformID: game.platformID, mode: traitCollection.userInterfaceStyle)
+//        logoImage.image = UIImage(named: platformLogo)
         
         
         
         
         titleView.layer.cornerRadius = 10
         titleView.layer.masksToBounds = false
-        gameDetailView.layer.cornerRadius = 10
-        gameDetailView.layer.masksToBounds = false
-        fanartImageView.layer.cornerRadius = 10
-        fanartImageView.layer.masksToBounds = false
-        webView.layer.cornerRadius = 10
-        webView.layer.masksToBounds = false
+//        gameDetailView.layer.cornerRadius = 10
+//        gameDetailView.layer.masksToBounds = false
+//        fanartImageView.layer.cornerRadius = 10
+//        fanartImageView.layer.masksToBounds = false
+//        webView.layer.cornerRadius = 10
+//        webView.layer.masksToBounds = false
         gameNameLabel.text = game.title
         summaryText.text = game.overview
     
@@ -524,171 +529,171 @@ class DetailViewController: UIViewController, UICollectionViewDataSource, UIColl
             //IGDB gives ratings in 1-100 results, however this app displays 1-5 stars.  This takes those values and converts them to a 1-5 rating, and then displays the result as varying images.
             
 //            let ratingConvert = (((game!.totalRating!)/10)/2)
-            let ratingConvert = 1.0
-            
-            print(ratingConvert)
-            
-            switch ratingConvert {
-                
-            case 0.5..<1:
-                let halfRating = String(format: "%.2f", ratingConvert)
-                ratingLabel.text = String(halfRating)
-                ratingStarOne.tintColor = #colorLiteral(red: 1, green: 0.8784313725, blue: 0.07843137255, alpha: 1)
-                ratingStarTwo.tintColor = #colorLiteral(red: 0.6352941176, green: 0.6352941176, blue: 0.6549019608, alpha: 1)
-                ratingStarThree.tintColor = #colorLiteral(red: 0.6352941176, green: 0.6352941176, blue: 0.6549019608, alpha: 1)
-                ratingStarFour.tintColor = #colorLiteral(red: 0.6352941176, green: 0.6352941176, blue: 0.6549019608, alpha: 1)
-                ratingStarFive.tintColor = #colorLiteral(red: 0.6352941176, green: 0.6352941176, blue: 0.6549019608, alpha: 1)
-                ratingStarOne.image = UIImage(systemName: "star.lefthalf.fill")
-                ratingStarTwo.image = UIImage(systemName: "star")
-                ratingStarThree.image = UIImage(systemName: "star")
-                ratingStarFour.image = UIImage(systemName: "star")
-                ratingStarFive.image = UIImage(systemName: "star")
-                
-            case 1..<1.5:
-                let halfRating = String(format: "%.2f", ratingConvert)
-                ratingLabel.text = String(halfRating)
-                ratingStarOne.tintColor = #colorLiteral(red: 1, green: 0.8784313725, blue: 0.07843137255, alpha: 1)
-                ratingStarTwo.tintColor = #colorLiteral(red: 0.6352941176, green: 0.6352941176, blue: 0.6549019608, alpha: 1)
-                ratingStarThree.tintColor = #colorLiteral(red: 0.6352941176, green: 0.6352941176, blue: 0.6549019608, alpha: 1)
-                ratingStarFour.tintColor = #colorLiteral(red: 0.6352941176, green: 0.6352941176, blue: 0.6549019608, alpha: 1)
-                ratingStarFive.tintColor = #colorLiteral(red: 0.6352941176, green: 0.6352941176, blue: 0.6549019608, alpha: 1)
-                ratingStarOne.image = UIImage(systemName: "star.fill")
-                ratingStarTwo.image = UIImage(systemName: "star")
-                ratingStarThree.image = UIImage(systemName: "star")
-                ratingStarFour.image = UIImage(systemName: "star")
-                ratingStarFive.image = UIImage(systemName: "star")
-            case 1.5..<2:
-                let halfRating = String(format: "%.2f", ratingConvert)
-                ratingLabel.text = String(halfRating)
-                ratingStarOne.tintColor = #colorLiteral(red: 1, green: 0.8784313725, blue: 0.07843137255, alpha: 1)
-                ratingStarTwo.tintColor = #colorLiteral(red: 1, green: 0.8784313725, blue: 0.07843137255, alpha: 1)
-                ratingStarThree.tintColor = #colorLiteral(red: 0.6352941176, green: 0.6352941176, blue: 0.6549019608, alpha: 1)
-                ratingStarFour.tintColor = #colorLiteral(red: 0.6352941176, green: 0.6352941176, blue: 0.6549019608, alpha: 1)
-                ratingStarFive.tintColor = #colorLiteral(red: 0.6352941176, green: 0.6352941176, blue: 0.6549019608, alpha: 1)
-                ratingStarOne.image = UIImage(systemName: "star.fill")
-                ratingStarTwo.image = UIImage(systemName: "star.lefthalf.fill")
-                ratingStarThree.image = UIImage(systemName: "star")
-                ratingStarFour.image = UIImage(systemName: "star")
-                ratingStarFive.image = UIImage(systemName: "star")
-            case 2..<2.5:
-                let halfRating = String(format: "%.2f", ratingConvert)
-                ratingLabel.text = String(halfRating)
-                ratingStarOne.tintColor = #colorLiteral(red: 1, green: 0.8784313725, blue: 0.07843137255, alpha: 1)
-                ratingStarTwo.tintColor = #colorLiteral(red: 1, green: 0.8784313725, blue: 0.07843137255, alpha: 1)
-                ratingStarThree.tintColor = #colorLiteral(red: 0.6352941176, green: 0.6352941176, blue: 0.6549019608, alpha: 1)
-                ratingStarFour.tintColor = #colorLiteral(red: 0.6352941176, green: 0.6352941176, blue: 0.6549019608, alpha: 1)
-                ratingStarFive.tintColor = #colorLiteral(red: 0.6352941176, green: 0.6352941176, blue: 0.6549019608, alpha: 1)
-                ratingStarOne.image = UIImage(systemName: "star.fill")
-                ratingStarTwo.image = UIImage(systemName: "star.fill")
-                ratingStarThree.image = UIImage(systemName: "star")
-                ratingStarFour.image = UIImage(systemName: "star")
-                ratingStarFive.image = UIImage(systemName: "star")
-            case 2.5..<3:
-                let halfRating = String(format: "%.2f", ratingConvert)
-                ratingLabel.text = String(halfRating)
-                ratingStarOne.tintColor = #colorLiteral(red: 1, green: 0.8784313725, blue: 0.07843137255, alpha: 1)
-                ratingStarTwo.tintColor = #colorLiteral(red: 1, green: 0.8784313725, blue: 0.07843137255, alpha: 1)
-                ratingStarThree.tintColor = #colorLiteral(red: 1, green: 0.8784313725, blue: 0.07843137255, alpha: 1)
-                ratingStarFour.tintColor = #colorLiteral(red: 0.6352941176, green: 0.6352941176, blue: 0.6549019608, alpha: 1)
-                ratingStarFive.tintColor = #colorLiteral(red: 0.6352941176, green: 0.6352941176, blue: 0.6549019608, alpha: 1)
-                ratingStarOne.image = UIImage(systemName: "star.fill")
-                ratingStarTwo.image = UIImage(systemName: "star.fill")
-                ratingStarThree.image = UIImage(systemName: "star.lefthalf.fill")
-                ratingStarFour.image = UIImage(systemName: "star")
-                ratingStarFive.image = UIImage(systemName: "star")
-            case 3..<3.5:
-                let halfRating = String(format: "%.2f", ratingConvert)
-                ratingLabel.text = String(halfRating)
-                ratingStarOne.tintColor = #colorLiteral(red: 1, green: 0.8784313725, blue: 0.07843137255, alpha: 1)
-                ratingStarTwo.tintColor = #colorLiteral(red: 1, green: 0.8784313725, blue: 0.07843137255, alpha: 1)
-                ratingStarThree.tintColor = #colorLiteral(red: 1, green: 0.8784313725, blue: 0.07843137255, alpha: 1)
-                ratingStarFour.tintColor = #colorLiteral(red: 0.6352941176, green: 0.6352941176, blue: 0.6549019608, alpha: 1)
-                ratingStarFive.tintColor = #colorLiteral(red: 0.6352941176, green: 0.6352941176, blue: 0.6549019608, alpha: 1)
-                ratingStarOne.image = UIImage(systemName: "star.fill")
-                ratingStarTwo.image = UIImage(systemName: "star.fill")
-                ratingStarThree.image = UIImage(systemName: "star.fill")
-                ratingStarFour.image = UIImage(systemName: "star")
-                ratingStarFive.image = UIImage(systemName: "star")
-            case 3.5..<4:
-                let halfRating = String(format: "%.2f", ratingConvert)
-                ratingStarOne.tintColor = #colorLiteral(red: 1, green: 0.8784313725, blue: 0.07843137255, alpha: 1)
-                ratingStarTwo.tintColor = #colorLiteral(red: 1, green: 0.8784313725, blue: 0.07843137255, alpha: 1)
-                ratingStarThree.tintColor = #colorLiteral(red: 1, green: 0.8784313725, blue: 0.07843137255, alpha: 1)
-                ratingStarFour.tintColor = #colorLiteral(red: 1, green: 0.8784313725, blue: 0.07843137255, alpha: 1)
-                ratingStarFive.tintColor = #colorLiteral(red: 0.6352941176, green: 0.6352941176, blue: 0.6549019608, alpha: 1)
-                ratingLabel.text = String(halfRating)
-                ratingStarOne.image = UIImage(systemName: "star.fill")
-                ratingStarTwo.image = UIImage(systemName: "star.fill")
-                ratingStarThree.image = UIImage(systemName: "star.fill")
-                ratingStarFour.image = UIImage(systemName: "star.lefthalf.fill")
-                ratingStarFive.image = UIImage(systemName: "star")
-            case 4..<4.5:
-                let halfRating = String(format: "%.2f", ratingConvert)
-                ratingStarOne.tintColor = #colorLiteral(red: 1, green: 0.8784313725, blue: 0.07843137255, alpha: 1)
-                ratingStarTwo.tintColor = #colorLiteral(red: 1, green: 0.8784313725, blue: 0.07843137255, alpha: 1)
-                ratingStarThree.tintColor = #colorLiteral(red: 1, green: 0.8784313725, blue: 0.07843137255, alpha: 1)
-                ratingStarFour.tintColor = #colorLiteral(red: 1, green: 0.8784313725, blue: 0.07843137255, alpha: 1)
-                ratingStarFive.tintColor = #colorLiteral(red: 0.6352941176, green: 0.6352941176, blue: 0.6549019608, alpha: 1)
-                ratingLabel.text = String(halfRating)
-                ratingStarOne.image = UIImage(systemName: "star.fill")
-                ratingStarTwo.image = UIImage(systemName: "star.fill")
-                ratingStarThree.image = UIImage(systemName: "star.fill")
-                ratingStarFour.image = UIImage(systemName: "star.fill")
-                ratingStarFive.image = UIImage(systemName: "star")
-            case 4.5..<5:
-                let halfRating = String(format: "%.2f", ratingConvert)
-                ratingStarOne.tintColor = #colorLiteral(red: 1, green: 0.8784313725, blue: 0.07843137255, alpha: 1)
-                ratingStarTwo.tintColor = #colorLiteral(red: 1, green: 0.8784313725, blue: 0.07843137255, alpha: 1)
-                ratingStarThree.tintColor = #colorLiteral(red: 1, green: 0.8784313725, blue: 0.07843137255, alpha: 1)
-                ratingStarFour.tintColor = #colorLiteral(red: 1, green: 0.8784313725, blue: 0.07843137255, alpha: 1)
-                ratingStarFive.tintColor = #colorLiteral(red: 1, green: 0.8784313725, blue: 0.07843137255, alpha: 1)
-                ratingLabel.text = String(halfRating)
-                ratingStarOne.image = UIImage(systemName: "star.fill")
-                ratingStarTwo.image = UIImage(systemName: "star.fill")
-                ratingStarThree.image = UIImage(systemName: "star.fill")
-                ratingStarFour.image = UIImage(systemName: "star.fill")
-                ratingStarFive.image = UIImage(systemName: "star.lefthalf.fill")
-            case 5:
-                let halfRating = String(format: "%.2f", ratingConvert)
-                ratingStarOne.tintColor = #colorLiteral(red: 1, green: 0.8784313725, blue: 0.07843137255, alpha: 1)
-                ratingStarTwo.tintColor = #colorLiteral(red: 1, green: 0.8784313725, blue: 0.07843137255, alpha: 1)
-                ratingStarThree.tintColor = #colorLiteral(red: 1, green: 0.8784313725, blue: 0.07843137255, alpha: 1)
-                ratingStarFour.tintColor = #colorLiteral(red: 1, green: 0.8784313725, blue: 0.07843137255, alpha: 1)
-                ratingStarFive.tintColor = #colorLiteral(red: 1, green: 0.8784313725, blue: 0.07843137255, alpha: 1)
-                ratingLabel.text = String(halfRating)
-                ratingStarOne.image = UIImage(systemName: "star.fill")
-                ratingStarTwo.image = UIImage(systemName: "star.fill")
-                ratingStarThree.image = UIImage(systemName: "star.fill")
-                ratingStarFour.image = UIImage(systemName: "star.fill")
-                ratingStarFive.image = UIImage(systemName: "star.fill")
-            default:
-                ratingLabel.text = "N/A"
-                ratingStarOne.tintColor = #colorLiteral(red: 0.6352941176, green: 0.6352941176, blue: 0.6549019608, alpha: 1)
-                ratingStarTwo.tintColor = #colorLiteral(red: 0.6352941176, green: 0.6352941176, blue: 0.6549019608, alpha: 1)
-                ratingStarThree.tintColor = #colorLiteral(red: 0.6352941176, green: 0.6352941176, blue: 0.6549019608, alpha: 1)
-                ratingStarFour.tintColor = #colorLiteral(red: 0.6352941176, green: 0.6352941176, blue: 0.6549019608, alpha: 1)
-                ratingStarFive.tintColor = #colorLiteral(red: 0.6352941176, green: 0.6352941176, blue: 0.6549019608, alpha: 1)
-                ratingStarOne.image = UIImage(systemName: "star")
-                ratingStarTwo.image = UIImage(systemName: "star")
-                ratingStarThree.image = UIImage(systemName: "star")
-                ratingStarFour.image = UIImage(systemName: "star")
-                ratingStarFive.image = UIImage(systemName: "star")
-            }
-            
-        } else {
-            ratingLabel.text = "N/A"
-            ratingStarOne.tintColor = #colorLiteral(red: 0.6352941176, green: 0.6352941176, blue: 0.6549019608, alpha: 1)
-            ratingStarTwo.tintColor = #colorLiteral(red: 0.6352941176, green: 0.6352941176, blue: 0.6549019608, alpha: 1)
-            ratingStarThree.tintColor = #colorLiteral(red: 0.6352941176, green: 0.6352941176, blue: 0.6549019608, alpha: 1)
-            ratingStarFour.tintColor = #colorLiteral(red: 0.6352941176, green: 0.6352941176, blue: 0.6549019608, alpha: 1)
-            ratingStarFive.tintColor = #colorLiteral(red: 0.6352941176, green: 0.6352941176, blue: 0.6549019608, alpha: 1)
-            ratingStarOne.image = UIImage(systemName: "star")
-            ratingStarTwo.image = UIImage(systemName: "star")
-            ratingStarThree.image = UIImage(systemName: "star")
-            ratingStarFour.image = UIImage(systemName: "star")
-            ratingStarFive.image = UIImage(systemName: "star")
-            
-        }
+//            let ratingConvert = 1.0
+//
+//            print(ratingConvert)
+//
+//            switch ratingConvert {
+//
+//            case 0.5..<1:
+//                let halfRating = String(format: "%.2f", ratingConvert)
+//                ratingLabel.text = String(halfRating)
+//                ratingStarOne.tintColor = #colorLiteral(red: 1, green: 0.8784313725, blue: 0.07843137255, alpha: 1)
+//                ratingStarTwo.tintColor = #colorLiteral(red: 0.6352941176, green: 0.6352941176, blue: 0.6549019608, alpha: 1)
+//                ratingStarThree.tintColor = #colorLiteral(red: 0.6352941176, green: 0.6352941176, blue: 0.6549019608, alpha: 1)
+//                ratingStarFour.tintColor = #colorLiteral(red: 0.6352941176, green: 0.6352941176, blue: 0.6549019608, alpha: 1)
+//                ratingStarFive.tintColor = #colorLiteral(red: 0.6352941176, green: 0.6352941176, blue: 0.6549019608, alpha: 1)
+//                ratingStarOne.image = UIImage(systemName: "star.lefthalf.fill")
+//                ratingStarTwo.image = UIImage(systemName: "star")
+//                ratingStarThree.image = UIImage(systemName: "star")
+//                ratingStarFour.image = UIImage(systemName: "star")
+//                ratingStarFive.image = UIImage(systemName: "star")
+//
+//            case 1..<1.5:
+//                let halfRating = String(format: "%.2f", ratingConvert)
+//                ratingLabel.text = String(halfRating)
+//                ratingStarOne.tintColor = #colorLiteral(red: 1, green: 0.8784313725, blue: 0.07843137255, alpha: 1)
+//                ratingStarTwo.tintColor = #colorLiteral(red: 0.6352941176, green: 0.6352941176, blue: 0.6549019608, alpha: 1)
+//                ratingStarThree.tintColor = #colorLiteral(red: 0.6352941176, green: 0.6352941176, blue: 0.6549019608, alpha: 1)
+//                ratingStarFour.tintColor = #colorLiteral(red: 0.6352941176, green: 0.6352941176, blue: 0.6549019608, alpha: 1)
+//                ratingStarFive.tintColor = #colorLiteral(red: 0.6352941176, green: 0.6352941176, blue: 0.6549019608, alpha: 1)
+//                ratingStarOne.image = UIImage(systemName: "star.fill")
+//                ratingStarTwo.image = UIImage(systemName: "star")
+//                ratingStarThree.image = UIImage(systemName: "star")
+//                ratingStarFour.image = UIImage(systemName: "star")
+//                ratingStarFive.image = UIImage(systemName: "star")
+//            case 1.5..<2:
+//                let halfRating = String(format: "%.2f", ratingConvert)
+//                ratingLabel.text = String(halfRating)
+//                ratingStarOne.tintColor = #colorLiteral(red: 1, green: 0.8784313725, blue: 0.07843137255, alpha: 1)
+//                ratingStarTwo.tintColor = #colorLiteral(red: 1, green: 0.8784313725, blue: 0.07843137255, alpha: 1)
+//                ratingStarThree.tintColor = #colorLiteral(red: 0.6352941176, green: 0.6352941176, blue: 0.6549019608, alpha: 1)
+//                ratingStarFour.tintColor = #colorLiteral(red: 0.6352941176, green: 0.6352941176, blue: 0.6549019608, alpha: 1)
+//                ratingStarFive.tintColor = #colorLiteral(red: 0.6352941176, green: 0.6352941176, blue: 0.6549019608, alpha: 1)
+//                ratingStarOne.image = UIImage(systemName: "star.fill")
+//                ratingStarTwo.image = UIImage(systemName: "star.lefthalf.fill")
+//                ratingStarThree.image = UIImage(systemName: "star")
+//                ratingStarFour.image = UIImage(systemName: "star")
+//                ratingStarFive.image = UIImage(systemName: "star")
+//            case 2..<2.5:
+//                let halfRating = String(format: "%.2f", ratingConvert)
+//                ratingLabel.text = String(halfRating)
+//                ratingStarOne.tintColor = #colorLiteral(red: 1, green: 0.8784313725, blue: 0.07843137255, alpha: 1)
+//                ratingStarTwo.tintColor = #colorLiteral(red: 1, green: 0.8784313725, blue: 0.07843137255, alpha: 1)
+//                ratingStarThree.tintColor = #colorLiteral(red: 0.6352941176, green: 0.6352941176, blue: 0.6549019608, alpha: 1)
+//                ratingStarFour.tintColor = #colorLiteral(red: 0.6352941176, green: 0.6352941176, blue: 0.6549019608, alpha: 1)
+//                ratingStarFive.tintColor = #colorLiteral(red: 0.6352941176, green: 0.6352941176, blue: 0.6549019608, alpha: 1)
+//                ratingStarOne.image = UIImage(systemName: "star.fill")
+//                ratingStarTwo.image = UIImage(systemName: "star.fill")
+//                ratingStarThree.image = UIImage(systemName: "star")
+//                ratingStarFour.image = UIImage(systemName: "star")
+//                ratingStarFive.image = UIImage(systemName: "star")
+//            case 2.5..<3:
+//                let halfRating = String(format: "%.2f", ratingConvert)
+//                ratingLabel.text = String(halfRating)
+//                ratingStarOne.tintColor = #colorLiteral(red: 1, green: 0.8784313725, blue: 0.07843137255, alpha: 1)
+//                ratingStarTwo.tintColor = #colorLiteral(red: 1, green: 0.8784313725, blue: 0.07843137255, alpha: 1)
+//                ratingStarThree.tintColor = #colorLiteral(red: 1, green: 0.8784313725, blue: 0.07843137255, alpha: 1)
+//                ratingStarFour.tintColor = #colorLiteral(red: 0.6352941176, green: 0.6352941176, blue: 0.6549019608, alpha: 1)
+//                ratingStarFive.tintColor = #colorLiteral(red: 0.6352941176, green: 0.6352941176, blue: 0.6549019608, alpha: 1)
+//                ratingStarOne.image = UIImage(systemName: "star.fill")
+//                ratingStarTwo.image = UIImage(systemName: "star.fill")
+//                ratingStarThree.image = UIImage(systemName: "star.lefthalf.fill")
+//                ratingStarFour.image = UIImage(systemName: "star")
+//                ratingStarFive.image = UIImage(systemName: "star")
+//            case 3..<3.5:
+//                let halfRating = String(format: "%.2f", ratingConvert)
+//                ratingLabel.text = String(halfRating)
+//                ratingStarOne.tintColor = #colorLiteral(red: 1, green: 0.8784313725, blue: 0.07843137255, alpha: 1)
+//                ratingStarTwo.tintColor = #colorLiteral(red: 1, green: 0.8784313725, blue: 0.07843137255, alpha: 1)
+//                ratingStarThree.tintColor = #colorLiteral(red: 1, green: 0.8784313725, blue: 0.07843137255, alpha: 1)
+//                ratingStarFour.tintColor = #colorLiteral(red: 0.6352941176, green: 0.6352941176, blue: 0.6549019608, alpha: 1)
+//                ratingStarFive.tintColor = #colorLiteral(red: 0.6352941176, green: 0.6352941176, blue: 0.6549019608, alpha: 1)
+//                ratingStarOne.image = UIImage(systemName: "star.fill")
+//                ratingStarTwo.image = UIImage(systemName: "star.fill")
+//                ratingStarThree.image = UIImage(systemName: "star.fill")
+//                ratingStarFour.image = UIImage(systemName: "star")
+//                ratingStarFive.image = UIImage(systemName: "star")
+//            case 3.5..<4:
+//                let halfRating = String(format: "%.2f", ratingConvert)
+//                ratingStarOne.tintColor = #colorLiteral(red: 1, green: 0.8784313725, blue: 0.07843137255, alpha: 1)
+//                ratingStarTwo.tintColor = #colorLiteral(red: 1, green: 0.8784313725, blue: 0.07843137255, alpha: 1)
+//                ratingStarThree.tintColor = #colorLiteral(red: 1, green: 0.8784313725, blue: 0.07843137255, alpha: 1)
+//                ratingStarFour.tintColor = #colorLiteral(red: 1, green: 0.8784313725, blue: 0.07843137255, alpha: 1)
+//                ratingStarFive.tintColor = #colorLiteral(red: 0.6352941176, green: 0.6352941176, blue: 0.6549019608, alpha: 1)
+//                ratingLabel.text = String(halfRating)
+//                ratingStarOne.image = UIImage(systemName: "star.fill")
+//                ratingStarTwo.image = UIImage(systemName: "star.fill")
+//                ratingStarThree.image = UIImage(systemName: "star.fill")
+//                ratingStarFour.image = UIImage(systemName: "star.lefthalf.fill")
+//                ratingStarFive.image = UIImage(systemName: "star")
+//            case 4..<4.5:
+//                let halfRating = String(format: "%.2f", ratingConvert)
+//                ratingStarOne.tintColor = #colorLiteral(red: 1, green: 0.8784313725, blue: 0.07843137255, alpha: 1)
+//                ratingStarTwo.tintColor = #colorLiteral(red: 1, green: 0.8784313725, blue: 0.07843137255, alpha: 1)
+//                ratingStarThree.tintColor = #colorLiteral(red: 1, green: 0.8784313725, blue: 0.07843137255, alpha: 1)
+//                ratingStarFour.tintColor = #colorLiteral(red: 1, green: 0.8784313725, blue: 0.07843137255, alpha: 1)
+//                ratingStarFive.tintColor = #colorLiteral(red: 0.6352941176, green: 0.6352941176, blue: 0.6549019608, alpha: 1)
+//                ratingLabel.text = String(halfRating)
+//                ratingStarOne.image = UIImage(systemName: "star.fill")
+//                ratingStarTwo.image = UIImage(systemName: "star.fill")
+//                ratingStarThree.image = UIImage(systemName: "star.fill")
+//                ratingStarFour.image = UIImage(systemName: "star.fill")
+//                ratingStarFive.image = UIImage(systemName: "star")
+//            case 4.5..<5:
+//                let halfRating = String(format: "%.2f", ratingConvert)
+//                ratingStarOne.tintColor = #colorLiteral(red: 1, green: 0.8784313725, blue: 0.07843137255, alpha: 1)
+//                ratingStarTwo.tintColor = #colorLiteral(red: 1, green: 0.8784313725, blue: 0.07843137255, alpha: 1)
+//                ratingStarThree.tintColor = #colorLiteral(red: 1, green: 0.8784313725, blue: 0.07843137255, alpha: 1)
+//                ratingStarFour.tintColor = #colorLiteral(red: 1, green: 0.8784313725, blue: 0.07843137255, alpha: 1)
+//                ratingStarFive.tintColor = #colorLiteral(red: 1, green: 0.8784313725, blue: 0.07843137255, alpha: 1)
+//                ratingLabel.text = String(halfRating)
+//                ratingStarOne.image = UIImage(systemName: "star.fill")
+//                ratingStarTwo.image = UIImage(systemName: "star.fill")
+//                ratingStarThree.image = UIImage(systemName: "star.fill")
+//                ratingStarFour.image = UIImage(systemName: "star.fill")
+//                ratingStarFive.image = UIImage(systemName: "star.lefthalf.fill")
+//            case 5:
+//                let halfRating = String(format: "%.2f", ratingConvert)
+//                ratingStarOne.tintColor = #colorLiteral(red: 1, green: 0.8784313725, blue: 0.07843137255, alpha: 1)
+//                ratingStarTwo.tintColor = #colorLiteral(red: 1, green: 0.8784313725, blue: 0.07843137255, alpha: 1)
+//                ratingStarThree.tintColor = #colorLiteral(red: 1, green: 0.8784313725, blue: 0.07843137255, alpha: 1)
+//                ratingStarFour.tintColor = #colorLiteral(red: 1, green: 0.8784313725, blue: 0.07843137255, alpha: 1)
+//                ratingStarFive.tintColor = #colorLiteral(red: 1, green: 0.8784313725, blue: 0.07843137255, alpha: 1)
+//                ratingLabel.text = String(halfRating)
+//                ratingStarOne.image = UIImage(systemName: "star.fill")
+//                ratingStarTwo.image = UIImage(systemName: "star.fill")
+//                ratingStarThree.image = UIImage(systemName: "star.fill")
+//                ratingStarFour.image = UIImage(systemName: "star.fill")
+//                ratingStarFive.image = UIImage(systemName: "star.fill")
+//            default:
+//                ratingLabel.text = "N/A"
+//                ratingStarOne.tintColor = #colorLiteral(red: 0.6352941176, green: 0.6352941176, blue: 0.6549019608, alpha: 1)
+//                ratingStarTwo.tintColor = #colorLiteral(red: 0.6352941176, green: 0.6352941176, blue: 0.6549019608, alpha: 1)
+//                ratingStarThree.tintColor = #colorLiteral(red: 0.6352941176, green: 0.6352941176, blue: 0.6549019608, alpha: 1)
+//                ratingStarFour.tintColor = #colorLiteral(red: 0.6352941176, green: 0.6352941176, blue: 0.6549019608, alpha: 1)
+//                ratingStarFive.tintColor = #colorLiteral(red: 0.6352941176, green: 0.6352941176, blue: 0.6549019608, alpha: 1)
+//                ratingStarOne.image = UIImage(systemName: "star")
+//                ratingStarTwo.image = UIImage(systemName: "star")
+//                ratingStarThree.image = UIImage(systemName: "star")
+//                ratingStarFour.image = UIImage(systemName: "star")
+//                ratingStarFive.image = UIImage(systemName: "star")
+//            }
+//
+//        } else {
+//            ratingLabel.text = "N/A"
+//            ratingStarOne.tintColor = #colorLiteral(red: 0.6352941176, green: 0.6352941176, blue: 0.6549019608, alpha: 1)
+//            ratingStarTwo.tintColor = #colorLiteral(red: 0.6352941176, green: 0.6352941176, blue: 0.6549019608, alpha: 1)
+//            ratingStarThree.tintColor = #colorLiteral(red: 0.6352941176, green: 0.6352941176, blue: 0.6549019608, alpha: 1)
+//            ratingStarFour.tintColor = #colorLiteral(red: 0.6352941176, green: 0.6352941176, blue: 0.6549019608, alpha: 1)
+//            ratingStarFive.tintColor = #colorLiteral(red: 0.6352941176, green: 0.6352941176, blue: 0.6549019608, alpha: 1)
+//            ratingStarOne.image = UIImage(systemName: "star")
+//            ratingStarTwo.image = UIImage(systemName: "star")
+//            ratingStarThree.image = UIImage(systemName: "star")
+//            ratingStarFour.image = UIImage(systemName: "star")
+//            ratingStarFive.image = UIImage(systemName: "star")
+//
+//        }
         
         print("network.gameImageData = \(network.gameImages)")
 
@@ -728,11 +733,13 @@ class DetailViewController: UIViewController, UICollectionViewDataSource, UIColl
     
 
     
-    override func viewWillAppear(_ animated: Bool) {
+        func viewWillAppear(_ animated: Bool) {
+            super.viewWillAppear(true)
      let width = boxArtImage.bounds.width
         let height = boxArtImage.bounds.height
-        boxartImageButton.frame = CGRect(x: boxArtImage.frame.origin.x, y: boxArtImage.frame.origin.y, width: width, height: height)
-        self.view.bringSubviewToFront(boxartImageButton)
+          
+//        boxartImageButton.frame = CGRect(x: boxArtImage.frame.origin.x, y: boxArtImage.frame.origin.y, width: width, height: height)
+//        self.view.bringSubviewToFront(boxartImageButton)
     }
 
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
@@ -816,35 +823,35 @@ class DetailViewController: UIViewController, UICollectionViewDataSource, UIColl
 
     
     }
-    
-        override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-
-                 if let destination = segue.destination as? CoverImageViewController {
-                    
-                    switch segue.identifier
-                    {
-                    case "showCoverImage":
-                        destination.frontCoverImage = cover
-                        destination.rearCoverImage = rearCover
-                        destination.tag = 1
-                        destination.imageIndexPath = indexPathSegue
-                    
-                    case "showScreenshot":
- 
-                        destination.screenshotImage = screenshotImage
-                        destination.screenshotsArray = ssImageArray
-                        destination.tag = 2
-                        print("switch indexPathSegue = \(indexPathSegue)")
-                        destination.imageIndexPath = indexPathSegue
-                        
-                    default:
-                        break
-                        
-                        
-                    }     
-    }
-        
-}
+//
+//        override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+//
+//                 if let destination = segue.destination as? CoverImageViewController {
+//
+//                    switch segue.identifier
+//                    {
+//                    case "showCoverImage":
+//                        destination.frontCoverImage = cover
+//                        destination.rearCoverImage = rearCover
+//                        destination.tag = 1
+//                        destination.imageIndexPath = indexPathSegue
+//
+//                    case "showScreenshot":
+//
+//                        destination.screenshotImage = screenshotImage
+//                        destination.screenshotsArray = ssImageArray
+//                        destination.tag = 2
+//                        print("switch indexPathSegue = \(indexPathSegue)")
+//                        destination.imageIndexPath = indexPathSegue
+//
+//                    default:
+//                        break
+//
+//
+//                    }
+//    }
+//
+//}
     
     func downloadScreenScraperJSON(completed: @escaping () -> () ) {
         
@@ -893,45 +900,45 @@ class DetailViewController: UIViewController, UICollectionViewDataSource, UIColl
             }
         }
     }
-    @IBAction func testButtonPressed(_ sender: Any) {
-        //            let cell = collectionView.cellForItem(at: indexPath) as! DetailVCCollectionViewCell
-        //            screenshotImage = cell.screenshotImageView.image
-        
-        performSegue(withIdentifier: "showScreenshot", sender: self)
-    }
+//    @IBAction func testButtonPressed(_ sender: Any) {
+//        //            let cell = collectionView.cellForItem(at: indexPath) as! DetailVCCollectionViewCell
+//        //            screenshotImage = cell.screenshotImageView.image
+//
+//        performSegue(withIdentifier: "showScreenshot", sender: self)
+//    }
     
-    @IBAction func playButtonPressed(_ sender: Any) {
-        webView.isHidden = false
-            let embedURLString = Constants.youtubeEmbedURL
-        var url : URL
-        if games?.youtube != nil {
-        if (games?.youtube?.hasPrefix("https"))! {
-            url = URL(string: (games?.youtube!)!)!
-        } else {
-            url = URL(string: embedURLString + (games?.youtube)!)!
-        }
-        print ("youtube URL = \(url)")
-        let request = URLRequest(url: url)
-               webView.load(request)
-        } else {
-            playButton.isHidden = true
-            webView.isHidden = true
-        }
-        
-    }
-    
-    
-    @IBAction func boxArtImageButtonPressed(_ sender: Any) {
-        
-//        modalCoverView.isHidden = false
-//        modalCoverImage.image = cover
-//        print(rearCover)
-//        if rearCover != nil {
-//            modalNextButton.isHidden = false
+//    @IBAction func playButtonPressed(_ sender: Any) {
+//        webView.isHidden = false
+//            let embedURLString = Constants.youtubeEmbedURL
+//        var url : URL
+//        if games?.youtube != nil {
+//        if (games?.youtube?.hasPrefix("https"))! {
+//            url = URL(string: (games?.youtube!)!)!
+//        } else {
+//            url = URL(string: embedURLString + (games?.youtube)!)!
 //        }
-        
-        
-    }
+//        print ("youtube URL = \(url)")
+//        let request = URLRequest(url: url)
+//               webView.load(request)
+//        } else {
+//            playButton.isHidden = true
+//            webView.isHidden = true
+//        }
+//
+//    }
+    
+    
+//    @IBAction func boxArtImageButtonPressed(_ sender: Any) {
+//
+////        modalCoverView.isHidden = false
+////        modalCoverImage.image = cover
+////        print(rearCover)
+////        if rearCover != nil {
+////            modalNextButton.isHidden = false
+////        }
+//
+//
+//    }
     
 
         
@@ -973,3 +980,4 @@ class DetailViewController: UIViewController, UICollectionViewDataSource, UIColl
 //    
 //    
 //}
+}

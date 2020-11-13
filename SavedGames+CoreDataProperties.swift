@@ -2,7 +2,7 @@
 //  SavedGames+CoreDataProperties.swift
 //  collector
 //
-//  Created by Brian on 10/24/20.
+//  Created by Brian on 10/28/20.
 //  Copyright © 2020 Brian. All rights reserved.
 //
 //
@@ -26,16 +26,17 @@ extension SavedGames {
     @NSManaged public var fanartImageURL: String?
     @NSManaged public var gameID: Int32
     @NSManaged public var genre: String?
+    @NSManaged public var genres: Array<String>?
     @NSManaged public var maxPlayers: Int64
     @NSManaged public var overview: String?
     @NSManaged public var owned: Bool
     @NSManaged public var platformID: Int64
     @NSManaged public var platformName: String?
-    @NSManaged public var rating: String?
+    @NSManaged public var releaseYear: Int32
     @NSManaged public var releaseDate: String?
     @NSManaged public var title: String?
     @NSManaged public var youtubeURL: String?
-    @NSManaged public var genres: Array<String>?
+    @NSManaged public var rating: String?
     @NSManaged public var platform: Platform?
 
 }

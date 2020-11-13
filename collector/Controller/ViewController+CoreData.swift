@@ -145,6 +145,13 @@ extension ViewController {
             game.platformName = platformObject.name
             game.boxartImageURL = cell.game?.boxartFrontImage
             game.releaseDate = cell.game?.releaseDate
+            
+          
+            var truncatedReleaseDate: String?
+            truncatedReleaseDate = cell.game?.releaseDate?.toLengthOf(length: 6)
+            game.releaseYear = Int32(truncatedReleaseDate!)!
+            
+            
             game.rating = cell.game?.rating
             game.developerName = cell.game?.developer
             game.owned = true
@@ -173,6 +180,7 @@ extension ViewController {
             
             self.getSavedGames()
         }
+        tableView.reloadData()
         
     }
     
@@ -205,7 +213,7 @@ extension ViewController {
         DispatchQueue.main.asyncAfter(deadline: deadline) {
             self.getSavedPlatforms()
         }
-        
+        tableView.reloadData()
     }
     
     func deleteGameFromCoreData() {
@@ -254,8 +262,9 @@ extension ViewController {
                     persistenceManager.delete(currentGame)
 //                    print("persistencemanager.delete(platform)")
 //                    persistenceManager.delete(platform)
-
-                    cell.addToLibraryButton.setImage(UIImage(systemName: "rectangle"), for: .normal)
+                    let unownedImage = fetchSaveToLibraryBtnImg(platformID: (cell.game?.platformID)!, owned: false)
+                    print("viewcontroller + coredata \(unownedImage)")
+                    cell.addToLibraryButton.setImage(UIImage(named: unownedImage), for: .normal)
                     persistenceManager.save()
                     break
                     

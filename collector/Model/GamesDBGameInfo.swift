@@ -55,8 +55,8 @@ struct ByGameName: Codable {
     let code: Int
     let status: String
     let data: ByGameNameData?
-    let include: GameNameInclude?
-    let pages: Pages
+    let include: GameNameInclude
+    let pages: GameNamePages?
     let remainingMonthlyAllowance, extraAllowance, allowanceRefreshTimer: Int
 
     enum CodingKeys: String, CodingKey {
@@ -69,14 +69,15 @@ struct ByGameName: Codable {
 
 // MARK: - ByGameNameData
 struct ByGameNameData: Codable {
-    let count: Int
+    let count: Int?
     let games: [Game]
 }
 
 // MARK: - Game
 struct Game: Codable {
     let id: Int?
-    let gameTitle, releaseDate: String
+    let gameTitle: String
+    let releaseDate: String?
     let platform, players: Int?
     let overview, lastUpdated, rating, coop: String?
     let youtube: String?
@@ -98,7 +99,7 @@ struct Game: Codable {
 // MARK: - Include
 struct GameNameInclude: Codable {
     let boxart: GameNameBoxart?
-    let platform: GameNamePlatform?
+    let platform: PlatformData?
 }
 
 // MARK: - Boxart
@@ -141,9 +142,9 @@ enum GameNameSide: String, Codable {
 }
 
 // MARK: - Platform
-struct GameNamePlatform: Codable {
-    let data: PlatformData
-}
+//struct GameNamePlatform: Codable {
+//    let data: PlatformData
+//}
 
 // MARK: - PlatformData
 struct PlatformData: Codable {

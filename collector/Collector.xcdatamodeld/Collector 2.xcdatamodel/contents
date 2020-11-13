@@ -23,12 +23,13 @@
         <attribute name="platformName" attributeType="String"/>
         <attribute name="rating" optional="YES" attributeType="String"/>
         <attribute name="releaseDate" optional="YES" attributeType="String"/>
+        <attribute name="releaseYear" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="title" attributeType="String"/>
         <attribute name="youtubeURL" optional="YES" attributeType="String"/>
         <relationship name="platform" optional="YES" maxCount="1" deletionRule="Deny" destinationEntity="Platform" inverseName="games" inverseEntity="Platform"/>
     </entity>
     <elements>
         <element name="Platform" positionX="-35.3587646484375" positionY="42.01126098632812" width="128" height="88"/>
-        <element name="SavedGames" positionX="225.06103515625" positionY="22.48655700683594" width="128" height="343"/>
+        <element name="SavedGames" positionX="225.06103515625" positionY="22.48655700683594" width="128" height="358"/>
     </elements>
 </model>
