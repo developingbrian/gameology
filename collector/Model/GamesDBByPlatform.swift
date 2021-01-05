@@ -4,7 +4,6 @@
 //   let byPlatformIDData = try? newJSONDecoder().decode(ByPlatformIDData.self, from: jsonData)
 
 import Foundation
-import RealmSwift
 
 // MARK: - ByPlatformIDData
 struct ByPlatformIDData: Codable {
@@ -61,7 +60,7 @@ enum Coop: String, Codable {
     case yes = "Yes"
 }
 
-struct GameObject: Codable {
+struct GameObject {
     
     var title : String?
     var id : Int?
@@ -80,6 +79,9 @@ struct GameObject: Codable {
     var genreDescriptions : String?
     var genres : [String]?
     var developer : String?
+    var gamePhotos: [NSData]?
+    var manualPhotos : [NSData]?
+    var boxPhotos : [NSData]?
 
 }
 

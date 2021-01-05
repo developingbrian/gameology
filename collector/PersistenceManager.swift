@@ -123,6 +123,350 @@ final class PersistenceManager {
         
     }
     
+    func fetchUserPhotos<T: NSManagedObject>(_ objectType: T.Type, category: String, gameTitle: String) -> [T] {
+        let entityName = String(describing: objectType)
+        let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: entityName)
+        let filterPredicate = NSPredicate(format: "(category == %@) AND (gameTitle == %@)", category, gameTitle)
+        fetchRequest.predicate = filterPredicate
+        do {
+            let fetchedObjects = try context.fetch(fetchRequest) as? [T]
+            print("fetchedObjects = \(fetchedObjects?.count)")
+
+            return fetchedObjects ?? [T]()
+        } catch {
+            print("error")
+            return [T]()
+        }
+        
+        
+    }
+//    
+//    func physicalCopyOwned <T: NSManagedObject>(objectType:T.Type, gameTitle: String) -> Bool {
+//        let entityName = String(describing: objectType)
+//        let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: entityName)
+//        var filterPredicate = NSPredicate(format: "title == %@", gameTitle)
+//        fetchRequest.predicate = filterPredicate
+//        do {
+//            let fetchedObjects = try context.fetch(fetchRequest) as? [T]
+//            let object = (fetchedObjects?[0])!
+//            if object.
+//        } catch {
+//
+//            print("error")
+//        }
+//        
+//        
+//    }
+    
+    func updateCompletedPercent<T: NSManagedObject>(objectType: T.Type, gameTitle: String, completedValue: Float) {
+        let entityName = String(describing: objectType)
+        let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: entityName)
+        var filterPredicate = NSPredicate(format: "title == %@", gameTitle)
+        fetchRequest.predicate = filterPredicate
+        do {
+            let fetchedObjects = try context.fetch(fetchRequest) as? [T]
+            let objectUpdate = (fetchedObjects?[0])! as NSManagedObject
+            let object = fetchedObjects?[0]
+//            object
+            print(completedValue)
+            objectUpdate.setValue(completedValue, forKeyPath: "percentComplete")
+            print(objectUpdate)
+                save()
+        } catch {
+            
+            print("error")
+            
+        }
+    }
+    
+    func updateGameConditionPercent<T: NSManagedObject>(objectType: T.Type, gameTitle: String, gameCondition: Float) {
+        let entityName = String(describing: objectType)
+        let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: entityName)
+        var filterPredicate = NSPredicate(format: "title == %@", gameTitle)
+        fetchRequest.predicate = filterPredicate
+        do {
+            let fetchedObjects = try context.fetch(fetchRequest) as? [T]
+            let objectUpdate = (fetchedObjects?[0])! as NSManagedObject
+            let object = fetchedObjects?[0]
+//            object
+            print(gameCondition)
+            objectUpdate.setValue(gameCondition, forKeyPath: "gameCondition")
+            print(objectUpdate)
+                save()
+        } catch {
+            
+            print("error")
+            
+        }
+    }
+    
+    func updateBoxConditionPercent<T: NSManagedObject>(objectType: T.Type, gameTitle: String, boxCondition: Float) {
+        let entityName = String(describing: objectType)
+        let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: entityName)
+        var filterPredicate = NSPredicate(format: "title == %@", gameTitle)
+        fetchRequest.predicate = filterPredicate
+        do {
+            let fetchedObjects = try context.fetch(fetchRequest) as? [T]
+            let objectUpdate = (fetchedObjects?[0])! as NSManagedObject
+            let object = fetchedObjects?[0]
+//            object
+            print(boxCondition)
+            objectUpdate.setValue(boxCondition, forKeyPath: "boxCondition")
+            print(objectUpdate)
+                save()
+        } catch {
+            
+            print("error")
+            
+        }
+    }
+        
+        
+    func updateManualConditionPercent<T: NSManagedObject>(objectType: T.Type, gameTitle: String, manualCondition: Float) {
+        let entityName = String(describing: objectType)
+        let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: entityName)
+        var filterPredicate = NSPredicate(format: "title == %@", gameTitle)
+        fetchRequest.predicate = filterPredicate
+        do {
+            let fetchedObjects = try context.fetch(fetchRequest) as? [T]
+            let objectUpdate = (fetchedObjects?[0])! as NSManagedObject
+            let object = fetchedObjects?[0]
+//            object
+            print(manualCondition)
+            objectUpdate.setValue(manualCondition, forKeyPath: "manualCondition")
+            print(objectUpdate)
+                save()
+        } catch {
+            
+            print("error")
+            
+        }
+    }
+   
+    func updateGameOwned<T: NSManagedObject>(objectType: T.Type, gameTitle: String, gameOwned: Bool) {
+        
+        let entityName = String(describing: objectType)
+        let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: entityName)
+        var filterPredicate = NSPredicate(format: "title == %@", gameTitle)
+        fetchRequest.predicate = filterPredicate
+        do {
+            let fetchedObjects = try context.fetch(fetchRequest) as? [T]
+            let objectUpdate = (fetchedObjects?[0])! as NSManagedObject
+            let object = fetchedObjects?[0]
+//            object
+            print(gameOwned)
+            objectUpdate.setValue(gameOwned, forKeyPath: "gameOwned")
+            print(objectUpdate)
+                save()
+        } catch {
+            
+            print("error")
+            
+        }
+    }
+    
+    func updateBoxOwned<T: NSManagedObject>(objectType: T.Type, gameTitle: String, boxOwned: Bool) {
+        
+        let entityName = String(describing: objectType)
+        let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: entityName)
+        var filterPredicate = NSPredicate(format: "title == %@", gameTitle)
+        fetchRequest.predicate = filterPredicate
+        do {
+            let fetchedObjects = try context.fetch(fetchRequest) as? [T]
+            let objectUpdate = (fetchedObjects?[0])! as NSManagedObject
+            let object = fetchedObjects?[0]
+//            object
+            print(boxOwned)
+            objectUpdate.setValue(boxOwned, forKeyPath: "boxOwned")
+            print(objectUpdate)
+                save()
+        } catch {
+            
+            print("error")
+            
+        }
+    }
+    
+    func updateManualOwned<T: NSManagedObject>(objectType: T.Type, gameTitle: String, manualOwned: Bool) {
+        
+        let entityName = String(describing: objectType)
+        let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: entityName)
+        var filterPredicate = NSPredicate(format: "title == %@", gameTitle)
+        fetchRequest.predicate = filterPredicate
+        do {
+            let fetchedObjects = try context.fetch(fetchRequest) as? [T]
+            let objectUpdate = (fetchedObjects?[0])! as NSManagedObject
+            let object = fetchedObjects?[0]
+//            object
+            print(manualOwned)
+            objectUpdate.setValue(manualOwned, forKeyPath: "manualOwned")
+            print(objectUpdate)
+                save()
+        } catch {
+            
+            print("error")
+            
+        }
+    }
+    
+    
+    func updatePhysicalCopyOwned<T: NSManagedObject>(objectType: T.Type, gameTitle: String, physicalCopy: Bool) {
+        
+        let entityName = String(describing: objectType)
+        let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: entityName)
+        var filterPredicate = NSPredicate(format: "title == %@", gameTitle)
+        fetchRequest.predicate = filterPredicate
+        do {
+            let fetchedObjects = try context.fetch(fetchRequest) as? [T]
+            let objectUpdate = (fetchedObjects?[0])! as NSManagedObject
+            let object = fetchedObjects?[0]
+//            object
+            print(physicalCopy)
+            objectUpdate.setValue(physicalCopy, forKeyPath: "physicalCopy")
+            print(objectUpdate)
+                save()
+        } catch {
+            
+            print("error")
+            
+        }
+    }
+    
+    func updateDigitalCopyOwned<T: NSManagedObject>(objectType: T.Type, gameTitle: String, digitalCopy: Bool) {
+        
+        let entityName = String(describing: objectType)
+        let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: entityName)
+        var filterPredicate = NSPredicate(format: "title == %@", gameTitle)
+        fetchRequest.predicate = filterPredicate
+        do {
+            let fetchedObjects = try context.fetch(fetchRequest) as? [T]
+            let objectUpdate = (fetchedObjects?[0])! as NSManagedObject
+            let object = fetchedObjects?[0]
+//            object
+            print(digitalCopy)
+            objectUpdate.setValue(digitalCopy, forKeyPath: "digitalCopy")
+            print(objectUpdate)
+                save()
+        } catch {
+            
+            print("error")
+            
+        }
+    }
+    
+    
+    func updateBeatStatus<T: NSManagedObject>(objectType: T.Type, gameTitle: String, beat: Bool) {
+        
+        let entityName = String(describing: objectType)
+        let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: entityName)
+        var filterPredicate = NSPredicate(format: "title == %@", gameTitle)
+        fetchRequest.predicate = filterPredicate
+        do {
+            let fetchedObjects = try context.fetch(fetchRequest) as? [T]
+            let objectUpdate = (fetchedObjects?[0])! as NSManagedObject
+            let object = fetchedObjects?[0]
+//            object
+            print(beat)
+            objectUpdate.setValue(beat, forKeyPath: "hasBeaten")
+            print(objectUpdate)
+                save()
+        } catch {
+            
+            print("error")
+            
+        }
+    }
+
+    func updateCompletedStatus<T: NSManagedObject>(objectType: T.Type, gameTitle: String, completed: Bool) {
+        
+        let entityName = String(describing: objectType)
+        let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: entityName)
+        var filterPredicate = NSPredicate(format: "title == %@", gameTitle)
+        fetchRequest.predicate = filterPredicate
+        do {
+            let fetchedObjects = try context.fetch(fetchRequest) as? [T]
+            let objectUpdate = (fetchedObjects?[0])! as NSManagedObject
+            let object = fetchedObjects?[0]
+//            object
+            print(completed)
+            objectUpdate.setValue(completed, forKeyPath: "hasCompleted")
+            print(objectUpdate)
+                save()
+        } catch {
+            
+            print("error")
+            
+        }
+    }
+    
+    
+    
+    func updatePricePaid<T:NSManagedObject>(objectType: T.Type, gameTitle: String, pricePaid: String) {
+        
+        let entityName = String(describing: objectType)
+        let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: entityName)
+        var filterPredicate = NSPredicate(format: "title == %@", gameTitle)
+        fetchRequest.predicate = filterPredicate
+        do {
+            let fetchedObjects = try context.fetch(fetchRequest) as? [T]
+            let objectUpdate = (fetchedObjects?[0])! as NSManagedObject
+            let object = fetchedObjects?[0]
+//            object
+            print(pricePaid)
+            objectUpdate.setValue(pricePaid, forKeyPath: "pricePaid")
+            print(objectUpdate)
+                save()
+        } catch {
+            
+            print("error")
+            
+        }
+        
+        
+    }
+    
+    func updateNotes<T:NSManagedObject>(objectType: T.Type, gameTitle: String, notes: String) {
+        
+        let entityName = String(describing: objectType)
+        let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: entityName)
+        var filterPredicate = NSPredicate(format: "title == %@", gameTitle)
+        fetchRequest.predicate = filterPredicate
+        do {
+            let fetchedObjects = try context.fetch(fetchRequest) as? [T]
+            let objectUpdate = (fetchedObjects?[0])! as NSManagedObject
+            let object = fetchedObjects?[0]
+//            object
+            print(notes)
+            
+            objectUpdate.setValue(notes, forKeyPath: "notes")
+            print(objectUpdate)
+                save()
+        } catch {
+            
+            print("error")
+            
+        }
+        
+        
+    }
+    
+    
+    func fetchSingleGameObjectByName<T: NSManagedObject>(_ objectType: T.Type, name: String, platformID: Int) -> [T] {
+        let entityName = String(describing: objectType)
+        let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: entityName)
+        var filterPredicate : NSPredicate?
+        filterPredicate = NSPredicate(format: "title == %@ AND platformID == %i", name, platformID)
+        fetchRequest.predicate = filterPredicate
+        do {
+            let fetchedObjects = try context.fetch(fetchRequest) as? [T]
+            return fetchedObjects ?? [T]()
+        } catch {
+            print("error")
+            return [T]()
+        }
+        
+    }
+    
     
     func fetchFilteredByName<T: NSManagedObject>(_ objectType: T.Type, name: String, platformID: Int) -> [T]{
         let entityName = String(describing: objectType)

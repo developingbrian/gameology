@@ -1,5 +1,5 @@
 //
-//  Platform+CoreDataClass.swift
+//  Photos+CoreDataClass.swift
 //  collector
 //
 //  Created by Brian on 12/17/20.
@@ -10,7 +10,7 @@
 import Foundation
 import CoreData
 
-@objc(Platform)
-public class Platform: NSManagedObject {
+@objc(Photos)
+public class Photos: NSManagedObject {
 
 }

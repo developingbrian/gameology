@@ -216,7 +216,8 @@ extension ViewController {
         tableView.reloadData()
     }
     
-    func deleteGameFromCoreData() {
+    func
+    deleteGameFromCoreData() {
         print("deleting game from core data")
 //        var platform = Platform(context: persistenceManager.context)
         let savedPlatforms = persistenceManager.fetch(Platform.self)

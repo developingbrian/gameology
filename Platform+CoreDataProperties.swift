@@ -2,7 +2,7 @@
 //  Platform+CoreDataProperties.swift
 //  collector
 //
-//  Created by Brian on 10/28/20.
+//  Created by Brian on 12/17/20.
 //  Copyright © 2020 Brian. All rights reserved.
 //
 //

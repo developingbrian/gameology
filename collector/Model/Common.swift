@@ -13,6 +13,60 @@ import NVActivityIndicatorView
 var imageCache = NSCache<AnyObject, UIImage>()
 let testimageCache = NSCache<NSString, UIImage>()
 var vSpinner : UIView?
+let network = Networking()
+
+extension UIButton {
+    func applyGradient(colors: [CGColor]) {
+        self.backgroundColor = nil
+        self.layoutIfNeeded()
+        let gradientLayer = CAGradientLayer()
+        gradientLayer.colors = colors
+        gradientLayer.startPoint = CGPoint(x: 0, y: 0)
+        gradientLayer.endPoint = CGPoint(x: 0.5, y: 0)
+        gradientLayer.frame = self.bounds
+//        gradientLayer.cornerRadius = self.frame.height/2
+
+        gradientLayer.shadowColor = UIColor.darkGray.cgColor
+        gradientLayer.shadowOffset = CGSize(width: 2.5, height: 2.5)
+        gradientLayer.shadowRadius = 5.0
+        gradientLayer.shadowOpacity = 0.3
+        gradientLayer.masksToBounds = false
+
+        self.layer.insertSublayer(gradientLayer, at: 0)
+        self.contentVerticalAlignment = .center
+        self.setTitleColor(UIColor.white, for: .normal)
+        self.titleLabel?.font = UIFont.boldSystemFont(ofSize: 17.0)
+        self.titleLabel?.textColor = UIColor.white
+    }
+    
+    func applyGradientRounded(colors: [CGColor]) {
+        self.backgroundColor = nil
+        self.layoutIfNeeded()
+        let gradientLayer = CAGradientLayer()
+        gradientLayer.colors = colors
+        gradientLayer.startPoint = CGPoint(x: 0, y: 0)
+        gradientLayer.endPoint = CGPoint(x: 0.5, y: 0)
+        gradientLayer.frame = self.bounds
+        gradientLayer.cornerRadius = 10
+
+        gradientLayer.shadowColor = UIColor.darkGray.cgColor
+        gradientLayer.shadowOffset = CGSize(width: 2.5, height: 2.5)
+        gradientLayer.shadowRadius = 5.0
+        gradientLayer.shadowOpacity = 0.3
+        gradientLayer.masksToBounds = false
+
+        self.layer.insertSublayer(gradientLayer, at: 0)
+        self.contentVerticalAlignment = .center
+        self.setTitleColor(UIColor.white, for: .normal)
+        self.titleLabel?.font = UIFont.boldSystemFont(ofSize: 17.0)
+        self.titleLabel?.textColor = UIColor.white
+    }
+
+    
+}
+
+
+
 
 extension UICollectionView {
     func scrollToNearestVisibleCollectionViewCell() {
@@ -68,60 +122,60 @@ extension UIViewController {
         }
 
     
-    func fetchAddToButtonIcon(platformID: Int?, owned: Bool?) -> String {
+    func fetchAddToButtonIcon(platformID: Int, owned: Bool) -> String {
         
         var imageName: String = ""
         
-        switch platformID! {
+        switch platformID {
         
         case 7:
-            if owned! {
+            if owned {
                 imageName = "nes-minus-inversed"
             } else {
                 imageName = "nes-plus-inversed"
             }
             
         case 6:
-            if owned! {
+            if owned {
                 imageName = "snes-minus-inversed"
             } else {
                 imageName = "snes-plus-inversed"
             }
             
         case 3:
-            if owned! {
+            if owned {
                 imageName = "n64-minus-inversed"
             } else {
                 imageName = "n64-plus-inversed"
             }
         
         case 2:
-            if owned! {
+            if owned {
                 imageName = "gc-minus-inversed"
             } else {
                 imageName = "gc-plus-inversed"
             }
             
         case 4:
-            if owned! {
+            if owned {
                 imageName = "gb-minus-inversed"
             } else {
                 imageName = "gb-plus-inversed"
             }
         case 5:
-            if owned! {
+            if owned {
                 imageName = "gba-minus-inversed"
             } else {
                 imageName = "gba-plus-inversed"
             }
         case 18:
-            if owned! {
+            if owned {
                 imageName = "genesis-minus-inversed"
             } else {
                 imageName = "genesis-plus-inversed"
             }
         case 21:
-            if owned! {
+            if owned {
                 imageName = "cd-minus-inversed"
             } else {
                 imageName = "cd-plus-inversed"
@@ -132,6 +186,13 @@ extension UIViewController {
         }
         return imageName
 
+    }
+    
+    func fetchPlatformObject1(platformID: Int) -> PlatformObject {
+        let platform = PlatformObject(id: network.platforms["\(platformID)"]!.id, name: network.platforms["\(platformID)"]!.name, alias: network.platforms["\(platformID)"]!.alias, icon: network.platforms["\(platformID)"]!.icon, console: network.platforms["\(platformID)"]!.console, controller: network.platforms["\(platformID)"]?.controller, developer: network.platforms["\(platformID)"]?.developer, manufacturer: network.platforms["\(platformID)"]?.controller, media: network.platforms["\(platformID)"]?.media, cpu: network.platforms["\(platformID)"]?.cpu, memory: network.platforms["\(platformID)"]?.memory, graphics: network.platforms["\(platformID)"]?.graphics, sound: network.platforms["\(platformID)"]?.sound, maxcontrollers: network.platforms["\(platformID)"]?.maxcontrollers, display: network.platforms["\(platformID)"]?.display, overview: network.platforms["\(platformID)"]!.overview, youtube: network.platforms["\(platformID)"]?.youtube)
+
+        return platform
+        
     }
     
 func setPlatformIcon(platformID: Int?, mode: UIUserInterfaceStyle?) -> String {

@@ -7,7 +7,7 @@
 //
 
 import Foundation
-
+import UIKit
 
 struct GameDBData : Decodable {
     let data : GameDataImages?
@@ -41,7 +41,7 @@ struct DetailBaseURL : Decodable {
     }
 }
 
-struct Image: Decodable {
+struct Image {
    
     var bannerArray : [String]?
     var boxartArray: [String]?
@@ -53,6 +53,7 @@ struct Image: Decodable {
     var banner : String?
     var fanart: String?
     var screenshot : String?
+    var userPhotos : [UIImage] = []
 
 }
 

@@ -14,9 +14,11 @@ protocol GameDelegate {
 }
 
 class DetailViewController: UIViewController, GameDelegate {
+    
+    
     func didSelectRow(row: NSIndexPath, game: GameObject) {
-        self.game = game
-        print(self.game)
+//        self.game = game
+//        print(self.game)
     }
     
     
@@ -26,6 +28,7 @@ class DetailViewController: UIViewController, GameDelegate {
     
     @IBOutlet weak var boxArtImage: UIImageView!
     
+    @IBOutlet weak var backgroundView: UIView!
     
     @IBOutlet weak var titleView: UIView!
     
@@ -38,9 +41,7 @@ class DetailViewController: UIViewController, GameDelegate {
     @IBOutlet weak var publisherLabel: UILabel!
     
 
-    
-    @IBOutlet weak var screenshotCollectionView: UICollectionView!
-    
+        
     @IBOutlet weak var ageRatingImageView: UIImageView!
     
     @IBOutlet weak var genreLabel: UILabel!
@@ -113,14 +114,30 @@ class DetailViewController: UIViewController, GameDelegate {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        print("detailVC gameobject = \(game)")
  
         self.edgesForExtendedLayout = UIRectEdge.init(rawValue: 0)
         
+        let boxartURL = baseURL.medium.rawValue + game.boxartFrontImage!
+        boxArtImage.loadImage(from: boxartURL) {
+            print("boxart image detailVC")
+        }
+        
 //        titleView.layer.shadowOffset = CGSize(width: 5, height: 5)
-        titleView.layer.shadowRadius = 10
-        titleView.layer.shadowOpacity = 0.5
-        titleView.layer.masksToBounds = false
+     
 
+        if traitCollection.userInterfaceStyle == .light {
+            titleView.backgroundColor = UIColor.white
+            backgroundView.backgroundColor = UIColor(red: (246/255), green: (246/255), blue: (246/255), alpha: 1)
+            titleView.layer.shadowColor = UIColor.black.cgColor
+            titleView.layer.shadowRadius = 7
+            titleView.layer.shadowOpacity = 0.5
+            titleView.layer.masksToBounds = false
+        } else {
+            titleView.backgroundColor = UIColor(red: 59/255, green: 61/255, blue: 66/255, alpha: 1)
+            titleView.layer.shadowColor = UIColor(red: 25/255, green: 25/255, blue: 25/255, alpha: 1).cgColor
+            backgroundView.backgroundColor = UIColor(red: (23/255), green: (25/255), blue: (26/255), alpha: 1)
+        }
 
         var largeBaseURL = ImageURL.large
         var smallBaseURL = ImageURL.small
@@ -128,152 +145,152 @@ class DetailViewController: UIViewController, GameDelegate {
         //MARK:  viewDidLoad() - Additional Images
         
         if game.id != nil {
-        self.network.downloadGameImageJSON(gameID: game.id!) {
-           
-
-            print("url small \(self.gameDataImages?.data?.baseURL.small)")
-            print(self.game)
-            self.extraImages = self.network.image
-//            self.screenshotCollectionView.reloadData()
-            print("extra images \(self.extraImages)")
-            print("extra images ! \(self.extraImages)")
-            print("extra images banner array \(self.extraImages!.boxartArray)")
-//            let coverImageArray = self.network.game.filter({$0.type == "boxart"})
-//print("********")
-//            print(coverImageArray)
-//            if coverImageArray != nil {
-//                self.coverArray = coverImageArray!
-//                print(self.coverArray)
-//            }
-            ////        let largeBaseURL = boxart?.baseURL.large
-            //        if network.boxarts["\(games!.id!)"]?[0].side == .front
-            print(self.extraImages!.boxartArray![0])
-            if self.extraImages!.boxartArray![0].contains("front") == true {
-              
-                self.frontImageName = self.extraImages!.boxartArray![0]
-                        
-            } else if self.extraImages!.boxartArray![0].contains("back") == true {
-            //        else if network.boxarts["\(games!.id!)"]?[0].side == .back {
-                self.backImageName = self.extraImages!.boxartArray![0]
-                        
-                    }
-            if self.extraImages!.boxartArray != nil {
-                if (self.extraImages!.boxartArray!.count) > 1 {
-                    if self.extraImages!.boxartArray![1].contains("back") == true {
-//                if self.network.boxarts["\(self.games!.id!)"]?[1].side == .front {
-                        self.backImageName = self.extraImages!.boxartArray![1]
-                        
-                    } else if self.extraImages!.boxartArray![1].contains("front") == true {
-                        self.frontImageName = self.extraImages!.boxartArray![1]
-                        
-                    
-                    }
-            }
-            }
-//            var coverimageFileName = self.getImageFileName(imageType: "boxart", imageData: self.network.gameImages!)
-//            print("coverimageFileName = \(coverimageFileName) ")
-            print("GameDB Image Success")
-//            print("self.images = \(self.images)")
-//            print("network.gameImageData = \(self.network.gameImages)")
-//            var fanartfileName = self.getImageFileName(imageType: "fanart", imageData: self.network.gameImages!)
-//            if (self.extraImages!.fanartArray!.count) > 0 {
-//                self.fanartImageView.loadImage(from: ImageURL.medium.rawValue + "\(self.extraImages!.fanartArray![0])") {
-////                self.backgroundImage.image = self.fanartImageView.image
+//        self.network.downloadGameImageJSON(gameID: game.id!) {
+//           
+//
+//            print("url small \(self.gameDataImages?.data?.baseURL.small)")
+//            print(self.game)
+//            self.extraImages = self.network.image
+////            self.screenshotCollectionView.reloadData()
+//            print("extra images \(self.extraImages)")
+//            print("extra images ! \(self.extraImages)")
+//            print("extra images banner array \(self.extraImages!.boxartArray)")
+////            let coverImageArray = self.network.game.filter({$0.type == "boxart"})
+////print("********")
+////            print(coverImageArray)
+////            if coverImageArray != nil {
+////                self.coverArray = coverImageArray!
+////                print(self.coverArray)
+////            }
+//            ////        let largeBaseURL = boxart?.baseURL.large
+//            //        if network.boxarts["\(games!.id!)"]?[0].side == .front
+//            print(self.extraImages!.boxartArray![0])
+//            if self.extraImages!.boxartArray![0].contains("front") == true {
+//              
+//                self.frontImageName = self.extraImages!.boxartArray![0]
+//                        
+//            } else if self.extraImages!.boxartArray![0].contains("back") == true {
+//            //        else if network.boxarts["\(games!.id!)"]?[0].side == .back {
+//                self.backImageName = self.extraImages!.boxartArray![0]
+//                        
+//                    }
+//            if self.extraImages!.boxartArray != nil {
+//                if (self.extraImages!.boxartArray!.count) > 1 {
+//                    if self.extraImages!.boxartArray![1].contains("back") == true {
+////                if self.network.boxarts["\(self.games!.id!)"]?[1].side == .front {
+//                        self.backImageName = self.extraImages!.boxartArray![1]
+//                        
+//                    } else if self.extraImages!.boxartArray![1].contains("front") == true {
+//                        self.frontImageName = self.extraImages!.boxartArray![1]
+//                        
+//                    
+//                    }
 //            }
 //            }
-//            self.backgroundImage.loadImage(from: "https://cdn.thegamesdb.net/images/large31/\(fanartfileName)") {
-//
-//            }
-            
-            
-            var imageURL = "\(ImageURL.medium.rawValue)" + "\(self.frontImageName!)"
-            print("frontImageName = \(self.frontImageName!)")
-            print("backImageName = \(self.backImageName)")
-                    print(imageURL)
-            if self.frontImageName != nil {
-            //            setCoverImage(from: "\(imageURL)")
-            //            boxArtImage.loadImage(from: imageURL)
-                self.boxArtImage.sd_setImage(with: URL(string: imageURL)) { (image, error, cacheType, url) in
-                            if error != nil {
-                                print("Error downloading.  Error description: \(error?.localizedDescription)")
-                            } else {
-                                print("Image successfully downloaded from \(url)")
-                            }
-                        }
-            //            boxArtImage.image = cover
-                    } else {
-                self.boxArtImage.image = UIImage(named: "noArtNES")
-
-                    }
-            
-//            self.backgroundImage.image = self.cover
-    
-//            print("fileName = \(fanartfileName)")
-//            var clearlogoFileName = self.getImageFileName(imageType: "clearlogo", imageData: self.network.gameImages)
-//            print("clearlogoFileName = \(clearlogoFileName)")
-            let innerfanartArray = self.network.gameImages?.filter({$0.type == "fanart"})
-//
-            print("fanartArray = \(innerfanartArray)")
-            if innerfanartArray != nil {
-                self.fanartArray = innerfanartArray!
-            }
-            let innerScreenshotArray = self.network.gameImages?.filter({$0.type == "screenshot"})
-            if innerScreenshotArray != nil {
-                self.screenshotsArray = innerScreenshotArray!
-            }
-            
-            
-//            let fanartFileName = self.getImageFileName(imageType: "fanart", imageData: self.images1)
-//
-//                                 print("fanartFileName = \(fanartFileName)")
-//                                 print(self.fanartImageView.image)
-//                                 if self.fanartImageView.image != nil {
-//                                     self.backgroundImage.image = self.fanartImageView.image
-//                                 }
-                   
-//                     let clearLogoFileName = self.getImageFileName(imageType: "clearlogo")
-//                   //            let clearLogoArray = array?.filter({$0.type == "clearlogo"})
-//                   //            if clearLogoArray!.count > 0 {
-//                   //                clearLogoFileName = (clearLogoArray?[0].fileName)!
-//
-//                                   self.clearLogoImageView.loadImage(from: "https://cdn.thegamesdb.net/images/small/\(clearLogoFileName)")
-            
-//            var array:[Images.Inner]? = []
-//            var clearLogoFileName : String
-//            let inner = self.network.gameDataImages?.data?.images.innerArray
-//            for (_, value) in inner! {
-//                array = value
-//            }
-//            let fanartArray = array?.filter({$0.type == "fanart"})
-//
-//            if fanartArray!.count > 0 {
-//                fanartFileName = (fanartArray?[0].fileName)!
-//                self.fanartImageView.loadImage(from: "https://cdn.thegamesdb.net/images/small/\(fanartFileName)")
-////                self.setFanartImage(from: "https://cdn.thegamesdb.net/images/small/\(fanartFileName)")
+////            var coverimageFileName = self.getImageFileName(imageType: "boxart", imageData: self.network.gameImages!)
+////            print("coverimageFileName = \(coverimageFileName) ")
+//            print("GameDB Image Success")
+////            print("self.images = \(self.images)")
+////            print("network.gameImageData = \(self.network.gameImages)")
+////            var fanartfileName = self.getImageFileName(imageType: "fanart", imageData: self.network.gameImages!)
+////            if (self.extraImages!.fanartArray!.count) > 0 {
+////                self.fanartImageView.loadImage(from: ImageURL.medium.rawValue + "\(self.extraImages!.fanartArray![0])") {
+//////                self.backgroundImage.image = self.fanartImageView.image
+////            }
+////            }
+////            self.backgroundImage.loadImage(from: "https://cdn.thegamesdb.net/images/large31/\(fanartfileName)") {
 ////
-          
+////            }
+//            
+//            
+//            var imageURL = "\(ImageURL.medium.rawValue)" + "\(self.frontImageName!)"
+//            print("frontImageName = \(self.frontImageName!)")
+//            print("backImageName = \(self.backImageName)")
+//                    print(imageURL)
+//            if self.frontImageName != nil {
+//            //            setCoverImage(from: "\(imageURL)")
+//            //            boxArtImage.loadImage(from: imageURL)
+//                self.boxArtImage.sd_setImage(with: URL(string: imageURL)) { (image, error, cacheType, url) in
+//                            if error != nil {
+//                                print("Error downloading.  Error description: \(error?.localizedDescription)")
+//                            } else {
+//                                print("Image successfully downloaded from \(url)")
+//                            }
+//                        }
+//            //            boxArtImage.image = cover
+//                    } else {
+//                self.boxArtImage.image = UIImage(named: "noArtNES")
 //
+//                    }
+//            
+////            self.backgroundImage.image = self.cover
+//    
+////            print("fileName = \(fanartfileName)")
+////            var clearlogoFileName = self.getImageFileName(imageType: "clearlogo", imageData: self.network.gameImages)
+////            print("clearlogoFileName = \(clearlogoFileName)")
+//            let innerfanartArray = self.network.gameImages?.filter({$0.type == "fanart"})
+////
+//            print("fanartArray = \(innerfanartArray)")
+//            if innerfanartArray != nil {
+//                self.fanartArray = innerfanartArray!
 //            }
-          
-//                self.setImage(from: "https://cdn.thegamesdb.net/images/small/\(clearLogoFileName)", imageViewNamed: self.clearLogoImageView)
-//            if self.extraImages!.clearLogoArray!.count > 0 {
-//                print(self.extraImages?.clearLogoArray)
-//                let clearLogoURL = "\(ImageURL.small.rawValue)\(self.extraImages!.clearLogoArray![0])"
-//                print("\(clearLogoURL)")
-//            self.clearLogoImageView.loadImage(from: clearLogoURL) {
-//                print("clear logo loaded")
+//            let innerScreenshotArray = self.network.gameImages?.filter({$0.type == "screenshot"})
+//            if innerScreenshotArray != nil {
+//                self.screenshotsArray = innerScreenshotArray!
 //            }
-//            } else {
-////                self.fanartTitleLabel.text = self.game.title
-////                self.fanartTitleLabel.isHidden = false
-////                self.clearLogoImageView.isHidden = false
+//            
+//            
+////            let fanartFileName = self.getImageFileName(imageType: "fanart", imageData: self.images1)
+////
+////                                 print("fanartFileName = \(fanartFileName)")
+////                                 print(self.fanartImageView.image)
+////                                 if self.fanartImageView.image != nil {
+////                                     self.backgroundImage.image = self.fanartImageView.image
+////                                 }
+//                   
+////                     let clearLogoFileName = self.getImageFileName(imageType: "clearlogo")
+////                   //            let clearLogoArray = array?.filter({$0.type == "clearlogo"})
+////                   //            if clearLogoArray!.count > 0 {
+////                   //                clearLogoFileName = (clearLogoArray?[0].fileName)!
+////
+////                                   self.clearLogoImageView.loadImage(from: "https://cdn.thegamesdb.net/images/small/\(clearLogoFileName)")
+//            
+////            var array:[Images.Inner]? = []
+////            var clearLogoFileName : String
+////            let inner = self.network.gameDataImages?.data?.images.innerArray
+////            for (_, value) in inner! {
+////                array = value
+////            }
+////            let fanartArray = array?.filter({$0.type == "fanart"})
+////
+////            if fanartArray!.count > 0 {
+////                fanartFileName = (fanartArray?[0].fileName)!
+////                self.fanartImageView.loadImage(from: "https://cdn.thegamesdb.net/images/small/\(fanartFileName)")
+//////                self.setFanartImage(from: "https://cdn.thegamesdb.net/images/small/\(fanartFileName)")
+//////
+//          
+////
+////            }
+//          
+////                self.setImage(from: "https://cdn.thegamesdb.net/images/small/\(clearLogoFileName)", imageViewNamed: self.clearLogoImageView)
+////            if self.extraImages!.clearLogoArray!.count > 0 {
+////                print(self.extraImages?.clearLogoArray)
+////                let clearLogoURL = "\(ImageURL.small.rawValue)\(self.extraImages!.clearLogoArray![0])"
+////                print("\(clearLogoURL)")
+////            self.clearLogoImageView.loadImage(from: clearLogoURL) {
+////                print("clear logo loaded")
+////            }
+////            } else {
+//////                self.fanartTitleLabel.text = self.game.title
+//////                self.fanartTitleLabel.isHidden = false
+//////                self.clearLogoImageView.isHidden = false
+////            }
+////            }
+//            
+//            //                let clearlogoFileName = array?.filter({$0.type == "clearlogo"})[0].fileName
+//            //
+//            //                print("clearLogoFileName = \(clearlogoFileName)")
 //            }
-//            }
-            
-            //                let clearlogoFileName = array?.filter({$0.type == "clearlogo"})[0].fileName
-            //
-            //                print("clearLogoFileName = \(clearlogoFileName)")
-            }
         }
 
         
@@ -737,7 +754,7 @@ class DetailViewController: UIViewController, GameDelegate {
             super.viewWillAppear(true)
      let width = boxArtImage.bounds.width
         let height = boxArtImage.bounds.height
-          
+        
 //        boxartImageButton.frame = CGRect(x: boxArtImage.frame.origin.x, y: boxArtImage.frame.origin.y, width: width, height: height)
 //        self.view.bringSubviewToFront(boxartImageButton)
     }
@@ -751,27 +768,27 @@ class DetailViewController: UIViewController, GameDelegate {
     
     
     // MARK - CollctionView Stubs
-    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        print("screenshotsArray \(self.extraImages?.screenshotArray)")
-        return self.extraImages?.screenshotArray!.count ?? 1
-    }
-    
-    
-    func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
-        let cell = collectionView.cellForItem(at: indexPath) as! DetailVCCollectionViewCell
-              print("screenshot before \(screenshotImage)")
-              screenshotImage = cell.screenshotImageView.image
-              print("screenshot after \(screenshotImage)")
-
-              print("didSelectItem at screenshot image = \(screenshotImage)")
-    
-                    print("indexPath.row = \(indexPath.row)")
-                    self.indexPathSegue = indexPath.row
-        
-        
-        
-        return true
-    }
+//    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+//        print("screenshotsArray \(self.extraImages?.screenshotArray)")
+//        return self.extraImages?.screenshotArray!.count ?? 1
+//    }
+//    
+//    
+//    func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
+//        let cell = collectionView.cellForItem(at: indexPath) as! DetailVCCollectionViewCell
+//              print("screenshot before \(screenshotImage)")
+//              screenshotImage = cell.screenshotImageView.image
+//              print("screenshot after \(screenshotImage)")
+//
+//              print("didSelectItem at screenshot image = \(screenshotImage)")
+//    
+//                    print("indexPath.row = \(indexPath.row)")
+//                    self.indexPathSegue = indexPath.row
+//        
+//        
+//        
+//        return true
+//    }
     
 //        func collectionView(_ collectionView: UICollectionView,
 //                                   didSelectItemAt indexPath: IndexPath) {
@@ -787,42 +804,42 @@ class DetailViewController: UIViewController, GameDelegate {
 //    }
     
     
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        
-        let cell = screenshotCollectionView.dequeueReusableCell(withReuseIdentifier: "cell", for: indexPath) as! DetailVCCollectionViewCell
-        
-
-        print("screenshots array = \(screenshotsArray)")
-      
-        
-        if let coverID = self.extraImages?.screenshotArray {
-            let cover = coverID[indexPath.row]
-            print("coverID = \(cover)")
-        cell.screenshotImageView.loadImage(from: "https://cdn.thegamesdb.net/images/medium/\(cover)") {
-                self.ssImageArray.append(cell.screenshotImageView.image)
-                
-            }
-    }
-        
-
-        
-        return cell
-        
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-//        print("indexPath.row = \(indexPath.row)")
-//        self.indexPathSegue = indexPath.row
-//        print(indexPathSegue)
-//                    performSegue(withIdentifier: "showScreenshot", sender: self)
+//    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
 //
-//        screenshotCollectionView.selectItem(at: indexPath, animated: false, scrollPosition: .right)
-
-        
-        
-
-    
-    }
+//        let cell = screenshotCollectionView.dequeueReusableCell(withReuseIdentifier: "cell", for: indexPath) as! ScreenshotCollectionViewCell
+//
+//
+//        print("screenshots array = \(screenshotsArray)")
+//
+//
+//        if let coverID = self.extraImages?.screenshotArray {
+//            let cover = coverID[indexPath.row]
+//            print("coverID = \(cover)")
+//        cell.screenshotImageView.loadImage(from: "https://cdn.thegamesdb.net/images/medium/\(cover)") {
+//                self.ssImageArray.append(cell.screenshotImageView.image)
+//
+//            }
+//    }
+//
+//
+//
+//        return cell
+//
+//    }
+//
+//    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+////        print("indexPath.row = \(indexPath.row)")
+////        self.indexPathSegue = indexPath.row
+////        print(indexPathSegue)
+////                    performSegue(withIdentifier: "showScreenshot", sender: self)
+////
+////        screenshotCollectionView.selectItem(at: indexPath, animated: false, scrollPosition: .right)
+//
+//        
+//        
+//
+//    
+//    }
 //
 //        override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
 //

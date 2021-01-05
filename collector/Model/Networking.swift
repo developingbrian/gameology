@@ -8,7 +8,6 @@
 
 import Foundation
 import UIKit
-import RealmSwift
 
 //var gameData : GameDB?
 let apiKey = "\(Constants.gameDBAPIKey)"
@@ -51,44 +50,45 @@ class Networking {
     var pages : GameNamePages?
     var gameDetailsSS : ScreenScraper?
 //    var imageArray : [UIImage?] = []
-    var fullDB = List<GameInformation>()
+//    var fullDB = List<GameInformation>()
     var owned : Bool?
     weak var delegate: NetworkingDelegate?
     var tempArray = [GameObject]()
     var image = Image()
     var platforms : [String: PlatformInfo] = [:]
     var platformArray = [PlatformInfo]()
+    var userImageArray : [UIImage] = []
     
-    func initialDownload(completed: @escaping () -> () ) {
-        var urlString = "https://cdn.thegamesdb.net/json/database-latest.json"
-        let url = URL(string: urlString)!
-        var requestHeader = URLRequest.init(url: url)
-        requestHeader.httpMethod = "GET"
-        requestHeader.setValue("application/json", forHTTPHeaderField: "Accept")
-        URLSession.shared.dataTask(with: requestHeader) {
-            (data,response, error) in
-            
-            if error == nil {
-                do {
-                    let json = String(data: data!, encoding: .utf8)
-                    print("\(json)")
-                    
-                    if let jsonDecoded = try JSONDecoder().decode(TheGamesDBData?.self, from: data!) {
-                        
-                        self.fullDB = jsonDecoded.data!.games
-//                        self.gameNameBoxart = jsonDecodedByGameName.include?.boxart?.data as! ExtraImages
-                        
-                    }
-                    DispatchQueue.main.async {
-                        completed()
-                    }
-                } catch {
-                    print(error)
-                    
-                }
-            }
-        }.resume()
-    }
+//    func initialDownload(completed: @escaping () -> () ) {
+//        var urlString = "https://cdn.thegamesdb.net/json/database-latest.json"
+//        let url = URL(string: urlString)!
+//        var requestHeader = URLRequest.init(url: url)
+//        requestHeader.httpMethod = "GET"
+//        requestHeader.setValue("application/json", forHTTPHeaderField: "Accept")
+//        URLSession.shared.dataTask(with: requestHeader) {
+//            (data,response, error) in
+//            
+//            if error == nil {
+//                do {
+//                    let json = String(data: data!, encoding: .utf8)
+//                    print("\(json)")
+//                    
+//                    if let jsonDecoded = try JSONDecoder().decode(TheGamesDBData?.self, from: data!) {
+//                        
+//                        self.fullDB = jsonDecoded.data!.games
+////                        self.gameNameBoxart = jsonDecodedByGameName.include?.boxart?.data as! ExtraImages
+//                        
+//                    }
+//                    DispatchQueue.main.async {
+//                        completed()
+//                    }
+//                } catch {
+//                    print(error)
+//                    
+//                }
+//            }
+//        }.resume()
+//    }
     
     func downloadGamesByGameNameJSON(gameNamed: String?, fields: String?, filterByPlatformID: String?, include: String?,pageURL: String?, completed: @escaping () -> () ) {
         var gameName : String?

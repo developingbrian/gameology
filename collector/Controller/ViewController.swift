@@ -100,6 +100,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
     var gameID : Int?
     var gameArray : [GameObject]?
     var segueObject : GameObject?
+    var segueImage : UIImage?
     var searchText : String?
     
     
@@ -114,6 +115,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         super.viewDidLoad()
         print("app started")
         searchBar.delegate = self
+        searchBar.searchBarStyle = .minimal
 //
         
 
@@ -128,10 +130,14 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
          if self.traitCollection.userInterfaceStyle == .light {
         
                 tableView.backgroundColor = UIColor(red: (246/255), green: (246/255), blue: (246/255), alpha: 1)
+//            tableView.backgroundColor = UIColor.white
+       
               
             } else {
 
-                tableView.backgroundColor = UIColor(red: (15/255), green: (15/255), blue: (15/255), alpha: 1)
+                tableView.backgroundColor = UIColor(red: (18/255), green: (18/255), blue: (18/255), alpha: 1)
+                
+//                tableView.backgroundColor = UIColor.black
 
         }
         self.showSpinner(onView: self.view)
@@ -337,12 +343,14 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
                 
             }
             cell.addToLibraryButton.tag = indexPath.row
+
             
             let ownedImage = fetchSaveToLibraryBtnImg(platformID: (cell.platformID)!, owned: true)
             let unownedImage = fetchSaveToLibraryBtnImg(platformID: (cell.platformID)!, owned: false)
             
             if checkForGameInLibrary(name: game.title!, id: game.id!) {
                 cell.addToLibraryButton.setImage(UIImage(named: ownedImage), for: .normal)
+
             } else {
                 cell.addToLibraryButton.setImage(UIImage(named: unownedImage), for: .normal)
             }
@@ -623,10 +631,16 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         if let VC = UIViewController.self as? DetailViewController {
             VC.game = segueObject!
         }
+        
+        if let image = cell.tableViewCoverImage.image {
+            segueImage = image
+        }
         print("segueObject = \(segueObject!)")
         print("seguefrontimagename = \(segueFrontImageName)")
+        if cell.tableViewCoverRearImage.image != nil {
         rearCoverImage = cell.tableViewCoverRearImage?.image!
         print(rearCoverImage)
+        }
         //Segue to DetailViewController
 //        performSegue(withIdentifier: "showDetails", sender: self)
                 performSegue(withIdentifier: "paging", sender: self)
@@ -651,6 +665,8 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
 //            destination.boxart = network.boxart
 //            destination.developerData = network.gameDeveloperData
             destination.game = segueObject!
+            destination.boxartImage = segueImage
+            destination.network = network
 //            destination.boxart = network.boxarts[tableView.indexPathForSelectedRow!.row]
 //            destination.frontImageName = frontImageName
 //            destination.backImageName = backImageName
@@ -778,10 +794,12 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
             if self.traitCollection.userInterfaceStyle == .light {
                    
                 self.tableView.backgroundColor = UIColor(red: (246/255), green: (246/255), blue: (246/255), alpha: 1)
-                         
+
                        } else {
 
-                self.tableView.backgroundColor = UIColor(red: (15/255), green: (15/255), blue: (15/255), alpha: 1)
+                self.tableView.backgroundColor = UIColor(red: (18/255), green: (18/255), blue: (18/255), alpha: 1)
+                        
+//                        self.tableView.backgroundColor = UIColor.black
 
                    }
             
@@ -875,9 +893,14 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
             
 
                    } else {
-                    view.backgroundColor = #colorLiteral(red: 0.05882352941, green: 0.05882352941, blue: 0.05882352941, alpha: 1)
-               platformLabel.backgroundColor = #colorLiteral(red: 0.05882352941, green: 0.05882352941, blue: 0.05882352941, alpha: 1)
-               platformPicker.backgroundColor = #colorLiteral(red: 0.05882352941, green: 0.05882352941, blue: 0.05882352941, alpha: 1)
+                    let darkGray = UIColor(red: (18/255), green: (18/255), blue: (18/255), alpha: 1)
+                    view.backgroundColor = darkGray
+                    searchBar.backgroundColor = darkGray
+                    searchView.backgroundColor = darkGray
+                    searchBar.searchBarStyle = .minimal
+                    
+               platformLabel.backgroundColor = darkGray
+               platformPicker.backgroundColor = darkGray
 //               searchTextField.layer.shadowColor = UIColor.white.cgColor
 
                
@@ -940,6 +963,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         
         if let cell = tableView.cellForRow(at: indexPath!) as? ViewControllerTableViewCell {
             let platform = fetchPlatformObject(platformID: (cell.game?.platformID)!)
+            
             print("platform object \(platform)")
             print("owned \(cell.game?.owned)")
 //            guard let owned = cell.game?.owned else { return }
@@ -1185,6 +1209,8 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         print("cancelSearch called")
         
         navigationItem.searchController?.searchBar.showsCancelButton = false
+        
+        
 //        search!.searchBar.showsCancelButton = false
         search!.searchBar.endEditing(true)
 //        searchController.searchBar.showsCancelButton = false
@@ -1311,6 +1337,8 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         }
         
     }
+    
+
     
 
 func setPlatformIcon() {

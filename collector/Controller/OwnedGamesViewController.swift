@@ -266,10 +266,11 @@ class OwnedGamesViewController: UIViewController, UITableViewDelegate, UITableVi
     }
     
     func makeBackButton() -> UIButton {
+        let lightBlue = UIColor(red: 43/255, green: 149/255, blue: 206/255, alpha: 1)
         let backButton = UIButton(type: .custom)
-        backButton.tintColor = .blue
+        backButton.tintColor = lightBlue
         backButton.setTitle("  Back", for: .normal)
-        backButton.setTitleColor(.blue, for: .normal)
+        backButton.setTitleColor(lightBlue, for: .normal)
         backButton.addTarget(self, action: #selector(self.backButtonPressed), for: .touchUpInside)
         return backButton
     }

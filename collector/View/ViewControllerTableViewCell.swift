@@ -41,6 +41,11 @@ class ViewControllerTableViewCell: UITableViewCell {
     var platform : Platform?
     var platformID: Int?
     var platformName: String?
+
+    
+    func UIColorFromRGB(_ rgbValue: Int) -> UIColor {
+       return UIColor(red: ((CGFloat)((rgbValue & 0xFF0000) >> 16))/255.0, green: ((CGFloat)((rgbValue & 0x00FF00) >> 8))/255.0, blue: ((CGFloat)((rgbValue & 0x0000FF)))/255.0, alpha: 1.0)
+   }
     
     override func prepareForReuse() {
            super.prepareForReuse()
@@ -54,12 +59,15 @@ class ViewControllerTableViewCell: UITableViewCell {
     
     override func awakeFromNib() {
         super.awakeFromNib()
+        let color1 = UIColorFromRGB(0x2B95CE)
+        let color2 = UIColorFromRGB(0x2ECAD5)
         
         addToLibraryButton.layer.cornerRadius = 10
         addToLibraryButton.layer.shadowColor = UIColor.black.cgColor
         addToLibraryButton.layer.shadowOffset = CGSize(width: 0, height: 5)
         addToLibraryButton.layer.shadowRadius = 5
-        addToLibraryButton.layer.shadowOpacity = 0.5
+        addToLibraryButton.layer.shadowOpacity = 0.75
+        addToLibraryButton.applyGradientRounded(colors: [color2.cgColor, color1.cgColor])
         
         // Initialization code
 //        self.delegate = self
@@ -74,15 +82,13 @@ class ViewControllerTableViewCell: UITableViewCell {
       
                 let maskLayer = CAGradientLayer()
                 maskLayer.frame = coverImageShadow.bounds
-                maskLayer.shadowRadius = 8
-                maskLayer.shadowPath = CGPath(roundedRect: coverImageShadow.bounds.insetBy(dx: 9, dy: 9), cornerWidth: 11, cornerHeight: 11, transform: nil)
+                maskLayer.shadowRadius = 4
+                maskLayer.shadowPath = CGPath(roundedRect: coverImageShadow.bounds.insetBy(dx: 15, dy: 15), cornerWidth: 10, cornerHeight: 10, transform: nil)
                 maskLayer.shadowOpacity = 1
                 maskLayer.shadowOffset = CGSize.zero
-                if traitCollection.userInterfaceStyle == .light {
-                maskLayer.shadowColor = UIColor.black.cgColor
-                } else {
-                    maskLayer.shadowColor = UIColor.white.cgColor
-                }
+        maskLayer.shadowColor = UIColor.white.cgColor
+
+
                 coverImageShadow.layer.mask = maskLayer
         
                 coverImageShadow.addSubview(effectView)
@@ -91,9 +97,9 @@ class ViewControllerTableViewCell: UITableViewCell {
 
                coverImageShadow.layer.cornerRadius = 10
                
-               backgroundCell.layer.shadowOffset = CGSize(width: 0, height: 5)
-               backgroundCell.layer.shadowRadius = 5
-               backgroundCell.layer.shadowOpacity = 0.1
+               backgroundCell.layer.shadowOffset = CGSize(width: 0, height: 4)
+               backgroundCell.layer.shadowRadius = 3
+               backgroundCell.layer.shadowOpacity = 0.3
                backgroundCell.layer.cornerRadius = 10
 //               if self.traitCollection.userInterfaceStyle == .light {
 //                   backgroundCell.layer.shadowColor = UIColor.black.cgColor
@@ -241,10 +247,10 @@ class ViewControllerTableViewCell: UITableViewCell {
 //                    }
             print("test 1")
         } else {
-            
+            let eerieBlack = UIColor(red: (40/255), green: (40/255), blue: (40/255), alpha: 1)
             print("Test 2")
             backgroundCell.layer.shadowColor = UIColor.white.cgColor
-            backgroundCell.layer.backgroundColor = UIColor.black.cgColor
+            backgroundCell.layer.backgroundColor = eerieBlack.cgColor
             addToLibraryButton.setTitleColor(UIColor.white, for: .normal)
             addToLibraryButton.tintColor = UIColor.white
 //            if let image = tableViewCoverImage.image {
