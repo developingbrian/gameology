@@ -82,8 +82,6 @@
 		D3AFF6792462403E00DA8EB0 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3AFF6782462403E00DA8EB0 /* Constants.swift */; };
 		D3B1CB01243F859600B968F9 /* GamesDBImages.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3B1CB00243F859600B968F9 /* GamesDBImages.swift */; };
 		D3B2D4E72566F20F00E0DC0A /* MyGameVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3B2D4E62566F20F00E0DC0A /* MyGameVC.swift */; };
-		D3B6EDB725A4DC1300424796 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = D3B6EDB625A4DC1300424796 /* README.md */; };
-		D3B6EDB925A4DC9B00424796 /* image1 2.png in Resources */ = {isa = PBXBuildFile; fileRef = D3B6EDB825A4DC9B00424796 /* image1 2.png */; };
 		D3B90AD525B7F52E00F18817 /* RoundedShadowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3B90AD425B7F52E00F18817 /* RoundedShadowView.swift */; };
 		D3B90AD725B944B100F18817 /* ShadowTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3B90AD625B944B100F18817 /* ShadowTextField.swift */; };
 		D3B97ADF24EDA35B003CA7D1 /* Common.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3B97ADE24EDA35B003CA7D1 /* Common.swift */; };
@@ -181,8 +179,6 @@
 		D3AFF6782462403E00DA8EB0 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		D3B1CB00243F859600B968F9 /* GamesDBImages.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GamesDBImages.swift; sourceTree = "<group>"; };
 		D3B2D4E62566F20F00E0DC0A /* MyGameVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyGameVC.swift; sourceTree = "<group>"; };
-		D3B6EDB625A4DC1300424796 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
-		D3B6EDB825A4DC9B00424796 /* image1 2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "image1 2.png"; path = "../../../Downloads/gameology-master/image1 2.png"; sourceTree = "<group>"; };
 		D3B90AD425B7F52E00F18817 /* RoundedShadowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoundedShadowView.swift; sourceTree = "<group>"; };
 		D3B90AD625B944B100F18817 /* ShadowTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShadowTextField.swift; sourceTree = "<group>"; };
 		D3B97ADE24EDA35B003CA7D1 /* Common.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Common.swift; sourceTree = "<group>"; };
@@ -308,8 +304,6 @@
 				D381960825BFDA3E00A9370F /* Platform+CoreDataProperties.swift */,
 				D381960925BFDA3E00A9370F /* Photos+CoreDataClass.swift */,
 				D381960A25BFDA3E00A9370F /* Photos+CoreDataProperties.swift */,
-				D3B6EDB825A4DC9B00424796 /* image1 2.png */,
-				D3B6EDB625A4DC1300424796 /* README.md */,
 				D389B56E241005B900B8BA54 /* collector */,
 				D389B56D241005B900B8BA54 /* Products */,
 				D3E92EC824FE19AC00F331BE /* Frameworks */,
@@ -433,8 +427,6 @@
 			files = (
 				D31BF69A25073BDB0047C663 /* Main.storyboard in Resources */,
 				D3DACCE7250F417A00583999 /* TableViewCell.xib in Resources */,
-				D3B6EDB725A4DC1300424796 /* README.md in Resources */,
-				D3B6EDB925A4DC9B00424796 /* image1 2.png in Resources */,
 				D389B57C241005C000B8BA54 /* LaunchScreen.storyboard in Resources */,
 				D389B579241005C000B8BA54 /* Assets.xcassets in Resources */,
 			);
