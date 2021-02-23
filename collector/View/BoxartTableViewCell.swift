@@ -12,8 +12,14 @@ class BoxartTableViewCell: UITableViewCell, UICollectionViewDelegate, UICollecti
     var images : Image?
     @IBOutlet var boxartCardView: UIView!
     
+    @IBOutlet weak var boxartBackgroundView: UIView!
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return (images?.boxartArray!.count)!
+        if let boxartArray = images?.boxartArray {
+            return boxartArray.count
+        } else {
+            return 0
+            
+        }
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
@@ -34,9 +40,17 @@ class BoxartTableViewCell: UITableViewCell, UICollectionViewDelegate, UICollecti
         boxartCollectionView.delegate = self
         boxartCollectionView.dataSource = self
         boxartCardView.layer.cornerRadius = 20
-        boxartCardView.layer.shadowRadius = 7
-        boxartCardView.layer.shadowOpacity = 0.35
-        boxartCardView.layer.masksToBounds = false
+
+        
+        if traitCollection.userInterfaceStyle == .light {
+            let lightGray = UIColor(red: (246/255), green: (246/255), blue: (246/255), alpha: 1)
+            boxartBackgroundView.backgroundColor = lightGray
+            boxartCardView.backgroundColor = UIColor.white
+        } else {
+            boxartBackgroundView.backgroundColor = .systemBackground
+            
+            boxartCardView.backgroundColor = .tertiarySystemBackground
+        }
         
     }
 

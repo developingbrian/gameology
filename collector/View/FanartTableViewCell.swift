@@ -12,6 +12,7 @@ class FanartTableViewCell: UITableViewCell, UICollectionViewDelegate, UICollecti
     
     @IBOutlet var fanartCardView: UIView!
     
+    @IBOutlet weak var fanartBackgroundView: UIView!
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return (images?.fanartArray!.count)!
     }
@@ -38,9 +39,16 @@ class FanartTableViewCell: UITableViewCell, UICollectionViewDelegate, UICollecti
         fanartCollectionView.delegate = self
         fanartCollectionView.dataSource = self
         fanartCardView.layer.cornerRadius = 20
-        fanartCardView.layer.shadowRadius = 7
-        fanartCardView.layer.shadowOpacity = 0.35
-        fanartCardView.layer.masksToBounds = false
+
+        
+        if traitCollection.userInterfaceStyle == .light {
+            let lightGray = UIColor(red: (246/255), green: (246/255), blue: (246/255), alpha: 1)
+            fanartBackgroundView.backgroundColor = lightGray
+            fanartCardView.backgroundColor = UIColor.white
+        } else {
+            fanartBackgroundView.backgroundColor = .systemBackground
+            fanartCardView.backgroundColor = .tertiarySystemBackground
+        }
     }
 
     override func setSelected(_ selected: Bool, animated: Bool) {

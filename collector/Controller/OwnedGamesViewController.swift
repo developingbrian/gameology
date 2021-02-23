@@ -69,8 +69,10 @@ class OwnedGamesViewController: UIViewController, UITableViewDelegate, UITableVi
         search.searchBar.placeholder = "Type something here to search"
         navigationItem.hidesSearchBarWhenScrolling = false
         navigationItem.searchController = search
-        
-        
+        let logo = UIImage(named: "glogo44")
+        let imageView = UIImageView(image:logo)
+        imageView.contentMode = .scaleAspectFit
+        self.navigationItem.titleView = imageView
         if self.traitCollection.userInterfaceStyle == .light {
        
                tableView.backgroundColor = UIColor(red: (246/255), green: (246/255), blue: (246/255), alpha: 1)
@@ -237,10 +239,14 @@ class OwnedGamesViewController: UIViewController, UITableViewDelegate, UITableVi
         cell?.gameName = ownedGames[indexPath.row].title
         cell?.platformID = Int(ownedGames[indexPath.row].platformID)
         cell?.platformName = ownedGames[indexPath.row].platformName
-        var urlString = ImageURL.small.rawValue + ownedGames[indexPath.row].boxartImageURL!
-        print(urlString)
+        if let boxartImageURL = ownedGames[indexPath.row].boxartImageURL {
+            let urlString = ImageURL.small.rawValue + boxartImageURL
+            print(urlString)
         var url = URL(string: urlString)!
         cell?.boxartImageView.setImageAnimated(imageUrl: url, placeholderImage: UIImage(named: "noArtNES")!)
+        } else {
+            print(ownedGames[indexPath.row])
+        }
         cell?.boxartShadowImageView.image = cell?.boxartImageView.image
         cell?.gameTitleLabel.text = ownedGames[indexPath.row].title! + "\(ownedGames[indexPath.row].platformID)"
         cell?.releaseDateLabel.text = ownedGames[indexPath.row].releaseDate
@@ -279,7 +285,7 @@ class OwnedGamesViewController: UIViewController, UITableViewDelegate, UITableVi
         print("back button pressed")
 //        dismiss(animated: true, completion: nil)
 //        self.dismiss(animated: true, completion: nil)
-        self.navigationController?.popViewController(animated: true)
+        self.navigationController?.popViewController(animated: false)
 //        tabBarController?.dismiss(animated: true, completion: nil)
 //        navigationController?.popViewController(animated: true)
     }

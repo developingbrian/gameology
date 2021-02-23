@@ -11,6 +11,7 @@ import UIKit
 class ScreenshotTableViewCell: UITableViewCell, UICollectionViewDelegate, UICollectionViewDataSource {
     @IBOutlet var screenshotCardView: UIView!
     
+    @IBOutlet weak var screenshotBackgroundView: UIView!
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return (images?.screenshotArray!.count)!
@@ -38,9 +39,15 @@ class ScreenshotTableViewCell: UITableViewCell, UICollectionViewDelegate, UIColl
         screenshotCollectionView.delegate = self
         screenshotCollectionView.dataSource = self
         screenshotCardView.layer.cornerRadius = 20
-        screenshotCardView.layer.shadowRadius = 7
-        screenshotCardView.layer.shadowOpacity = 0.35
-        screenshotCardView.layer.masksToBounds = false
+        
+        if traitCollection.userInterfaceStyle == .light {
+            let lightGray = UIColor(red: (246/255), green: (246/255), blue: (246/255), alpha: 1)
+            screenshotBackgroundView.backgroundColor = lightGray
+            screenshotCardView.backgroundColor = UIColor.white
+        } else {
+            screenshotBackgroundView.backgroundColor = .systemBackground
+            screenshotCardView.backgroundColor = .tertiarySystemBackground
+        }
     }
 
     override func setSelected(_ selected: Bool, animated: Bool) {

@@ -12,6 +12,8 @@ class PlatformsVC: UIViewController, UITableViewDelegate, UITableViewDataSource 
 
     @IBOutlet weak var tableView: UITableView!
     
+    @IBOutlet weak var ownedGamesLabel: UILabel!
+    
     let persistenceManager = PersistenceManager.shared
     var ownedGames : [SavedGames] = [SavedGames]()
 //    var indexPath : IndexPath?
@@ -32,6 +34,7 @@ class PlatformsVC: UIViewController, UITableViewDelegate, UITableViewDataSource 
         if savedPlatforms.count > 0 {
         if allPlatforms.count < 1 {
             let allGamesObject = Platform(context: persistenceManager.context)
+            
             allGamesObject.name = "All Games"
             allGamesObject.id = 0
             savedPlatforms.insert(allGamesObject, at: 0)
@@ -60,7 +63,11 @@ class PlatformsVC: UIViewController, UITableViewDelegate, UITableViewDataSource 
 //        let tap = UITapGestureRecognizer(target: self.view, action: #selector(UIView.endEditing(_:)))
 //        tap.cancelsTouchesInView = false
 //        tableView.addGestureRecognizer(tap)
-        
+        self.title = "Library"
+        let logo = UIImage(named: "glogo44")
+        let imageView = UIImageView(image:logo)
+        imageView.contentMode = .scaleAspectFit
+        self.navigationItem.titleView = imageView
 
         tableView.reloadData()
     }
@@ -88,9 +95,22 @@ class PlatformsVC: UIViewController, UITableViewDelegate, UITableViewDataSource 
         print(platform.games?.count)
         print(savedPlatforms[indexPath.row].name)
         print(savedPlatforms[indexPath.row].games?.count)
+        if savedPlatforms[indexPath.row].name == "All Games" {
+            print("All games")
+            var count = 0
+            for platform in savedPlatforms {
+                print(platform.games?.count)
+                count += platform.games!.count
+            }
+            print("count \(count)")
+            cell?.ownedTotalLbl.text = "\(count)"
+            ownedGamesLabel.text = "\(count)"
+        } else {
+            cell?.ownedTotalLbl.text = "\(platform.games!.count)"
+        }
         let platformName = self.setPlatformIcon(platformID: Int(savedPlatforms[indexPath.row].id), mode: self.traitCollection.userInterfaceStyle)
         cell?.platformBanner.image = UIImage(named: platformName)
-        cell?.ownedTotalLbl.text = "\(platform.games!.count)"
+        
         print("platform id = \(savedPlatforms[indexPath.row].id)")
         return cell!
     }
@@ -136,7 +156,7 @@ class PlatformsVC: UIViewController, UITableViewDelegate, UITableViewDataSource 
         ownedGamesVC.platformID = segueID
         let platformsVC = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(identifier: "platforms") as! PlatformsVC
         
-        self.navigationController!.pushViewController(ownedGamesVC, animated: true)
+        self.navigationController!.pushViewController(ownedGamesVC, animated: false)
 //        let navigationController = UINavigationController()
 //        let navigationController = UINavigationController(rootViewController: ownedGamesVC)
 //        navigationController.modalPresentationStyle = .fullScreen

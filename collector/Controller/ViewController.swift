@@ -116,6 +116,12 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         print("app started")
         searchBar.delegate = self
         searchBar.searchBarStyle = .minimal
+        
+        
+        let logo = UIImage(named: "glogo44")
+        let imageView = UIImageView(image:logo)
+        imageView.contentMode = .scaleAspectFit
+        self.navigationItem.titleView = imageView
 //
         
 
@@ -134,10 +140,10 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
        
               
             } else {
-
-                tableView.backgroundColor = UIColor(red: (18/255), green: (18/255), blue: (18/255), alpha: 1)
+//
+//                tableView.backgroundColor = UIColor(red: (18/255), green: (18/255), blue: (18/255), alpha: 1)
                 
-//                tableView.backgroundColor = UIColor.black
+                tableView.backgroundColor = UIColor.black
 
         }
         self.showSpinner(onView: self.view)
@@ -228,6 +234,8 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         self.platformPicker.dataSource = self
         tableView.delegate = self
         tableView.dataSource = self
+        self.tableView.autoresizingMask = .flexibleWidth
+
         network.delegate = self
         
         
@@ -797,9 +805,9 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
 
                        } else {
 
-                self.tableView.backgroundColor = UIColor(red: (18/255), green: (18/255), blue: (18/255), alpha: 1)
-                        
-//                        self.tableView.backgroundColor = UIColor.black
+//                self.tableView.backgroundColor = UIColor(red: (18/255), green: (18/255), blue: (18/255), alpha: 1)
+//                        
+                        self.tableView.backgroundColor = UIColor.black
 
                    }
             
@@ -971,38 +979,59 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
             let owned = cell.game?.owned
             let ownedImage = fetchSaveToLibraryBtnImg(platformID: cell.platformID!, owned: true)
             let unownedImage = fetchSaveToLibraryBtnImg(platformID: cell.platformID!, owned: false)
-            
-            if owned != nil {
+            guard let title = cell.game?.title else { return }
+            guard let gameID = cell.game?.id else { return }
+            if checkForGameInLibrary(name: title, id: gameID) {
                 print("owned = \(owned)")
-                if owned! {
+                
+            
+               
+                    
+                    let cancel = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
+                    
+                    let deleteConfirmation = UIAlertAction(title: "Confirm", style: .default) { (action) in
+                        
+                    
+                    
                     cell.addToLibraryButton.setImage(UIImage(named: unownedImage), for: UIControl.State.normal)
                     cell.game?.owned = false
-                gameArray?[(indexPath?.row)!].owned = false
+                        self.gameArray?[(indexPath?.row)!].owned = false
                     print(" check for platform in lib")
                     print(cell.platformName!)
                     print(cell.platformID!)
-                    print(checkForPlatformInLibrary(name: (cell.platformName!), id: Int((cell.platformID!))))
-                    if checkForPlatformInLibrary(name: cell.platformName!, id: Int((cell.platformID!))) {
+                        print(self.checkForPlatformInLibrary(name: (cell.platformName!), id: Int((cell.platformID!))))
+                        if self.checkForPlatformInLibrary(name: cell.platformName!, id: Int((cell.platformID!))) {
                         
-                        deleteGameFromCoreData()
+                            self.deleteGameFromCoreData()
 
                         
-                        let savedPlatforms = persistenceManager.fetch(Platform.self)
+                            let savedPlatforms = self.persistenceManager.fetch(Platform.self)
 //                        var platformCoreData = fetchCoreDataPlatformObject(id: Int((cell.game?.platformID)!))
                         print("saved platforms count = \(savedPlatforms.count)")
                        
-                        let existingPlatforms = fetchCoreDataPlatformObject(id: cell.platformID!)
+                            let existingPlatforms = self.fetchCoreDataPlatformObject(id: cell.platformID!)
                         print("existingPlatforms count = \(existingPlatforms.games?.count)")
                         if existingPlatforms.games!.count < 1 {
 //                        if savedPlatforms.count < 1 {
-                            deletePlatformFromCoreData()
+                            self.deletePlatformFromCoreData()
                         }
 
                        
                     }
-                return
-            }
-            }
+//                return
+                    
+                    
+                    }
+                    
+                    let alert = UIAlertController(title: "Are you sure you wish to delete this game?", message: "Deleting a game is permanent.  Any user saved pictures and stats will not be able to be restored.", preferredStyle: .alert)
+                    alert.addAction(deleteConfirmation)
+                    alert.addAction(cancel)
+                    self.present(alert, animated: true) {
+                        
+                    }
+                    
+            
+            } else {
                 print("not owned")
                 print(cell.platformName)
                 print(cell.platformID)
@@ -1046,24 +1075,30 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
                         if checkForPlatformInLibrary(name: platformName, id: platformID) {
                             print("Platform already exists--retreiving and adding game to platform")
                             let existingPlatform = fetchCoreDataPlatformObject(id: platformID)
-                            print("existing platform is \(existingPlatform)")
+                           
                             existingPlatform.addToGames(currentGame)
-                            
+                            persistenceManager.save()
+                            print("existing platform is \(existingPlatform.games)")
                         }
                         else {
                             print("Platform doesnt exist--creating platform then adding game to platform")
                            savePlatformToCoreData(platformID)
                             let newPlatform = fetchCoreDataPlatformObject(id: platformID)
-                            print("new platform is \(newPlatform)")
+                            
                             newPlatform.addToGames(currentGame)
+                            persistenceManager.save()
+                            
+                            print("new platform is \(newPlatform.games)")
                         }
                             
                         } else {
                             print("Platform doesnt exist--creating platform then adding game to platform")
                            savePlatformToCoreData(platformID)
                             let newPlatform = fetchCoreDataPlatformObject(id: platformID)
-                            print("new platform is \(newPlatform)")
                             newPlatform.addToGames(currentGame)
+                            persistenceManager.save()
+                            print("new platform is \(newPlatform.games)")
+
                         }
 
 
@@ -1074,7 +1109,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
 
                 }
             
-          
+            }
             
             }
         
@@ -1139,7 +1174,8 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
 //            }
 //        }
         
-        
+        getSavedGames()
+        getSavedPlatforms()
         
     }
 

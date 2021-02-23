@@ -12,6 +12,7 @@ import WebKit
 
 class MediaVC: UIViewController, UITableViewDelegate, UITableViewDataSource {
     
+    @IBOutlet var backgroundView: UIView!
     @IBOutlet weak var mediaTableView: UITableView!
     @IBOutlet var clearlogoImageView: UIImageView!
     @IBOutlet var fanartImageView: UIImageView!
@@ -19,6 +20,7 @@ class MediaVC: UIViewController, UITableViewDelegate, UITableViewDataSource {
     @IBOutlet var webView: WKWebView!
     @IBOutlet var playButton: UIButton!
     
+    @IBOutlet weak var viewForButton: UIView!
     func numberOfSections(in tableView: UITableView) -> Int {
         if extraImages?.screenshotArray != nil && extraImages?.fanartArray != nil {
         if (extraImages?.screenshotArray!.count)! > 0 && (extraImages?.fanartArray!.count)! > 0 {
@@ -45,6 +47,7 @@ class MediaVC: UIViewController, UITableViewDelegate, UITableViewDataSource {
     }
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         var boxartCell = UITableViewCell()
+        
         
         if indexPath.section == 0 {
             let cell = mediaTableView.dequeueReusableCell(withIdentifier: "boxartCell", for: indexPath ) as? BoxartTableViewCell
@@ -137,6 +140,20 @@ class MediaVC: UIViewController, UITableViewDelegate, UITableViewDataSource {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        let darkBlue = UIColorFromRGB(0x2B95CE)
+
+        let lightBlue = UIColorFromRGB(0x2ECAD5)
+//        playButton.tintColor = lightBlue
+        
+        let gradientLayer = CAGradientLayer()
+        gradientLayer.colors = [lightBlue.cgColor, darkBlue.cgColor]
+        gradientLayer.frame = viewForButton.bounds
+        gradientLayer.startPoint = CGPoint(x: 0, y: 0)
+        gradientLayer.endPoint = CGPoint(x: 0.5, y: 0)
+        viewForButton.mask = playButton
+        viewForButton.layer.addSublayer(gradientLayer)
+
+
         
 //        mediaCollectionView.delegate = self
 //        mediaCollectionView.dataSource = self
@@ -150,10 +167,21 @@ class MediaVC: UIViewController, UITableViewDelegate, UITableViewDataSource {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(true)
         
+        if traitCollection.userInterfaceStyle == .light {
+            let lightGray = UIColor(red: (246/255), green: (246/255), blue: (246/255), alpha: 1)
+            mediaTableView.backgroundColor = lightGray
+            webView.backgroundColor = lightGray
+            backgroundView.backgroundColor = lightGray
+        } else {
+            mediaTableView.backgroundColor = .systemBackground
+            webView.backgroundColor = .systemBackground
+            backgroundView.backgroundColor = .systemBackground
+        }
+        
         webView.layer.cornerRadius = 10
         webView.layer.masksToBounds = false
-        
-        if (extraImages?.fanartArray!.count)! > 0 {
+        if let fanartArray = extraImages?.fanartArray {
+            if fanartArray.count > 0 {
             fanartImageView.isHidden =
                 false
             let image = (extraImages?.fanartArray?[0])!
@@ -182,16 +210,19 @@ class MediaVC: UIViewController, UITableViewDelegate, UITableViewDataSource {
             fanartImageView.layer.mask = gradient
 
         }
+        }
         
         if extraImages?.clearLogo != "" {
             print("clearlogo is not nil")
             print(extraImages?.clearLogo)
             clearlogoImageView.isHidden = false
             gameNameLabel.isHidden = true
-            let image = (extraImages?.clearLogo)!
+            if let image = extraImages?.clearLogo {
             clearlogoImageView.loadImage(from: baseURL.small.rawValue + image) {
                 print("clearlogo image loaded")
             }
+            }
+            
         } else {
             print("clearlogo is nil")
             gameNameLabel.isHidden = false
@@ -235,6 +266,10 @@ class MediaVC: UIViewController, UITableViewDelegate, UITableViewDataSource {
         
         
     }
+    
+//    func UIColorFromRGB(_ rgbValue: Int) -> UIColor {
+//       return UIColor(red: ((CGFloat)((rgbValue & 0xFF0000) >> 16))/255.0, green: ((CGFloat)((rgbValue & 0x00FF00) >> 8))/255.0, blue: ((CGFloat)((rgbValue & 0x0000FF)))/255.0, alpha: 1.0)
+//   }
     
     /*
     // MARK: - Navigation

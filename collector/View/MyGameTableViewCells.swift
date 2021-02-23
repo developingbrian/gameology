@@ -23,18 +23,19 @@ class PhotoCell: UITableViewCell, UICollectionViewDataSource, UICollectionViewDe
     
     @IBOutlet weak var BoxCollectionView: UICollectionView!
     
+    @IBOutlet weak var photoCellBackgroundView: UIView!
+    
+    @IBOutlet weak var addPhotoButton: UIButton!
     var persistenceManager = PersistenceManager.shared
     var images : Image?
     var vc : MyGameVC?
     var userPhotos: [Photos] = []
-    let fart : [Photos] = []
     var gamePhotos : [Photos] = []
     var boxPhotos:  [Photos] = []
     var manualPhotos: [Photos] = []
     var ownedGames = [SavedGames]()
     var singleGame : SavedGames?
     var gameObject = GameObject()
-    
     
 
     
@@ -236,15 +237,20 @@ class PhotoCell: UITableViewCell, UICollectionViewDataSource, UICollectionViewDe
 class CopyCell : UITableViewCell {
     @IBOutlet weak var physicalCopySwitch: UISwitch!
     @IBOutlet weak var digitalCopySwitch: UISwitch!
+    
+    
     var gameObject = GameObject()
     var savedGame : SavedGames?
     var persistenceManager = PersistenceManager.shared
 
+    @IBOutlet weak var copyCellBackgroundView: UIView!
     
     override func awakeFromNib() {
         super.awakeFromNib()
         // Initialization code
+        
 
+        
         
     }
 
@@ -258,11 +264,11 @@ class CopyCell : UITableViewCell {
         if physicalCopySwitch.isOn {
 
             persistenceManager.updatePhysicalCopyOwned(objectType: SavedGames.self, gameTitle: gameObject.title!, physicalCopy: true)
-            
+
             if digitalCopySwitch.isOn {
                 digitalCopySwitch.setOn(false, animated: true)
                 persistenceManager.updateDigitalCopyOwned(objectType: SavedGames.self, gameTitle: gameObject.title!, digitalCopy: false)
-            }
+                            }
 //            physicalCopySwitch.setOn(true, animated: true)
         } else {
             persistenceManager.updatePhysicalCopyOwned(objectType: SavedGames.self, gameTitle: gameObject.title!, physicalCopy: false)
@@ -297,6 +303,8 @@ class CopyCell : UITableViewCell {
 }
 
 class PriceCell : UITableViewCell, UITextFieldDelegate {
+    
+    @IBOutlet weak var priceCellBackgroundView: UIView!
     let persistenceManager = PersistenceManager.shared
     var gameObject = GameObject()
     var amt = 0
@@ -362,6 +370,7 @@ class PriceCell : UITableViewCell, UITextFieldDelegate {
 
 class NotesCell : UITableViewCell, UITextViewDelegate {
     
+    @IBOutlet weak var notesCellBackgroundView: UIView!
     @IBOutlet weak var notesTextView: UITextView!
     var persistenceManager = PersistenceManager.shared
     var gameObject = GameObject()
@@ -399,6 +408,7 @@ class CompletionCell : UITableViewCell {
     @IBOutlet weak var beatSwitch: UISwitch!
     @IBOutlet weak var completeSwitch: UISwitch!
     @IBOutlet weak var completionSlider: UISlider!
+    @IBOutlet weak var completionCellBackgroundView: UIView!
     @IBOutlet weak var completionLabel: UILabel!
     var persistenceManager = PersistenceManager.shared
     var gameObject = GameObject()
@@ -462,6 +472,7 @@ class CompletionCell : UITableViewCell {
 }
 
 class ConditionCell : UITableViewCell {
+    @IBOutlet weak var conditionCellBackgroundView: UIView!
     @IBOutlet weak var gameOwnedSwitch: UISwitch!
     @IBOutlet weak var manualOwnedSwitch: UISwitch!
     @IBOutlet weak var boxOwnedSwitch: UISwitch!

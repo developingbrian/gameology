@@ -195,6 +195,24 @@ class MyGameVC: UIViewController, UITableViewDelegate, UITableViewDataSource, Ph
             cell.boxPhotos = self.boxPhotos
             cell.manualPhotos = self.manualPhotos
             print("cell.game = \(cell.gameObject)")
+            cell.addPhotoButton.layer.cornerRadius = 10
+            
+            if traitCollection.userInterfaceStyle == .light {
+                let lightGray = UIColor(red: (246/255), green: (246/255), blue: (246/255), alpha: 1)
+                cell.photoCellBackgroundView.backgroundColor = lightGray
+                cell.addPhotoButton.backgroundColor = .white
+                cell.BoxCollectionView.backgroundColor = lightGray
+                cell.GameCollectionView.backgroundColor = lightGray
+                cell.ManualCollectionView.backgroundColor = lightGray
+
+            } else {
+                cell.addPhotoButton.backgroundColor = .tertiarySystemBackground
+                cell.photoCellBackgroundView.backgroundColor = .black
+                cell.BoxCollectionView.backgroundColor = .black
+                cell.GameCollectionView.backgroundColor = .black
+                cell.ManualCollectionView.backgroundColor = .black
+                
+            }
 
             
             return cell
@@ -223,6 +241,12 @@ class MyGameVC: UIViewController, UITableViewDelegate, UITableViewDataSource, Ph
                 }
             }
             
+            if traitCollection.userInterfaceStyle == .light {
+                cell.copyCellBackgroundView.backgroundColor = UIColor(red: (246/255), green: (246/255), blue: (246/255), alpha: 1)
+            } else {
+                cell.copyCellBackgroundView.backgroundColor = .black
+            }
+            
             return cell
         case 2:
             let cell = tableView.dequeueReusableCell(withIdentifier: "priceCell", for: indexPath) as? PriceCell
@@ -237,6 +261,13 @@ class MyGameVC: UIViewController, UITableViewDelegate, UITableViewDataSource, Ph
                     
                     
                 }
+            }
+            cell?.priceTextField.layer.cornerRadius = 10
+            
+            if traitCollection.userInterfaceStyle == .light {
+                cell?.priceCellBackgroundView.backgroundColor = UIColor(red: (246/255), green: (246/255), blue: (246/255), alpha: 1)
+            } else {
+                cell?.priceCellBackgroundView.backgroundColor = .black
             }
             
             return cell!
@@ -253,7 +284,11 @@ class MyGameVC: UIViewController, UITableViewDelegate, UITableViewDataSource, Ph
                     
                 }
             }
-            
+            if traitCollection.userInterfaceStyle == .light {
+                cell?.notesCellBackgroundView.backgroundColor = UIColor(red: (246/255), green: (246/255), blue: (246/255), alpha: 1)
+            } else {
+                cell?.notesCellBackgroundView.backgroundColor = .black
+            }
             
             return cell!
         case 4:
@@ -283,7 +318,11 @@ class MyGameVC: UIViewController, UITableViewDelegate, UITableViewDataSource, Ph
                 }
             }
             
-            
+            if traitCollection.userInterfaceStyle == .light {
+                cell?.completionCellBackgroundView.backgroundColor = UIColor(red: (246/255), green: (246/255), blue: (246/255), alpha: 1)
+            } else {
+                cell?.completionCellBackgroundView.backgroundColor = .black
+            }
             return cell!
         case 5:
             let cell = tableView.dequeueReusableCell(withIdentifier: "conditionCell", for: indexPath) as? ConditionCell
@@ -344,6 +383,12 @@ class MyGameVC: UIViewController, UITableViewDelegate, UITableViewDataSource, Ph
                 }
             }
             
+            if traitCollection.userInterfaceStyle == .light {
+                cell?.conditionCellBackgroundView.backgroundColor = UIColor(red: (246/255), green: (246/255), blue: (246/255), alpha: 1)
+            } else {
+                cell?.conditionCellBackgroundView.backgroundColor = .black
+            }
+            
             return cell!
         default:
             return initialCell
@@ -360,6 +405,7 @@ class MyGameVC: UIViewController, UITableViewDelegate, UITableViewDataSource, Ph
         super.viewDidLoad()
         tableView.delegate = self
         tableView.dataSource = self
+        
         
         let tapGestureReconizer = UITapGestureRecognizer(target: self, action: #selector(tap))
         tapGestureReconizer.cancelsTouchesInView = false

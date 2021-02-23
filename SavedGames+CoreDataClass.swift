@@ -2,8 +2,8 @@
 //  SavedGames+CoreDataClass.swift
 //  collector
 //
-//  Created by Brian on 12/17/20.
-//  Copyright © 2020 Brian. All rights reserved.
+//  Created by Brian on 1/25/21.
+//  Copyright © 2021 Brian. All rights reserved.
 //
 //
 

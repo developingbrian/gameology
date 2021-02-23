@@ -48,9 +48,33 @@
         <relationship name="photo" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Photos" inverseName="games" inverseEntity="Photos"/>
         <relationship name="platform" optional="YES" maxCount="1" deletionRule="Deny" destinationEntity="Platform" inverseName="games" inverseEntity="Platform"/>
     </entity>
+    <entity name="WishList" representedClassName="WishList" syncable="YES">
+        <attribute name="boxartImage" optional="YES" attributeType="Binary"/>
+        <attribute name="boxartImageURL" optional="YES" attributeType="String"/>
+        <attribute name="clearlogoImage" optional="YES" attributeType="Binary"/>
+        <attribute name="clearlogoImageURL" optional="YES" attributeType="String"/>
+        <attribute name="developerName" optional="YES" attributeType="String"/>
+        <attribute name="fanartImage" optional="YES" attributeType="Binary"/>
+        <attribute name="fanartImageURL" optional="YES" attributeType="String"/>
+        <attribute name="gameID" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="gameOwned" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="genre" optional="YES" attributeType="String"/>
+        <attribute name="genres" optional="YES" attributeType="Transformable" customClassName="Array&lt;String&gt;"/>
+        <attribute name="inWishlist" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="maxPlayers" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="overview" optional="YES" attributeType="String"/>
+        <attribute name="platformID" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="platformName" optional="YES" attributeType="String"/>
+        <attribute name="rating" optional="YES" attributeType="String"/>
+        <attribute name="releaseDate" optional="YES" attributeType="String"/>
+        <attribute name="releaseYear" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="title" optional="YES" attributeType="String"/>
+        <attribute name="youtubeURL" optional="YES" attributeType="String"/>
+    </entity>
     <elements>
         <element name="Photos" positionX="284.9213256835938" positionY="-94.96722412109375" width="128" height="103"/>
         <element name="Platform" positionX="-45.56683349609375" positionY="-85.45216369628906" width="128" height="88"/>
-        <element name="SavedGames" positionX="114.3377685546875" positionY="-31.79057312011719" width="128" height="568"/>
+        <element name="SavedGames" positionX="118.6129150390625" positionY="19.99974060058594" width="128" height="568"/>
+        <element name="WishList" positionX="342.943359375" positionY="66.23011779785156" width="128" height="358"/>
     </elements>
 </model>

@@ -43,9 +43,7 @@ class ViewControllerTableViewCell: UITableViewCell {
     var platformName: String?
 
     
-    func UIColorFromRGB(_ rgbValue: Int) -> UIColor {
-       return UIColor(red: ((CGFloat)((rgbValue & 0xFF0000) >> 16))/255.0, green: ((CGFloat)((rgbValue & 0x00FF00) >> 8))/255.0, blue: ((CGFloat)((rgbValue & 0x0000FF)))/255.0, alpha: 1.0)
-   }
+  
     
     override func prepareForReuse() {
            super.prepareForReuse()
@@ -57,6 +55,13 @@ class ViewControllerTableViewCell: UITableViewCell {
 //        tableViewCoverImage.image = UIImage(named: "noArtNES")
              }
     
+    override func layoutSubviews() {
+        super.layoutSubviews()
+
+        autoresizingMask = .flexibleWidth
+        layoutIfNeeded()
+    }
+    
     override func awakeFromNib() {
         super.awakeFromNib()
         let color1 = UIColorFromRGB(0x2B95CE)
@@ -67,10 +72,11 @@ class ViewControllerTableViewCell: UITableViewCell {
         addToLibraryButton.layer.shadowOffset = CGSize(width: 0, height: 5)
         addToLibraryButton.layer.shadowRadius = 5
         addToLibraryButton.layer.shadowOpacity = 0.75
-        addToLibraryButton.applyGradientRounded(colors: [color2.cgColor, color1.cgColor])
+        addToLibraryButton.applyGradientRounded(layoutIfNeeded: true, colors: [color2.cgColor, color1.cgColor])
         
         // Initialization code
 //        self.delegate = self
+        
         let effect = UIBlurEffect(style: .regular)
                 let effectView = UIVisualEffectView(effect: effect)
         
@@ -97,10 +103,10 @@ class ViewControllerTableViewCell: UITableViewCell {
 
                coverImageShadow.layer.cornerRadius = 10
                
-               backgroundCell.layer.shadowOffset = CGSize(width: 0, height: 4)
-               backgroundCell.layer.shadowRadius = 3
-               backgroundCell.layer.shadowOpacity = 0.3
-               backgroundCell.layer.cornerRadius = 10
+//               backgroundCell.layer.shadowOffset = CGSize(width: 0, height: 4)
+//               backgroundCell.layer.shadowRadius = 3
+//               backgroundCell.layer.shadowOpacity = 0.3
+//               backgroundCell.layer.cornerRadius = 12
 //               if self.traitCollection.userInterfaceStyle == .light {
 //                   backgroundCell.layer.shadowColor = UIColor.black.cgColor
 //                   backgroundCell.layer.backgroundColor = UIColor.white.cgColor
@@ -218,8 +224,8 @@ class ViewControllerTableViewCell: UITableViewCell {
 //        backgroundCell.layer.shadowOpacity = 0.1
 //        backgroundCell.layer.cornerRadius = 10
         if self.traitCollection.userInterfaceStyle == .light {
-            backgroundCell.layer.shadowColor = UIColor.black.cgColor
-            backgroundCell.layer.backgroundColor = UIColor.white.cgColor
+//            backgroundCell.layer.shadowColor = UIColor.black.cgColor
+//            backgroundCell.layer.backgroundColor = UIColor.white.cgColor
             addToLibraryButton.setTitleColor(UIColor.black, for: .normal)
             addToLibraryButton.tintColor = UIColor.black
             
@@ -249,8 +255,8 @@ class ViewControllerTableViewCell: UITableViewCell {
         } else {
             let eerieBlack = UIColor(red: (40/255), green: (40/255), blue: (40/255), alpha: 1)
             print("Test 2")
-            backgroundCell.layer.shadowColor = UIColor.white.cgColor
-            backgroundCell.layer.backgroundColor = eerieBlack.cgColor
+//            backgroundCell.layer.shadowColor = UIColor.white.cgColor
+//            backgroundCell.layer.backgroundColor = eerieBlack.cgColor
             addToLibraryButton.setTitleColor(UIColor.white, for: .normal)
             addToLibraryButton.tintColor = UIColor.white
 //            if let image = tableViewCoverImage.image {

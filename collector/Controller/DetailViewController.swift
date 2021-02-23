@@ -129,14 +129,16 @@ class DetailViewController: UIViewController, GameDelegate {
         if traitCollection.userInterfaceStyle == .light {
             titleView.backgroundColor = UIColor.white
             backgroundView.backgroundColor = UIColor(red: (246/255), green: (246/255), blue: (246/255), alpha: 1)
-            titleView.layer.shadowColor = UIColor.black.cgColor
-            titleView.layer.shadowRadius = 7
-            titleView.layer.shadowOpacity = 0.5
-            titleView.layer.masksToBounds = false
+//            titleView.layer.shadowColor = UIColor.black.cgColor
+//            titleView.layer.shadowRadius = 7
+//            titleView.layer.shadowOpacity = 0.5
+//            titleView.layer.masksToBounds = false
         } else {
-            titleView.backgroundColor = UIColor(red: 59/255, green: 61/255, blue: 66/255, alpha: 1)
-            titleView.layer.shadowColor = UIColor(red: 25/255, green: 25/255, blue: 25/255, alpha: 1).cgColor
-            backgroundView.backgroundColor = UIColor(red: (23/255), green: (25/255), blue: (26/255), alpha: 1)
+//            titleView.backgroundColor = UIColor(red: 59/255, green: 61/255, blue: 66/255, alpha: 1)
+            titleView.backgroundColor = .tertiarySystemBackground
+//            titleView.layer.shadowColor = UIColor(red: 25/255, green: 25/255, blue: 25/255, alpha: 1).cgColor
+//            backgroundView.backgroundColor = UIColor(red: (23/255), green: (25/255), blue: (26/255), alpha: 1)
+            backgroundView.backgroundColor = .systemBackground
         }
 
         var largeBaseURL = ImageURL.large

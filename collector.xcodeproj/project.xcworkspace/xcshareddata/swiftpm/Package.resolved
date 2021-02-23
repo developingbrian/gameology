@@ -47,6 +47,15 @@
         }
       },
       {
+        "package": "SPAlert",
+        "repositoryURL": "https://github.com/varabeis/SPAlert",
+        "state": {
+          "branch": null,
+          "revision": "0c28dc4aa42c4f2c1cef7ad892d5d6ecbb30ebd2",
+          "version": "3.0.3"
+        }
+      },
+      {
         "package": "SweeterSwift",
         "repositoryURL": "https://github.com/yonat/SweeterSwift",
         "state": {

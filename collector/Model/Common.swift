@@ -18,7 +18,7 @@ let network = Networking()
 extension UIButton {
     func applyGradient(colors: [CGColor]) {
         self.backgroundColor = nil
-        self.layoutIfNeeded()
+//        self.layoutIfNeeded()
         let gradientLayer = CAGradientLayer()
         gradientLayer.colors = colors
         gradientLayer.startPoint = CGPoint(x: 0, y: 0)
@@ -39,14 +39,18 @@ extension UIButton {
         self.titleLabel?.textColor = UIColor.white
     }
     
-    func applyGradientRounded(colors: [CGColor]) {
+    func applyGradientRounded(layoutIfNeeded: Bool, colors: [CGColor]) {
         self.backgroundColor = nil
+        if layoutIfNeeded {
         self.layoutIfNeeded()
+        }
+            
         let gradientLayer = CAGradientLayer()
         gradientLayer.colors = colors
         gradientLayer.startPoint = CGPoint(x: 0, y: 0)
         gradientLayer.endPoint = CGPoint(x: 0.5, y: 0)
         gradientLayer.frame = self.bounds
+        self.layer.cornerRadius = 10
         gradientLayer.cornerRadius = 10
 
         gradientLayer.shadowColor = UIColor.darkGray.cgColor
@@ -58,7 +62,7 @@ extension UIButton {
         self.layer.insertSublayer(gradientLayer, at: 0)
         self.contentVerticalAlignment = .center
         self.setTitleColor(UIColor.white, for: .normal)
-        self.titleLabel?.font = UIFont.boldSystemFont(ofSize: 17.0)
+//        self.titleLabel?.font = UIFont.boldSystemFont(ofSize: 17.0)
         self.titleLabel?.textColor = UIColor.white
     }
 
@@ -95,12 +99,20 @@ extension UICollectionView {
 extension UIViewController {
 
 //var platformImageName : String
-
+    
+    
+    func UIColorFromRGB(_ rgbValue: Int) -> UIColor {
+       return UIColor(red: ((CGFloat)((rgbValue & 0xFF0000) >> 16))/255.0, green: ((CGFloat)((rgbValue & 0x00FF00) >> 8))/255.0, blue: ((CGFloat)((rgbValue & 0x0000FF)))/255.0, alpha: 1.0)
+   }
+    
+    
+    
         func showSpinner(onView : UIView) {
 //            let spinnerView = UIView.init(frame: onView.bounds)
             onView.isHidden = false
             let spinnerView = NVActivityIndicatorView(frame: onView.bounds, type: .pacman, padding: 160)
             spinnerView.backgroundColor = UIColor.init(red: 0.5, green: 0.5, blue: 0.5, alpha: 0.5)
+            
             onView.backgroundColor = spinnerView.backgroundColor
 //            let ai = UIActivityIndicatorView.init(style: .whiteLarge)
             spinnerView.startAnimating()
@@ -193,6 +205,27 @@ extension UIViewController {
 
         return platform
         
+    }
+    
+    func changePlatformNameToID(platformName: String) -> Int {
+        
+
+
+        switch platformName {
+        case "Nintendo Entertainment System (NES)":
+            return 7
+        case "Super Nintendo (SNES)":
+            return 6
+        case "Nintendo Game Boy Advance":
+            return 5
+        case "Sega Genesis":
+            return 18
+            
+        default:
+            print("invalid platform")
+        }
+        
+        return 1
     }
     
 func setPlatformIcon(platformID: Int?, mode: UIUserInterfaceStyle?) -> String {
@@ -447,6 +480,37 @@ extension UIImageView {
 
 
 extension UIImage {
+    
+    
+ 
+
+    func tintedWithLinearGradientColors(colorsArr: [CGColor]) -> UIImage {
+        UIGraphicsBeginImageContextWithOptions(self.size, false, self.scale);
+        guard let context = UIGraphicsGetCurrentContext() else {
+            return UIImage()
+        }
+        context.translateBy(x: self.size.width, y: 0)
+        context.scaleBy(x: -1, y: 1)
+
+        context.setBlendMode(.normal)
+        let rect = CGRect.init(x: 0, y: 0, width: size.width, height: size.height)
+
+        // Create gradient
+        let colors = colorsArr as CFArray
+        let space = CGColorSpaceCreateDeviceRGB()
+        let gradient = CGGradient(colorsSpace: space, colors: colors, locations: nil)
+
+        // Apply gradient
+        context.clip(to: rect, mask: self.cgImage!)
+        context.drawLinearGradient(gradient!, start: CGPoint(x: 0, y: 0), end: CGPoint(x: self.size.width, y: 0), options: .drawsAfterEndLocation)
+        let gradientImage = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+
+        return gradientImage!
+    }
+
+    
+    
     var averageColor: UIColor? {
         guard let inputImage = CIImage(image: self) else { return nil }
         let extentVector = CIVector(x: inputImage.extent.origin.x, y: inputImage.extent.origin.y, z: inputImage.extent.size.width, w: inputImage.extent.size.height)
@@ -509,4 +573,38 @@ extension UIImage {
     
 }
 
+extension UITableViewCell {
+    
+    
+    func UIColorFromRGB(_ rgbValue: Int) -> UIColor {
+       return UIColor(red: ((CGFloat)((rgbValue & 0xFF0000) >> 16))/255.0, green: ((CGFloat)((rgbValue & 0x00FF00) >> 8))/255.0, blue: ((CGFloat)((rgbValue & 0x0000FF)))/255.0, alpha: 1.0)
+   }
+    
+    
+}
 
+
+extension Array where Element: Hashable {
+    func removingDuplicates() -> [Element] {
+        var addedDict = [Element: Bool]()
+
+        return filter {
+            addedDict.updateValue(true, forKey: $0) == nil
+        }
+    }
+
+    mutating func removeDuplicates() {
+        self = self.removingDuplicates()
+    }
+}
+
+extension UIView {
+    func addConstrained(subview: UIView) {
+        addSubview(subview)
+        subview.translatesAutoresizingMaskIntoConstraints = false
+        subview.topAnchor.constraint(equalTo: topAnchor).isActive = true
+        subview.leadingAnchor.constraint(equalTo: leadingAnchor).isActive = true
+        subview.trailingAnchor.constraint(equalTo: trailingAnchor).isActive = true
+        subview.bottomAnchor.constraint(equalTo: bottomAnchor).isActive = true
+    }
+}

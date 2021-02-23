@@ -155,14 +155,23 @@ extension ViewController {
             game.rating = cell.game?.rating
             game.developerName = cell.game?.developer
             game.owned = true
-            game.gameID = Int32((cell.game?.id)!)
-            game.platformID = Int64((cell.game?.platformID)!)
-            game.maxPlayers = Int64((cell.game?.maxPlayers)!)
+            if let gameID = cell.game?.id {
+                game.gameID = Int32(gameID)
+            }
+            if let platformID = cell.game?.platformID {
+                game.platformID = Int64(platformID)
+            }
+            if let maxPlayers = cell.game?.maxPlayers {
+                game.maxPlayers = Int64(maxPlayers)
+            }
             
 //            game.platform?.id = Int32(platformObject.id)
 //            game.platform?.name = platformObject.name
             game.genre = cell.game?.genreDescriptions
-            game.genres = cell.game?.genres!
+            if let genres = cell.game?.genres {
+                game.genres = genres
+
+            }
             
 //            let platformObject1 = savePlatformToCoreData(platformObject.id)
 //            platformObject1.addToGames(game)

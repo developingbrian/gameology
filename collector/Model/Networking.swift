@@ -179,7 +179,7 @@ class Networking {
                                 guard let id = game.id else { return }
                               
                                 game.boxartFrontImage = fetchFrontBoxart(id: id)
-                                    
+                                    print("** \(game.boxartFrontImage)")
                                 game.boxartRearImage = fetchRearBoxart(id: id)
                             
                                 game.owned = delegate?.checkForGameInLibrary(name: name, id: id)
