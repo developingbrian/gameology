@@ -10,7 +10,11 @@ import UIKit
 
 class FilterVCTableViewCell: UITableViewCell {
     @IBOutlet weak var filterChoiceLbl: UILabel!
-        
+    var filterChoice : String? {
+        didSet {
+            configureCell()
+        }
+    }
 
     override func awakeFromNib() {
         super.awakeFromNib()
@@ -22,12 +26,27 @@ class FilterVCTableViewCell: UITableViewCell {
     override func setSelected(_ selected: Bool, animated: Bool) {
         super.setSelected(selected, animated: animated)
         self.accessoryType = selected ? .checkmark : .none
+        self.tintColor = .label
+        self.backgroundColor = .tertiarySystemBackground
         // Configure the view for the selected state
         if selected {
-            filterChoiceLbl.textColor = UIColor.red
+            let lightBlue = UIColorFromRGB(0x2B95CE)
+
+            filterChoiceLbl.textColor = lightBlue
         } else {
-            filterChoiceLbl.textColor = UIColor.black
+            filterChoiceLbl.textColor = UIColor.label
         }
+        
+    }
+    
+}
+
+extension FilterVCTableViewCell {
+    
+    func configureCell() {
+        
+        filterChoiceLbl.text = filterChoice
+        
         
     }
     

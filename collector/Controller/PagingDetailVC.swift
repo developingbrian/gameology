@@ -9,31 +9,12 @@
 import UIKit
 import Parchment
 
-class PagingDetailVC: UIViewController, PagingViewControllerDataSource, PagingViewControllerDelegate {
-    func pagingViewController(_: PagingViewController, pagingItemAt index: Int) -> PagingItem {
-       
-        return PagingIndexItem(index: index, title: titles[index])
-        
-    }
+class PagingDetailVC: UIViewController {
     
-    func pagingViewController(_: PagingViewController, viewControllerAt index: Int) -> UIViewController {
-        return viewControllers[index]
-        }
-  
-
-    func numberOfViewControllers(in pagingViewController: PagingViewController) -> Int {
-        guard let title = game.title else { return 2 }
-        guard let gameID = game.id else { return 2 }
-        if checkForGameInLibrary(name: title, id: gameID) {
-            return 3
-        } else {
-            return 2
-        }
-    }
     
 
     var game = GameObject()
-    var network = Networking()
+    var network = Networking.shared
     var extraImages : Image?
     var screenshotArray : [GameImages.Inner] = []
     var fanartArray : [GameImages.Inner] = []
@@ -43,26 +24,40 @@ class PagingDetailVC: UIViewController, PagingViewControllerDataSource, PagingVi
     var boxartImage : UIImage?
     var pagingViewController = PagingViewController()
     var savedGames : [SavedGames] = [SavedGames]()
+    var savedGenres : [GameGenre] = []
     var wishList : [WishList] = [WishList]()
     var savedPlatforms : [Platform] = [Platform]()
     var viewControllers : [UIViewController] = []
     let titles = ["Details", "Media", "My Game"]
+    let gradientLayer = CAGradientLayer()
+    let screenSize = UIScreen.main.bounds
+    var titled = ""
+    var gameID = 0
+    let buttonImgView = UIImageView()
+
+
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(true)
 
-        
+
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        setAppearance()
+        self.pagingViewController.reloadData()
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
         self.navigationController?.navigationBar.isTranslucent = false
         self.tabBarController?.tabBar.isTranslucent = false
-//        self.navigationController?.navigationBar.barTintColor = .black
         
         print("pagingVC gameObject = \(game)")
-        
         pagingViewController.delegate = self
         pagingViewController.dataSource = self
+        
+
         
         let storyboard = UIStoryboard(name: "Main", bundle: nil)
         let firstViewController = storyboard.instantiateViewController(withIdentifier: "FirstViewController")
@@ -73,81 +68,116 @@ class PagingDetailVC: UIViewController, PagingViewControllerDataSource, PagingVi
         let detailVC = firstViewController as? DetailViewController
         let mediaVC = secondViewController as? MediaVC
         let myGameVC = thirdViewController as? MyGameVC
+        
         detailVC?.game = self.game
         mediaVC?.game = self.game
         myGameVC?.game = self.game
-        self.network.downloadGameImageJSON(gameID: game.id!) {
-            print("PagingVC images downloaded")
-            self.extraImages = self.network.image
-            
-            
-            mediaVC?.extraImages = self.extraImages
-        }
-        guard let title = game.title else { return }
-        guard let gameID = game.id else { return }
 
-    
-        addChild(pagingViewController)
+
+
+        
+        if let gameTitle = game.title {
+            titled = gameTitle
+        }
+        if let id = game.id {
+            gameID = id
+        }
+        
+
         view.addSubview(pagingViewController.view)
+
+        addChild(pagingViewController)
+        view.constrainToEdges(pagingViewController.view)
         pagingViewController.didMove(toParent: self)
+        
         pagingViewController.view.translatesAutoresizingMaskIntoConstraints = false
         
+        let logo = UIImage(named: "glogo44")
+        let imageView = UIImageView(image:logo)
+        imageView.contentMode = .scaleAspectFit
+        self.navigationItem.titleView = imageView
         
-        
-        button = UIButton(frame: CGRect(x: 100, y: 100, width: 415, height: 60))
-        button.backgroundColor = UIColor(red: 121/255, green: 121/255, blue: 121/255, alpha: 1)
-        button.layer.shadowRadius = 5
-        button.layer.shadowOpacity = 0.35
-        button.layer.masksToBounds = false
-        button.translatesAutoresizingMaskIntoConstraints = false
-        button.tintColor = UIColor.white
-        button.setTitleColor(UIColor.white, for: .normal)
-        
-        
-        
-        guard let platformID = game.platformID else { return }
-        guard game.owned != nil else { return }
-        let gameOwned = checkForGameInLibrary(name: title, id: gameID)
-        let buttonImage = fetchAddToButtonIcon(platformID: platformID, owned: gameOwned)
-        if checkForGameInLibrary(name: title, id: gameID) {
 
-            button.setTitle("Remove from Library", for: .normal)
-        } else {
-            button.setTitle("Add to Library", for: .normal)
-            }
-        button.addTarget(self, action: #selector(self.addToLibraryButtonPressed), for: .touchUpInside)
-        button.titleEdgeInsets = UIEdgeInsets(top: 0, left: -35, bottom: 0, right: 0)
-        button.setImage(UIImage(named: buttonImage), for: .normal)
-        button.imageEdgeInsets = UIEdgeInsets(top: 10, left: 60, bottom: 10, right: 300)
-        self.view.addSubview(button)
-        button.centerXAnchor.constraint(equalTo: pagingViewController.view.centerXAnchor).isActive = true
-        button.widthAnchor.constraint(equalTo: pagingViewController.view.widthAnchor).isActive = true
-        button.heightAnchor.constraint(equalToConstant: 60).isActive = true
-        button.bottomAnchor.constraint(equalTo: pagingViewController.view.bottomAnchor, constant: 0).isActive = true
-        
-        let color1 = UIColorFromRGB(0x2B95CE)
-        let color2 = UIColorFromRGB(0x2ECAD5)
-        _ = UIColorFromRGB(0xe07652)
-        _ = UIColorFromRGB(0xa7272d)
-        _ = UIColorFromRGB(0x750004)
-        _ = UIColorFromRGB(0xf5a402)
-//        button.applyGradient(colors:[liteOrange.cgColor, maroon.cgColor] )
-        button.applyGradient(colors:[color2.cgColor, color1.cgColor] )
-//        button.applyGradient(colors:[orange.cgColor, darkerRed.cgColor])
+
+        createAddToLibraryButton()
+        createWishlistButton()
+
         pagingViewController.indicatorColor = .white
         let insets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
         pagingViewController.indicatorOptions = .visible(height: 3, zIndex: 1, spacing: insets , insets: insets)
         
-//        pagingViewController.applyGradient(colors: [color2.cgColor, color1.cgColor])
+
+
+        setAppearance()
+
         
+    }
+    
+    
+    override func viewDidLayoutSubviews() {
+      gradientLayer.frame = button.bounds
+    }
+
+    override var shouldAutomaticallyForwardAppearanceMethods: Bool {
+        return true
+    }
+    
+    
+    func setAppearance() {
+        print("setting appearance in pagingVC")
         
+        let defaults = UserDefaults.standard
+        let appearanceSelection = defaults.integer(forKey: "appearanceSelection")
+
+        
+        if appearanceSelection == 0 {
+            self.navigationController?.overrideUserInterfaceStyle = .unspecified
+            self.tabBarController?.overrideUserInterfaceStyle = .unspecified
+            overrideUserInterfaceStyle = .unspecified
+        } else if appearanceSelection == 1 {
+            overrideUserInterfaceStyle = .light
+            self.navigationController?.overrideUserInterfaceStyle = .light
+            self.tabBarController?.overrideUserInterfaceStyle = .light
+
+
+        } else {
+            overrideUserInterfaceStyle = .dark
+            self.navigationController?.overrideUserInterfaceStyle = .dark
+            self.tabBarController?.overrideUserInterfaceStyle = .dark
+
+        }
+        
+        if traitCollection.userInterfaceStyle == .light {
+            let color1 = UIColorFromRGB(0x2B95CE)
+
+            pagingViewController.menuBackgroundColor = .tertiarySystemBackground
+            pagingViewController.borderColor = .gray
+            pagingViewController.textColor = .black
+            pagingViewController.selectedBackgroundColor = color1
+            pagingViewController.selectedTextColor = .white
+            pagingViewController.reloadData()
+
+        } else if traitCollection.userInterfaceStyle == .dark {
+           let color1 = UIColorFromRGB(0x2B95CE)
+
+            pagingViewController.menuBackgroundColor = .tertiarySystemBackground
+            pagingViewController.textColor = UIColor.white
+            pagingViewController.selectedTextColor = UIColor.white
+            pagingViewController.selectedBackgroundColor = color1
+            pagingViewController.borderColor = .tertiarySystemBackground
+            pagingViewController.reloadData()
+        }
+    }
+    
+    
+    func createWishlistButton() {
         
         wishlistButton = UIButton(type: .system)
-        if checkForGameInWishList(name: title, id: gameID) {
-        wishlistButton.setTitle("Remove from Wishlist", for: .normal)
+        if checkForGameInWishList(name: titled, id: gameID) {
+        wishlistButton.setTitle("Wishlist", for: .normal)
         wishlistButton.setImage(UIImage(systemName: "star.fill"), for: .normal)
         } else {
-        wishlistButton.setTitle("Add to Wishlist", for: .normal)
+        wishlistButton.setTitle("Wishlist", for: .normal)
         wishlistButton.setImage(UIImage(systemName: "star"), for: .normal)
         }
         wishlistButton.contentHorizontalAlignment = .left
@@ -155,62 +185,115 @@ class PagingDetailVC: UIViewController, PagingViewControllerDataSource, PagingVi
         wishlistButton.semanticContentAttribute = .forceRightToLeft
         wishlistButton.sizeToFit()
         wishlistButton.addTarget(self, action: #selector(self.addToWishListButtonPressed), for: .touchUpInside)
-//        wishlistButton.transform = CGAffineTransform(scaleX: -1.0, y: 1.0)
-//        wishlistButton.titleLabel?.transform = CGAffineTransform(scaleX: -1.0, y: 1.0)
-//        wishlistButton.imageView?.transform = CGAffineTransform(scaleX: -1.0, y: 1.0)
-        self.navigationItem.rightBarButtonItem = UIBarButtonItem(customView: wishlistButton)
-        
-        
-        
-        
-        
-        if self.traitCollection.userInterfaceStyle == .light {
-            let lightGray = UIColor(red: (246/255), green: (246/255), blue: (246/255), alpha: 1)
-            _ = UIColor(red: 167, green: 15, blue: 0, alpha: 1)
 
-            pagingViewController.menuBackgroundColor = lightGray
-            pagingViewController.borderColor = .gray
-            pagingViewController.textColor = UIColor.black
-            pagingViewController.selectedBackgroundColor = color1
-            pagingViewController.selectedTextColor = .white
-           } else {
-            let darkGray = UIColor(red: (23/255), green: (25/255), blue: (26/255), alpha: 1)
-            _ = UIColor(red: 227/255, green: 193/255, blue: 58/255, alpha: 1)
+        
+        if checkForGameInLibrary(name: titled, id: gameID) {
+            self.navigationItem.rightBarButtonItem = nil
+        } else {
+            self.navigationItem.rightBarButtonItem = UIBarButtonItem(customView: wishlistButton)
+        }
+    }
+    
+    func createAddToLibraryButton() {
+        let screenWidth = screenSize.width
+        
+        button = UIButton(frame: CGRect(x: 100, y: 100, width: 430, height: 60))
+        button.backgroundColor = UIColor(red: 121/255, green: 121/255, blue: 121/255, alpha: 1)
+        button.layer.shadowRadius = 5
+        button.layer.shadowOpacity = 0.35
+        button.layer.masksToBounds = false
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.tintColor = UIColor.white
+        button.setTitleColor(UIColor.white, for: .normal)
+        button.contentHorizontalAlignment = .center
+        button.contentVerticalAlignment = .center
+        button.titleLabel?.font = UIFont.preferredFont(forTextStyle: .headline)
+   
+        
+        var platformID = 0
+        if game.platformID != nil {platformID = game.platformID!}
 
-            pagingViewController.menuBackgroundColor = .tertiarySystemBackground
-            pagingViewController.textColor = UIColor.white
-            pagingViewController.selectedTextColor = UIColor.white
-            pagingViewController.selectedBackgroundColor = color1
-            pagingViewController.borderColor = .tertiarySystemBackground
-            
-
-
-       }
-
+        let gameOwned = checkForGameInLibrary(name: titled, id: gameID)
+        let buttonImage = fetchAddToButtonIcon(platformID: platformID, owned: gameOwned)
+        buttonImgView.image = UIImage(named: buttonImage)
+        buttonImgView.translatesAutoresizingMaskIntoConstraints = false
+        button.addSubview(buttonImgView)
+        
+        var width = screenWidth
+        if screenWidth < 414 {
+            width = screenWidth * 0.005
+        } else {
+            width = screenWidth * 0.1
+        }
         NSLayoutConstraint.activate([
-          pagingViewController.view.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-          pagingViewController.view.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-          pagingViewController.view.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-          pagingViewController.view.topAnchor.constraint(equalTo: view.topAnchor)
-        ])}
+//            buttonImgView.bottomAnchor.constraint(equalTo: button.bottomAnchor, constant: -5),
+//            buttonImgView.topAnchor.constraint(equalTo: button.topAnchor, constant: 5),
+         
+            buttonImgView.leadingAnchor.constraint(equalTo: button.leadingAnchor, constant: width),
+            
+            buttonImgView.centerYAnchor.constraint(equalTo: button.centerYAnchor),
 
+            buttonImgView.heightAnchor.constraint(equalToConstant: 45),
+            buttonImgView.widthAnchor.constraint(equalToConstant: 76)
+
+        ])
+        print("buttonImage = \(buttonImage)")
+        if checkForGameInLibrary(name: titled, id: gameID) {
+
+            button.setTitle("Remove from Library", for: .normal)
+        } else {
+            button.setTitle("Add to Library", for: .normal)
+            }
+        
+        
+        button.addTarget(self, action: #selector(self.addToLibraryButtonPressed), for: .touchUpInside)
+
+        button.imageView?.contentMode = .scaleAspectFit
+
+        self.view.addSubview(button)
+        NSLayoutConstraint.activate([
+            button.bottomAnchor.constraint(equalTo: pagingViewController.view.bottomAnchor),
+            button.leadingAnchor.constraint(equalTo: pagingViewController.view.leadingAnchor),
+            button.trailingAnchor.constraint(equalTo: pagingViewController.view.trailingAnchor),
+            button.heightAnchor.constraint(equalToConstant: 60)
+        
+        ])
+        
+        let color2 = UIColorFromRGB(0x2ECAD5)
+        let color1 = UIColorFromRGB(0x2B95CE)
+
+        button.backgroundColor = .red
+        gradientLayer.colors = [color2.cgColor
+                                ,color1.cgColor]
+        gradientLayer.startPoint = CGPoint(x: 0, y: 0)
+        gradientLayer.endPoint = CGPoint(x: 0.5, y: 0)
+        gradientLayer.frame = button.bounds
+        gradientLayer.shadowColor = UIColor.darkGray.cgColor
+        gradientLayer.shadowOffset = CGSize(width: 2.5, height: 2.5)
+        gradientLayer.shadowRadius = 5.0
+        gradientLayer.shadowOpacity = 0.3
+        gradientLayer.masksToBounds = false
+        button.layer.insertSublayer(gradientLayer, at: 0)
+        
+    }
+    
     @objc func addToWishListButtonPressed() -> Void {
         
         
-        guard let title = game.title else { return }
+        guard let gameTitle = game.title else { return }
         guard let id = game.id else { return }
-        if checkForGameInWishList(name: title, id: id) {
+        if checkForGameInWishList(name: titled, id: id) {
             
-            deleteGameFromWishList(title: title, id: id)
+            deleteGameFromWishList(title: gameTitle, id: id)
             wishlistButton.setImage(UIImage(systemName: "star"), for: .normal)
-            wishlistButton.setTitle("Add to Wishlist", for: .normal)
+            wishlistButton.setTitle("Wishlist", for: .normal)
             wishlistButton.sizeToFit()
             getWishlist()
         } else {
             
-            saveGameToWishList(title, id)
+            saveGameToWishList(gameTitle, id)
             wishlistButton.setImage(UIImage(systemName: "star.fill"), for: .normal)
-            wishlistButton.setTitle("Remove from Wishlist", for: .normal)
+            wishlistButton.setTitle("Wishlist", for: .normal)
             wishlistButton.sizeToFit()
 
             getWishlist()
@@ -223,25 +306,25 @@ class PagingDetailVC: UIViewController, PagingViewControllerDataSource, PagingVi
     @objc func addToLibraryButtonPressed() -> Void {
         guard let gamePlatformID = game.platformID else { return }
         _ = fetchSaveToLibraryBtnImg(platformID: gamePlatformID, owned: true)
-        let unownedImage = fetchSaveToLibraryBtnImg(platformID: gamePlatformID, owned: false)
-        let ownedImage = fetchSaveToLibraryBtnImg(platformID: gamePlatformID, owned: true)
+        let unownedImage = fetchAddToButtonIcon(platformID: gamePlatformID, owned: false)
+      
+        let ownedImage = fetchAddToButtonIcon(platformID: gamePlatformID, owned: true)
         let platform = fetchPlatformObject(platformID: gamePlatformID)
         let platformName = platform.name
         let platformID = platform.id
         
         print("Add to Library Button Pressed")
-        guard let title = game.title else { return }
+        guard let gameTitle = game.title else { return }
         guard let id = game.id else { return }
-        let test = checkForGameInLibrary(name: title, id: id)
+        let test = checkForGameInLibrary(name: gameTitle, id: id)
         print("game in library = \(test)")
-        if checkForGameInLibrary(name: title, id: id) {
+        if checkForGameInLibrary(name: gameTitle, id: id) {
             
             let cancel = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
 
             let deleteConfirmation = UIAlertAction(title: "Confirm", style: .default) { (action) in
                 
-            
-                self.button.setImage(UIImage(named: unownedImage), for: .normal)
+                self.buttonImgView.image = UIImage(named: unownedImage)
                 self.button.setTitle("Add to Library", for: .normal)
 
                 self.game.owned = false
@@ -259,6 +342,8 @@ class PagingDetailVC: UIViewController, PagingViewControllerDataSource, PagingVi
                     self.getSavedGames()
                     self.getSavedPlatforms()
 //                self.viewDidLoad()
+                    self.navigationItem.rightBarButtonItem = UIBarButtonItem(customView: self.wishlistButton)
+
                     self.pagingViewController.reloadData()
             }
             }
@@ -268,29 +353,80 @@ class PagingDetailVC: UIViewController, PagingViewControllerDataSource, PagingVi
             self.present(alert, animated: true) {
                 
             }
-            
+
         }
             
             
  else {
-            button.setImage(UIImage(named: ownedImage), for: .normal)
+            self.buttonImgView.image = UIImage(named: ownedImage)
             button.setTitle("Remove from Library", for: .normal)
             game.owned = true
-            guard let gameTitle = game.title, let gameID = game.id else { return }
-            let imageData = boxartImage?.pngData()
-            if let image = imageData {
+    guard let gameTitle = game.title, let gameID = game.id, let image = boxartImage else {
+                print("One of the following may be nil:")
+//                print("game.title", game.title)
+//                print("game.id", game.id)
+//                print("image", boxartImage)
+                return }
+    let imageData = image.jpegData(compressionQuality: 1)
+//            print("imageData \(imageData)")
             
                 
-           saveGameToCoreData(gameTitle, gameID , image, platform)
+           saveGameToCoreData(gameTitle, gameID , imageData, platform)
+    
                 print("Paging VC saving game")
-            }
+            
             
             let savedGames = persistenceManager.fetch(SavedGames.self)
             
             for currentGame in savedGames {
-                
-                if currentGame.title == title && currentGame.gameID == Int32(id) {
+                print("starting loop")
+//                print("title", currentGame.title, gameTitle)
+                print("game.id", currentGame.gameID, gameID)
+                if currentGame.title == gameTitle && currentGame.gameID == Int32(gameID) {
                     
+                    if let genres = currentGame.genres {
+//                        let savedGenres = persistenceManager.fetch(GameGenre.self)
+                        
+                            
+                            for genre in genres {
+                                
+//                                    if savedGenres.count >= 1 {
+                                    
+                                if checkForGenreInLibrary(name: genre) {
+                                    //genre exists-retrieving and adding to game
+                                    let existingGenre = fetchCoreDataGenreObject(name: genre)
+                                    currentGame.addToGenreType(existingGenre)
+                                    persistenceManager.save()
+                                    
+                                } else {
+                                    //genre doesnt exist, creating and then adding to game
+                                    saveGenreToCoreData(genreName: genre)
+                                    
+                                    let newGenre = fetchCoreDataGenreObject(name: genre)
+                                    currentGame.addToGenreType(newGenre)
+                                    persistenceManager.save()
+                                }
+                            
+//                                    } else {
+//
+//
+//                                        saveGenreToCoreData(genreName: genre)
+//
+//                                        let newGenre = fetchCoreDataGenreObject(name: genre)
+//                                        currentGame.addToGenreType(newGenre)
+//                                        persistenceManager.save()
+//                                    }
+                                
+                            }
+                        
+       
+                        
+                    
+                    }
+                    
+                    
+                    
+                    print("testing for platform")
                     let savedPlatform = persistenceManager.fetch(Platform.self)
                     
                     if savedPlatform.count >= 1 {
@@ -300,17 +436,19 @@ class PagingDetailVC: UIViewController, PagingViewControllerDataSource, PagingVi
                             let existingPlatform = fetchCoreDataPlatformObject(id: platformID)
                             existingPlatform.addToGames(currentGame)
                             persistenceManager.save()
-                            print(existingPlatform.games)
+//                            print(existingPlatform.games)
 
                         
                             
                         } else {
                             print("new platform")
                             savePlatformToCoreData(platformID)
+                            persistenceManager.save()
+                            print("newplatform platform id = \(platformID)")
                             let newPlatform = fetchCoreDataPlatformObject(id: platformID)
                             newPlatform.addToGames(currentGame)
                             persistenceManager.save()
-                            print(newPlatform.games)
+//                            print(newPlatform.games)
 
                         }
                     }
@@ -319,7 +457,7 @@ class PagingDetailVC: UIViewController, PagingViewControllerDataSource, PagingVi
                         let newPlatform = fetchCoreDataPlatformObject(id: platformID)
                         newPlatform.addToGames(currentGame)
                         persistenceManager.save()
-                        print(newPlatform.games)
+//                        print(newPlatform.games)
 
                         
                         
@@ -329,136 +467,25 @@ class PagingDetailVC: UIViewController, PagingViewControllerDataSource, PagingVi
                     
                 }
             }
+    if checkForGameInWishList(name: gameTitle, id: gameID) {
+        
+        deleteGameFromWishList(title: titled, id: gameID)
+        wishlistButton.setTitle("Add to Wishlist", for: .normal)
+        wishlistButton.setImage(UIImage(systemName: "star"), for: .normal)
+        wishlistButton.sizeToFit()
+    }
             getSavedGames()
             getSavedPlatforms()
-//            self.viewDidLoad()
+            self.navigationItem.rightBarButtonItem = nil
             pagingViewController.reloadData()
         }
-        
-        
-//        if let owned = game.owned {
-//            if owned {
-//                game.owned = false
-//                button.setTitle("Add to Library", for: .normal)
-//            } else {
-//                game.owned = true
-//                button.setTitle("Remove from Library", for: .normal)
-//            }
-//        }
     
         
-    }
-    
-//    func saveGameToCoreData(_ title: String,_ id: Int,_ imageData: Data,_ platformObject: PlatformObject) {
-//
-//        let persistedGame = SavedGames(context: persistenceManager.context)
-//        guard let gamePlatformID = game.platformID else { return }
-//        let platform = fetchPlatformObject(platformID: gamePlatformID)
-//        let platformName = platform.name
-//        let platformID = platform.id
-//
-//
-//        persistedGame.title = title
-//        persistedGame.gameID = Int32(id)
-//        persistedGame.boxartImage = imageData
-//        persistedGame.owned = true
-//        persistedGame.releaseDate = game.releaseDate
-//        var truncatedReleaseDate: String?
-//        truncatedReleaseDate = game.releaseDate?.toLengthOf(length: 6)
-//        if let releaseYear = truncatedReleaseDate {
-//            persistedGame.releaseYear = Int32(releaseYear)!
-//        }
-//        persistedGame.rating = game.rating
-//        persistedGame.boxartImageURL = game.boxartFrontImage
-//        persistedGame.developerName = game.developer
-//        persistedGame.platformName = platformName
-//        persistedGame.platformID = Int64(platformID)
-//
-//
-//        if let maxPlayers = game.maxPlayers {
-//            persistedGame.maxPlayers = Int64(maxPlayers)
-//        }
-//        persistedGame.genre = game.genreDescriptions
-//        persistedGame.genres = game.genres
-//
-//
-//        persistenceManager.save()
-//
-//
-//
-//    }
-    
-    func deletePlatformFromCoreData() {
-        let savedPlatforms = persistenceManager.fetch(Platform.self)
-        guard let platformID = game.platformID else { return }
-        
-        for platform in savedPlatforms {
-            if platform.id == platformID {
-                persistenceManager.delete(platform)
-                
-            }
-            
-        persistenceManager.save()
-            
-
-            
-        }
-        
-        
-    }
-    
-    func getSavedGames() {
-        let savedGames = persistenceManager.fetch(SavedGames.self)
-        self.savedGames = savedGames
-        printSavedGames()
-        
-        
-    }
-    
-    func getSavedPlatforms() {
-        print("getSavedPlatforms")
-        let savedPlatforms = persistenceManager.fetch(Platform.self)
-        self.savedPlatforms = savedPlatforms
-        printSavedPlatforms()
-    }
-    
-    func printSavedGames() {
-        
-        savedGames.forEach { (game) in
-            print("game core data")
-            print(game.title, game.gameID)
-            
-        }
-    }
-    
-   func getWishlist() {
-        let wishList = persistenceManager.fetch(WishList.self)
-        self.wishList = wishList
-        printWishList()
-    }
-    
-    func printWishList() {
-        wishList.forEach { (game) in
-            print("Wishlist")
-            print(game.title)
-            
-            
-        }
-        
-    }
-    
-    func printSavedPlatforms() {
-        if savedPlatforms.count < 1 {
-            print("platforms empty")
-        } else {
-        savedPlatforms.forEach{ (platform) in
-            print("platform core data")
-            print(platform.name, platform.id)
-        }
-        }
     }
     
 
+    
+    
     
     func fetchSaveToLibraryBtnImg(platformID: Int, owned: Bool) -> String {
         switch platformID {
@@ -521,55 +548,65 @@ class PagingDetailVC: UIViewController, PagingViewControllerDataSource, PagingVi
         }
     }
     
-    func fetchPlatformObject(platformID: Int) -> PlatformObject {
-        let platform = PlatformObject(id: network.platforms["\(platformID)"]!.id, name: network.platforms["\(platformID)"]!.name, alias: network.platforms["\(platformID)"]!.alias, icon: network.platforms["\(platformID)"]!.icon, console: network.platforms["\(platformID)"]!.console, controller: network.platforms["\(platformID)"]?.controller, developer: network.platforms["\(platformID)"]?.developer, manufacturer: network.platforms["\(platformID)"]?.controller, media: network.platforms["\(platformID)"]?.media, cpu: network.platforms["\(platformID)"]?.cpu, memory: network.platforms["\(platformID)"]?.memory, graphics: network.platforms["\(platformID)"]?.graphics, sound: network.platforms["\(platformID)"]?.sound, maxcontrollers: network.platforms["\(platformID)"]?.maxcontrollers, display: network.platforms["\(platformID)"]?.display, overview: network.platforms["\(platformID)"]!.overview, youtube: network.platforms["\(platformID)"]?.youtube)
 
+    
+    func fetchPlatformObject(platformID: Int) -> PlatformObject {
+
+        var platform = PlatformObject(id: 0, abbreviation: nil, alternativeName: nil, category: nil, createdAt: nil, generation: nil, name: "", platformLogo: nil, platformFamily: nil, slug: nil, updatedAt: nil, url: nil, versions: nil, checksum: nil)
+        
+        let platforms = network.platforms
+        
+        for platformObject in platforms {
+            
+            if platformObject.id == platformID {
+                
+                 platform = PlatformObject(id: platformObject.id, abbreviation: platformObject.abbreviation, alternativeName: platformObject.alternativeName, category: platformObject.category, createdAt: platformObject.createdAt, generation: platformObject.generation, name: platformObject.name, platformLogo: nil, platformFamily: platformObject.platformFamily, slug: platformObject.slug, updatedAt: platformObject.updatedAt, url: platformObject.url, versions: nil, checksum: platformObject.checksum)
+               
+            }
+        }
+        
         return platform
         
     }
+    
+
+}
+
+
+
+
+
+
+extension PagingDetailVC : PagingViewControllerDataSource, PagingViewControllerDelegate {
+    
+    
+    func pagingViewController(_: PagingViewController, pagingItemAt index: Int) -> PagingItem {
+       
+        return PagingIndexItem(index: index, title: titles[index])
         
+    }
     
-    
+    func pagingViewController(_: PagingViewController, viewControllerAt index: Int) -> UIViewController {
+        return viewControllers[index]
+        }
+  
 
-    
-
-
-    
-//    func checkForGameInLibrary(name: String, id: Int) -> Bool {
-//            print("checkforgame called")
-//        let savedGames = persistenceManager.fetch(SavedGames.self)
-//
-//        for savedGame in savedGames {
-//            if savedGame.title == name && savedGame.gameID == id {
-//                return true
-//            }
-//        }
-//
-//        return false
-//
-//    }
-//
-//    func checkForPlatformInLibrary(name: String, id:Int) -> Bool {
-//        print("checkforPlatform called")
-//
-//        let savedPlatforms = persistenceManager.fetch(Platform.self)
-//
-//        for platform in savedPlatforms {
-//            print(platform.name, platform.id)
-//            if platform.name == name && platform.id == id {
-//                print("Platform \(platform.name) is in library")
-//                return true
-//            }
-//
-//        }
+    func numberOfViewControllers(in pagingViewController: PagingViewController) -> Int {
+        guard let title = game.title else { return 2 }
+        guard let gameID = game.id else { return 2 }
         
+        print(title)
+        print(gameID)
         
-//        print("Platform is not in library")
-//        return false
-//        
-//        
-//        
-//    }
-    
+        print("numberofViewControllers \(title) \(gameID)")
+        if checkForGameInLibrary(name: title, id: gameID) {
+            print("returning 3")
+            return 3
+        } else {
+            print("returning 2")
 
+            return 2
+        }
+    }
+    
 }

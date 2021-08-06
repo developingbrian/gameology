@@ -1,0 +1,43 @@
+{
+  "object": {
+    "pins": [
+      {
+        "package": "AvailableHapticFeedback",
+        "repositoryURL": "https://github.com/yonat/AvailableHapticFeedback",
+        "state": {
+          "branch": null,
+          "revision": "f9ae6d54af1fb06fff0ddb16246091c6de22f989",
+          "version": "1.0.2"
+        }
+      },
+      {
+        "package": "MultiSlider",
+        "repositoryURL": "https://github.com/yonat/MultiSlider",
+        "state": {
+          "branch": null,
+          "revision": "b09a7bc09fd1858f9535fe6a1d00033d28bee799",
+          "version": "1.10.12"
+        }
+      },
+      {
+        "package": "SDWebImage",
+        "repositoryURL": "https://github.com/SDWebImage/SDWebImage.git",
+        "state": {
+          "branch": null,
+          "revision": "88b3ba211c0d604e60eab204c1baf8229c513399",
+          "version": "5.9.4"
+        }
+      },
+      {
+        "package": "SweeterSwift",
+        "repositoryURL": "https://github.com/yonat/SweeterSwift",
+        "state": {
+          "branch": null,
+          "revision": "783afac9c3492e905ab3f5afea4069a737edfc40",
+          "version": "1.1.4"
+        }
+      }
+    ]
+  },
+  "version": 1
+}

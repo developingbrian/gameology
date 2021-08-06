@@ -9,10 +9,10 @@
 import Foundation
 
 
-struct ExpandablePlatforms {
+struct SectionData {
     
-    var isExpanded : Bool
-    let games : [WishList]
-    
+    var isOpen : Bool
+    var game : [WishList]
+    var platformName : String
     
 }

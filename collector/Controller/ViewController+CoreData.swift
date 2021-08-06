@@ -30,12 +30,12 @@ extension ViewController {
     }
     
     
-    func checkForGameInLibrary(name: String, id: Int) -> Bool {
+    func checkForGameInLibrary(name: String, id: Int, platformID: Int) -> Bool {
             print("checkforgame called")
         let savedGames = persistenceManager.fetch(SavedGames.self)
         
         for savedGame in savedGames {
-            if savedGame.title == name && savedGame.gameID == id {
+            if savedGame.title == name && savedGame.gameID == id && savedGame.platformID == Int64(platformID) {
                 return true
             }
         }
@@ -50,9 +50,9 @@ extension ViewController {
         let savedPlatforms = persistenceManager.fetch(Platform.self)
         
         for platform in savedPlatforms {
-            print(platform.name, platform.id)
+//            print(platform.name, platform.id)
             if platform.name == name && platform.id == id {
-                print("Platform \(platform.name) is in library")
+//                print("Platform \(platform.name) is in library")
                 return true
             }
             
@@ -64,6 +64,22 @@ extension ViewController {
         
         
         
+    }
+    
+    func checkForGenreInLibrary(name: String) -> Bool {
+        
+        let savedGenres = persistenceManager.fetch(GameGenre.self)
+        
+        for genre in savedGenres {
+//            print(genre.name)
+            if genre.name == name {
+//                print("Genre", genre.name, "is saved")
+                return true
+            }
+            
+        }
+        print("genre is not saved")
+        return false
     }
     
     
@@ -84,16 +100,28 @@ extension ViewController {
         
         return platformobj
     }
+    
+    func fetchCoreDataGenreObject(name: String) -> GameGenre {
+        let genre = persistenceManager.fetchFilteredByGenre(GameGenre.self, name: name)
+        let genreObject = genre[0]
+        
+        return genreObject
+        
+        
+    }
             //save game object to platform
         //else
             //create platform
             //save game object to platform
     func savePlatformToCoreData(_ id: Int) {
         let platform = Platform(context: persistenceManager.context)
+        print(platform)
         let platformObject = fetchPlatformObject(platformID: id)
         platform.id = Int32(platformObject.id)
+        
         platform.name = platformObject.name
         print(platformObject)
+        print(platform)
         
         persistenceManager.save()
         
@@ -105,6 +133,20 @@ extension ViewController {
         }
     }
     
+    func saveGenreToCoreData(genreName : String) {
+        
+        let genre = GameGenre(context: persistenceManager.context)
+        genre.name = genreName
+        
+        persistenceManager.save()
+        
+        let deadline = DispatchTime.now() + 2
+        
+        DispatchQueue.main.asyncAfter(deadline: deadline) {
+            self.getSavedGenres()
+        }
+        
+    }
     
     func saveGameToCoreData(_ title: String,_ id: Int,_ imageData: Data,_ platformObject: PlatformObject) {
         print("saveGameToCoreData PlatformObject \(platformObject)")
@@ -144,14 +186,23 @@ extension ViewController {
             cell.platformName = platformObject.name
             game.platformName = platformObject.name
             game.boxartImageURL = cell.game?.boxartFrontImage
+            if let width = cell.game?.boxartInfo?.width {
+            game.boxartWidth = Int32(width)
+            }
+           if let height = cell.game?.boxartInfo?.height {
+            game.boxartHeight = Int32(height)
+            }
             game.releaseDate = cell.game?.releaseDate
             
           
             var truncatedReleaseDate: String?
             truncatedReleaseDate = cell.game?.releaseDate?.toLengthOf(length: 6)
-            game.releaseYear = Int32(truncatedReleaseDate!)!
-            
-            
+            if let releaseDate = truncatedReleaseDate {
+                game.releaseYear = Int32(releaseDate)!
+            }
+            game.youtubeURL = cell.game?.youtubePath
+            game.overview = cell.game?.overview
+//            print("game overview \(game.overview)")
             game.rating = cell.game?.rating
             game.developerName = cell.game?.developer
             game.owned = true
@@ -161,16 +212,21 @@ extension ViewController {
             if let platformID = cell.game?.platformID {
                 game.platformID = Int64(platformID)
             }
-            if let maxPlayers = cell.game?.maxPlayers {
-                game.maxPlayers = Int64(maxPlayers)
-            }
+            
+            // TODO: FIX CORE DATA MAX PLAYER TO STRING
+//            if let maxPlayers = cell.game?.maxPlayers {
+//                game.maxPlayers = maxPlayers
+//            }
             
 //            game.platform?.id = Int32(platformObject.id)
 //            game.platform?.name = platformObject.name
             game.genre = cell.game?.genreDescriptions
             if let genres = cell.game?.genres {
                 game.genres = genres
+//                print("game.genres is", game.genres)
 
+            } else {
+                game.genres?.append("")
             }
             
 //            let platformObject1 = savePlatformToCoreData(platformObject.id)
@@ -229,11 +285,11 @@ extension ViewController {
     deleteGameFromCoreData() {
         print("deleting game from core data")
 //        var platform = Platform(context: persistenceManager.context)
-        let savedPlatforms = persistenceManager.fetch(Platform.self)
+//        let savedPlatforms = persistenceManager.fetch(Platform.self)
         let savedGames = persistenceManager.fetch(SavedGames.self)
         let indexPath = ViewController.savedGameIndex
         if let cell = tableView.cellForRow(at: indexPath) as? ViewControllerTableViewCell {
-            var platform1 = fetchCoreDataPlatformObject(id: cell.platformID!)
+            let platform1 = fetchCoreDataPlatformObject(id: cell.platformID!)
 
 //            for platform in savedPlatforms {
 //                print("platformSavedBefore")
@@ -330,11 +386,25 @@ extension ViewController {
         printSavedPlatforms()
     }
     
+    func getSavedGenres() {
+        let savedGenres = persistenceManager.fetch(GameGenre.self)
+        self.savedGenres = savedGenres
+        printSavedGenres()
+    }
+    
     func printSavedGames() {
         
         savedGames.forEach { (game) in
             print("game core data")
-            print(game.title, game.gameID)
+//            print(game.title, game.gameID)
+            
+        }
+    }
+    
+    func printSavedGenres() {
+        savedGenres.forEach{ (genre) in
+            print("genre core data")
+//            print(genre.name)
             
         }
     }
@@ -343,10 +413,88 @@ extension ViewController {
         
         savedPlatforms.forEach{ (platform) in
             print("platform core data")
-            print(platform.name, platform.id)
+//            print(platform.name, platform.id)
         }
     }
     
 
+    func saveGameToWishList(_ title: String,_ id: Int, game: GameObject) {
+        
+        let persistedGame = WishList(context: persistenceManager.context)
+        
+        
+            guard let gamePlatformID = game.platformID else { return }
+        let platform = fetchPlatformObject(platformID: gamePlatformID)
+        
+        let platformName = platform.name
+//        let platformID = platform.id
+        
+        
+        persistedGame.title = title
+        persistedGame.gameID = Int32(id)
+        persistedGame.inWishlist = true
+            persistedGame.overview = game.overview
+            persistedGame.releaseDate = game.releaseDate
+        
+        var truncatedReleaseDate: String?
+            truncatedReleaseDate = game.releaseDate?.toLengthOf(length: 6)
+        if let releaseYear = truncatedReleaseDate {
+            persistedGame.releaseYear = Int32(releaseYear)!
+        }
+            persistedGame.rating = game.rating
+        persistedGame.boxartImageURL = game.boxartFrontImage
+        if let width = game.boxartInfo?.width {
+        persistedGame.boxartWidth = Int32(width)
+        }
+       if let height = game.boxartInfo?.height {
+        persistedGame.boxartHeight = Int32(height)
+        }
+        persistedGame.developerName = game.developer
+        persistedGame.platformName = platformName
+        persistedGame.platformID = Int64(platform.id)
+        
+        
+        
+        if let maxPlayers = game.maxPlayers {
+            persistedGame.maxPlayers = maxPlayers
+        }
+        persistedGame.genre = game.genreDescriptions
+        persistedGame.genres = game.genres
+        
+        
+        persistenceManager.save()
+    
+    
+    }
+    
+    func deleteGameFromWishList(title: String, id: Int) {
+        
+        let savedGames = persistenceManager.fetch(WishList.self)
+        for currentGame in savedGames {
+            
+            if currentGame.title == title && currentGame.gameID == id {
+                
+                persistenceManager.delete(currentGame)
+                persistenceManager.save()
+            }
+        }
+        
+    }
+    
+    func getWishlist() {
+         let wishList = persistenceManager.fetch(WishList.self)
+         self.wishList = wishList
+         printWishList()
+     }
+    
+    func printWishList() {
+        wishList.forEach { (game) in
+            print("Wishlist")
+//            print(game.title)
+            
+            
+        }
+        
+    }
     
 }

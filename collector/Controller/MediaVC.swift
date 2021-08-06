@@ -10,7 +10,7 @@ import UIKit
 import SDWebImage
 import WebKit
 
-class MediaVC: UIViewController, UITableViewDelegate, UITableViewDataSource {
+class MediaVC: UIViewController {
     
     @IBOutlet var backgroundView: UIView!
     @IBOutlet weak var mediaTableView: UITableView!
@@ -19,242 +19,92 @@ class MediaVC: UIViewController, UITableViewDelegate, UITableViewDataSource {
     @IBOutlet var gameNameLabel: UILabel!
     @IBOutlet var webView: WKWebView!
     @IBOutlet var playButton: UIButton!
-    
+    let gradient = CAGradientLayer()
     @IBOutlet weak var viewForButton: UIView!
-    func numberOfSections(in tableView: UITableView) -> Int {
-        if extraImages?.screenshotArray != nil && extraImages?.fanartArray != nil {
-        if (extraImages?.screenshotArray!.count)! > 0 && (extraImages?.fanartArray!.count)! > 0 {
-        return 3
-        
-        
-        } else if (extraImages?.screenshotArray!.count)! == 0 && (extraImages?.fanartArray!.count)! > 0 {
-            return 2
-        } else if (extraImages?.screenshotArray!.count)! > 0 && extraImages?.fanartArray?.count == 0 {
-            return 2
-        } else {
-            return 1
-        }
-            
-        } else {
-        return 1
-        }
-    }
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 1
-    }
-    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 250
-    }
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        var boxartCell = UITableViewCell()
-        
-        
-        if indexPath.section == 0 {
-            let cell = mediaTableView.dequeueReusableCell(withIdentifier: "boxartCell", for: indexPath ) as? BoxartTableViewCell
-            boxartCell = cell!
-            cell?.images = extraImages
-            return cell!
-        }
-        else if indexPath.section == 1 {
-            if (extraImages?.screenshotArray!.count)! > 0 {
-            let cell = mediaTableView.dequeueReusableCell(withIdentifier: "screenshotCell", for: indexPath) as? ScreenshotTableViewCell
-            cell?.images = extraImages
-            return cell!
-            }
-        }
-        else {
-            if (extraImages?.fanartArray!.count)! > 0 {
-            let cell = mediaTableView.dequeueReusableCell(withIdentifier: "fanartCell", for: indexPath) as? FanartTableViewCell
-            cell?.images = extraImages
-            return cell!
-            }
-        }
-        return boxartCell
-        
-    }
-    
-    
     var game = GameObject()
     var extraImages : Image?
     
-//    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-//        var returnValue : Int
-//
-//        if section == 0 {
-//            if extraImages?.boxartArray != nil {
-//                returnValue = (extraImages?.boxartArray!.count)!
-//            } else { returnValue = 0 }
-//        }
-//        if section == 1 {
-//            if extraImages?.screenshotArray != nil {
-//                returnValue = (extraImages?.screenshotArray!.count)!
-//            } else { returnValue = 0 }
-//        }
-//        if section == 2 {
-//            if extraImages?.fanartArray != nil {
-//                returnValue = (extraImages?.fanartArray!.count)!
-//            } else { returnValue = 0 }
-//        }
-//            else {
-//            returnValue = 0
-//        }
-//
-//        return returnValue
-//    }
-//
-//    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-//
-//        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "cell", for: indexPath) as? MediaCollectionViewCell
-//
-//
-//        let section = indexPath.section
-//
-//        if section == 0 {
-//            let imageName = extraImages?.boxartArray?[indexPath.row]
-//
-//            cell?.mediaImageView.loadImage(from: baseURL.small.rawValue + imageName!, completed: {
-//                print("image downloaded")
-//            })
-//        } else if section == 1 {
-//            let imageName = extraImages?.screenshotArray?[indexPath.row]
-//
-//            cell?.mediaImageView.loadImage(from: baseURL.small.rawValue + imageName!, completed: {
-//                print("image downloaded")
-//            })
-//        } else if section == 2 {
-//            let imageName = extraImages?.fanartArray?[indexPath.row]
-//
-//            cell?.mediaImageView.loadImage(from: baseURL.small.rawValue + imageName!, completed: {
-//                print("image downloaded")
-//            })
-//        }
-//        return cell!
-//    }
-//
-//    func numberOfSections(in collectionView: UICollectionView) -> Int {
-//        return 3
-//    }
+
     
-    
-//    @IBOutlet weak var mediaCollectionView: UICollectionView!
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
-        let darkBlue = UIColorFromRGB(0x2B95CE)
-
-        let lightBlue = UIColorFromRGB(0x2ECAD5)
-//        playButton.tintColor = lightBlue
+        print("MEDIAVC LOADED")
+        configureInitialAppearance()
         
-        let gradientLayer = CAGradientLayer()
-        gradientLayer.colors = [lightBlue.cgColor, darkBlue.cgColor]
-        gradientLayer.frame = viewForButton.bounds
-        gradientLayer.startPoint = CGPoint(x: 0, y: 0)
-        gradientLayer.endPoint = CGPoint(x: 0.5, y: 0)
-        viewForButton.mask = playButton
-        viewForButton.layer.addSublayer(gradientLayer)
+    }
+    
+    
+    override func viewWillAppear(_ animated: Bool) {
+        setAppearance()
+        webView.isHidden = true
+        gradient.isHidden = false
+        fanartImageView.isHidden = false
+        clearlogoImageView.isHidden = false
+        playButton.isHidden = false
+        gameNameLabel.isHidden = false
 
-
+        mediaTableView.reloadData()
         
-//        mediaCollectionView.delegate = self
-//        mediaCollectionView.dataSource = self
-        mediaTableView.delegate = self
-        mediaTableView.dataSource = self
-
-        // Do any additional setup after loading the view.
+        if game.youtubePath == nil {
+            playButton.isHidden = true
+        } else {
+            playButton.isHidden = false
+        }
     }
     
     
     override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(true)
-        
-        if traitCollection.userInterfaceStyle == .light {
-            let lightGray = UIColor(red: (246/255), green: (246/255), blue: (246/255), alpha: 1)
-            mediaTableView.backgroundColor = lightGray
-            webView.backgroundColor = lightGray
-            backgroundView.backgroundColor = lightGray
-        } else {
-            mediaTableView.backgroundColor = .systemBackground
-            webView.backgroundColor = .systemBackground
-            backgroundView.backgroundColor = .systemBackground
-        }
+        super.viewDidAppear(animated)
+        print("**Viewdidappear")
+
         
         webView.layer.cornerRadius = 10
         webView.layer.masksToBounds = false
-        if let fanartArray = extraImages?.fanartArray {
-            if fanartArray.count > 0 {
-            fanartImageView.isHidden =
-                false
-            let image = (extraImages?.fanartArray?[0])!
-            fanartImageView.loadImage(from: baseURL.medium.rawValue + image) {
-                print("fanartImageView image loaded")
-            }
-            
-            if game.youtubePath == nil {
-                webView.isHidden = true
-                playButton.isHidden = true
-            } else {
-                webView.isHidden = true
-                playButton.isHidden = false
-            }
-            
 
-       let gradient = CAGradientLayer()
-       gradient.frame = fanartImageView.bounds
-       gradient.colors = [UIColor.black.cgColor, UIColor.clear.cgColor ]
-        gradient.locations = [0.5, 1]
-            var webViewGradient = CAGradientLayer()
-            webViewGradient.frame = webView.bounds
-            webViewGradient.colors = [UIColor.black.cgColor, UIColor.clear.cgColor]
-            webViewGradient.locations = [0.5, 1]
-            webView.layer.mask = webViewGradient
+        
+        if let screenshots = game.screenshots {
+            let random = screenshots.randomElement()
+            let image = (random?.imageID)! + ".jpg"
+            let url = URL(string: baseURL.screenshotMedium.rawValue + image)
+            fanartImageView.setImageAnimated(imageUrl: url!, placeholderImage: nil) {
+                print("screenshot set")
+            }
+        } else {
+            fanartImageView.image = UIImage(named: "arcadeBackground")
+        }
+            
+//                print("youtubePath = \(game.youtubePath)")
+
+        
+        gradient.frame = fanartImageView.bounds
+        gradient.locations = [0.75, 1]
+        gradient.opacity = 0.75
+
             fanartImageView.layer.mask = gradient
 
-        }
-        }
-        
-        if extraImages?.clearLogo != "" {
-            print("clearlogo is not nil")
-            print(extraImages?.clearLogo)
-            clearlogoImageView.isHidden = false
-            gameNameLabel.isHidden = true
-            if let image = extraImages?.clearLogo {
-            clearlogoImageView.loadImage(from: baseURL.small.rawValue + image) {
-                print("clearlogo image loaded")
-            }
-            }
-            
-        } else {
-            print("clearlogo is nil")
-            gameNameLabel.isHidden = false
-            clearlogoImageView.isHidden = true
-                let strokeTextAttributes = [
-                    NSAttributedString.Key.strokeColor: UIColor.black,
-                    NSAttributedString.Key.foregroundColor: UIColor.white,
-                    NSAttributedString.Key.strokeWidth: -3.0,
-                    NSAttributedString.Key.font: UIFont(name: "Avenir Next Demi Bold", size: 30)!
-
-                ] as [NSAttributedString.Key : Any]
-
-                gameNameLabel.attributedText = NSMutableAttributedString(string: "\(game.title!)", attributes: strokeTextAttributes)
-//            gameNameLabel.text = "\(game.title)"
-            
-        }
-        
+        setAppearance()
     }
-
+    
+    
     
     @IBAction func playButtonPressed(_ sender: Any) {
-                webView.isHidden = false
+        print("playbutton pressed")
+        
+        
+        webView.isHidden = false
+        gradient.isHidden = true
+        gameNameLabel.isHidden = true
         fanartImageView.isHidden = true
         clearlogoImageView.isHidden = true
         playButton.isHidden = true
                     let embedURLString = Constants.youtubeEmbedURL
                 var url : URL
-        if game.youtubePath != nil {
-            if (game.youtubePath?.hasPrefix("https"))! {
-                url = URL(string: (game.youtubePath!))!
+        if let youtubePath = game.youtubePath {
+            if (youtubePath.hasPrefix("https")) {
+                url = URL(string: (youtubePath))!
                 } else {
-                    url = URL(string: embedURLString + (game.youtubePath!))!
+                    url = URL(string: embedURLString + (youtubePath))!
                 }
                 print ("youtube URL = \(url)")
                 let request = URLRequest(url: url)
@@ -267,18 +117,166 @@ class MediaVC: UIViewController, UITableViewDelegate, UITableViewDataSource {
         
     }
     
-//    func UIColorFromRGB(_ rgbValue: Int) -> UIColor {
-//       return UIColor(red: ((CGFloat)((rgbValue & 0xFF0000) >> 16))/255.0, green: ((CGFloat)((rgbValue & 0x00FF00) >> 8))/255.0, blue: ((CGFloat)((rgbValue & 0x0000FF)))/255.0, alpha: 1.0)
-//   }
+
     
-    /*
-    // MARK: - Navigation
+    
+    func configureInitialAppearance() {
+        
+        let darkBlue = UIColorFromRGB(0x2B95CE)
 
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
+        let lightBlue = UIColorFromRGB(0x2ECAD5)
+        gameNameLabel.text = game.title
+        
+        guard let symbol = UIImage(systemName: "play.circle") else { fatalError("No symbol by that name") }
+        let mask = CALayer()
+        mask.contents = symbol.cgImage
+
+        
+        let gradientLayer = CAGradientLayer()
+        gradientLayer.colors = [lightBlue.cgColor, darkBlue.cgColor]
+        gradientLayer.frame = playButton.bounds
+        gradientLayer.startPoint = CGPoint(x: 0, y: 0)
+        gradientLayer.endPoint = CGPoint(x: 0.5, y: 0)
+        
+
+        
+        mask.frame = gradientLayer.bounds
+        gradientLayer.mask = mask
+        playButton.layer.addSublayer(gradientLayer)
+        
+        playButton.layer.shadowOffset = .zero
+        playButton.layer.shadowColor = UIColor.black.cgColor
+        playButton.layer.shadowRadius = 1.5
+        playButton.layer.shadowOpacity = 1
+
+        mediaTableView.delegate = self
+        mediaTableView.dataSource = self
+
+        setAppearance()
     }
-    */
+    
+    
+    
+    
+    func setAppearance() {
+        print("setting appearance")
+        
+        let defaults = UserDefaults.standard
+        let appearanceSelection = defaults.integer(forKey: "appearanceSelection")
 
+        
+        if appearanceSelection == 0 {
+            self.navigationController?.overrideUserInterfaceStyle = .unspecified
+            self.tabBarController?.overrideUserInterfaceStyle = .unspecified
+            overrideUserInterfaceStyle = .unspecified
+        } else if appearanceSelection == 1 {
+            overrideUserInterfaceStyle = .light
+            self.navigationController?.overrideUserInterfaceStyle = .light
+            self.tabBarController?.overrideUserInterfaceStyle = .light
+
+
+        } else {
+            overrideUserInterfaceStyle = .dark
+            self.navigationController?.overrideUserInterfaceStyle = .dark
+            self.tabBarController?.overrideUserInterfaceStyle = .dark
+
+        }
+        
+        if traitCollection.userInterfaceStyle == .light {
+            let lightGray = UIColor(red: 246/255, green: 246/255, blue: 246/255, alpha: 1)
+            backgroundView.layer.backgroundColor = lightGray.cgColor
+
+            mediaTableView.layer.backgroundColor = lightGray.cgColor
+            gradient.colors = [UIColor.lightGray.cgColor, UIColor.clear.cgColor ]
+
+        } else if traitCollection.userInterfaceStyle == .dark {
+            let darkGray = UIColor(red: 18/255, green: 18/255, blue: 18/255, alpha: 1)
+
+            backgroundView.layer.backgroundColor = darkGray.cgColor
+            gradient.colors = [UIColor.darkGray.cgColor, UIColor.clear.cgColor ]
+
+            mediaTableView.layer.backgroundColor = darkGray.cgColor
+
+        }
+    }
+    
+    
+
+
+}
+
+
+
+
+extension MediaVC: UITableViewDelegate, UITableViewDataSource {
+    
+    func numberOfSections(in tableView: UITableView) -> Int {
+        
+        
+
+//        print("screenshot! \(game.screenshots)")
+        
+        if game.boxartFrontImage != nil {
+        if (game.screenshots) != nil {
+            if (game.screenshots!.count) > 0 {
+                print("screenshot cell")
+            return 2
+        }
+        }
+            
+            return 1
+            
+        }
+        
+        
+        return 0
+    }
+    
+    
+    
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        
+        return 1
+        
+        
+    }
+    
+    
+    
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        
+        return 250
+        
+    }
+    
+    
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        
+        var boxartCell = UITableViewCell()
+        
+        
+        if indexPath.section == 0 {
+            let cell = mediaTableView.dequeueReusableCell(withIdentifier: "boxartCell", for: indexPath ) as? BoxartTableViewCell
+            boxartCell = cell!
+            cell?.setAppearance()
+            cell?.parent = self
+            cell?.images = extraImages
+            cell?.game = game
+            return cell!
+        }
+        else if indexPath.section == 1 {
+            if (game.screenshots?.count)! > 0 {
+            let cell = mediaTableView.dequeueReusableCell(withIdentifier: "screenshotCell", for: indexPath) as? ScreenshotTableViewCell
+                cell?.parent = self
+                cell?.game = game
+            return cell!
+            }
+        }
+       
+        return boxartCell
+        
+    }
+    
+    
 }

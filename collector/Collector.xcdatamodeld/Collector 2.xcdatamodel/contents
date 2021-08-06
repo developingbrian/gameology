@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="17511" systemVersion="20B5022a" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="18154" systemVersion="20B5022a" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
+    <entity name="GameGenre" representedClassName="GameGenre" syncable="YES">
+        <attribute name="name" optional="YES" attributeType="String"/>
+        <relationship name="ofGame" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="SavedGames" inverseName="genreType" inverseEntity="SavedGames"/>
+    </entity>
     <entity name="Photos" representedClassName="Photos" syncable="YES">
         <attribute name="category" optional="YES" attributeType="String"/>
         <attribute name="gameTitle" optional="YES" attributeType="String"/>
@@ -12,8 +16,10 @@
         <relationship name="games" optional="YES" toMany="YES" deletionRule="Deny" destinationEntity="SavedGames" inverseName="platform" inverseEntity="SavedGames"/>
     </entity>
     <entity name="SavedGames" representedClassName="SavedGames" syncable="YES">
+        <attribute name="boxartHeight" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="boxartImage" optional="YES" attributeType="Binary"/>
         <attribute name="boxartImageURL" optional="YES" attributeType="String"/>
+        <attribute name="boxartWidth" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="boxCondition" optional="YES" attributeType="Float" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="boxOwned" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="clearlogoImage" optional="YES" attributeType="Binary"/>
@@ -26,12 +32,12 @@
         <attribute name="gameID" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="gameOwned" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="genre" optional="YES" attributeType="String"/>
-        <attribute name="genres" optional="YES" attributeType="Transformable" customClassName="Array&lt;String&gt;"/>
+        <attribute name="genres" optional="YES" attributeType="Transformable" valueTransformerName="NSSecureUnarchiveFromDataTransformer" customClassName="Array&lt;String&gt;"/>
         <attribute name="hasBeaten" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="hasCompleted" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="manualCondition" optional="YES" attributeType="Float" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="manualOwned" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
-        <attribute name="maxPlayers" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="maxPlayers" optional="YES" attributeType="String"/>
         <attribute name="notes" optional="YES" attributeType="String"/>
         <attribute name="overview" optional="YES" attributeType="String"/>
         <attribute name="owned" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
@@ -45,12 +51,15 @@
         <attribute name="releaseYear" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="title" attributeType="String"/>
         <attribute name="youtubeURL" optional="YES" attributeType="String"/>
+        <relationship name="genreType" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="GameGenre" inverseName="ofGame" inverseEntity="GameGenre"/>
         <relationship name="photo" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Photos" inverseName="games" inverseEntity="Photos"/>
         <relationship name="platform" optional="YES" maxCount="1" deletionRule="Deny" destinationEntity="Platform" inverseName="games" inverseEntity="Platform"/>
     </entity>
     <entity name="WishList" representedClassName="WishList" syncable="YES">
+        <attribute name="boxartHeight" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="boxartImage" optional="YES" attributeType="Binary"/>
         <attribute name="boxartImageURL" optional="YES" attributeType="String"/>
+        <attribute name="boxartWidth" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="clearlogoImage" optional="YES" attributeType="Binary"/>
         <attribute name="clearlogoImageURL" optional="YES" attributeType="String"/>
         <attribute name="developerName" optional="YES" attributeType="String"/>
@@ -59,9 +68,10 @@
         <attribute name="gameID" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="gameOwned" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="genre" optional="YES" attributeType="String"/>
-        <attribute name="genres" optional="YES" attributeType="Transformable" customClassName="Array&lt;String&gt;"/>
+        <attribute name="genres" optional="YES" attributeType="Transformable" valueTransformerName="NSSecureUnarchiveFromDataTransformer" customClassName="Array&lt;String&gt;"/>
         <attribute name="inWishlist" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
-        <attribute name="maxPlayers" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="isOpen" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="maxPlayers" optional="YES" attributeType="String"/>
         <attribute name="overview" optional="YES" attributeType="String"/>
         <attribute name="platformID" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="platformName" optional="YES" attributeType="String"/>
@@ -72,9 +82,10 @@
         <attribute name="youtubeURL" optional="YES" attributeType="String"/>
     </entity>
     <elements>
-        <element name="Photos" positionX="284.9213256835938" positionY="-94.96722412109375" width="128" height="103"/>
-        <element name="Platform" positionX="-45.56683349609375" positionY="-85.45216369628906" width="128" height="88"/>
-        <element name="SavedGames" positionX="118.6129150390625" positionY="19.99974060058594" width="128" height="568"/>
-        <element name="WishList" positionX="342.943359375" positionY="66.23011779785156" width="128" height="358"/>
+        <element name="GameGenre" positionX="125.5875854492188" positionY="23.30575561523438" width="128" height="73"/>
+        <element name="Photos" positionX="331.5148925781251" positionY="482.8545684814453" width="128" height="103"/>
+        <element name="Platform" positionX="-298.9137573242188" positionY="-74.11827087402344" width="128" height="88"/>
+        <element name="SavedGames" positionX="-29.5579833984375" positionY="-66.02909851074219" width="128" height="599"/>
+        <element name="WishList" positionX="276.4378662109375" positionY="53.2962646484375" width="128" height="403"/>
     </elements>
 </model>

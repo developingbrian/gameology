@@ -72,14 +72,18 @@
 //        
 //                            let decodedJSON = try JSONDecoder().decode([Game]?.self, from: data!)
 //                            if let parseJSON = decodedJSON {
-//        
+//                                  //objects in current game array saved                                     to item
 //                                var items = self.games
+                                    
+//                       Item array appends new data to the end of it
 //                                items.append(contentsOf: parseJSON)
 //        
 //        
-//        
+//                                  if old offset < old items + new data                                    count
 //                                if self.initialOffset < items.count {
+                                    //save old items and new data to game array
 //                                    self.games = items
+                //                  move the current offset to be the count of the old + new data
 //                                    self.initialOffset = items.count
 //        
 //        

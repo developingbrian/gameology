@@ -60,30 +60,7 @@ enum Coop: String, Codable {
     case yes = "Yes"
 }
 
-struct GameObject {
-    
-    var title : String?
-    var id : Int?
-    var overview : String?
-    var boxartFrontImage : String?
-    var boxartRearImage: String?
-    var fanartImage : String?
-    var rating : String?
-    var releaseDate: String?
-    var owned : Bool?
-    var index: Int?
-    var developerIDs, genreIDs, pusblisherIDs : [Int]?
-    var youtubePath: String?
-    var platformID : Int?
-    var maxPlayers : Int?
-    var genreDescriptions : String?
-    var genres : [String]?
-    var developer : String?
-    var gamePhotos: [NSData]?
-    var manualPhotos : [NSData]?
-    var boxPhotos : [NSData]?
 
-}
 
 struct GameImages : Codable {
     

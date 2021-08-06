@@ -11,4 +11,35 @@ import UIKit
 class BoxartCollectionViewCell: UICollectionViewCell {
     @IBOutlet weak var boxartImageView: UIImageView!
     
+    
+    var game : GameObject? {
+        didSet {
+            self.configureCell()
+        }
+    }
+    
+    override class func awakeFromNib() {
+    }
+    
+    
+
+}
+
+
+extension BoxartCollectionViewCell {
+    
+    func configureCell() {
+        if let boxartURL = game?.boxartFrontImage {
+        
+            let imageURLString = baseURL.coverSmall.rawValue + boxartURL
+            
+            let imageURL = URL(string: imageURLString)!
+            
+            self.boxartImageView.setImageAnimated(imageUrl: imageURL, placeholderImage: nil, completed: {
+                
+            })
+        }
+        
+        boxartImageView.layer.cornerRadius = 12
+    }
 }

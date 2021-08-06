@@ -14,7 +14,8 @@ class AgeRangeVC: UIViewController {
     @IBOutlet var backgroundView: UIView!
     @IBOutlet var cancelButton: UIButton!
     @IBOutlet var submitButton: UIButton!
-
+    @IBOutlet weak var backgroundStackView: UIStackView!
+    
     @IBOutlet var bottomStackView: UIStackView!
     @IBOutlet var topStackView: UIStackView!
     var persistenceManager = PersistenceManager.shared
@@ -22,12 +23,100 @@ class AgeRangeVC: UIViewController {
     var dateArray : [String] = []
     var delegate : AgeRangeDelegate?
     let slider = MultiSlider()
+    let lightGray = UIColor(red: 246/255, green: 246/255, blue: 246/255, alpha: 1)
+    let darkGray = UIColor(red: (18/255), green: (18/255), blue: (18/255), alpha: 1)
 
     
     override func viewDidLoad() {
         super.viewDidLoad()
+
+       configureMultiSlider()
+    }
+    
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(true)
         
-        var gameArray = persistenceManager.fetchGame(SavedGames.self, platformID: id, selectedGenres: nil)
+        setAppearance()
+        
+        
+    }
+    
+    func setAppearance() {
+        let lightBlue =  UIColorFromRGB(0x2B95CE)
+
+        let defaults = UserDefaults.standard
+        let appearanceSelection = defaults.integer(forKey: "appearanceSelection")
+
+        
+        if appearanceSelection == 0 {
+            self.navigationController?.overrideUserInterfaceStyle = .unspecified
+            self.tabBarController?.overrideUserInterfaceStyle = .unspecified
+            overrideUserInterfaceStyle = .unspecified
+        } else if appearanceSelection == 1 {
+            overrideUserInterfaceStyle = .light
+            self.navigationController?.overrideUserInterfaceStyle = .light
+            self.tabBarController?.overrideUserInterfaceStyle = .light
+
+
+        } else {
+            overrideUserInterfaceStyle = .dark
+            self.navigationController?.overrideUserInterfaceStyle = .dark
+            self.tabBarController?.overrideUserInterfaceStyle = .dark
+
+        }
+        
+        if traitCollection.userInterfaceStyle == .light {
+//            let lightGray = UIColor(red: 246/255, green: 246/255, blue: 246/255, alpha: 1)
+//            topStackView.backgroundColor = lightGray
+//            cancelButton.backgroundColor = lightGray
+//            submitButton.backgroundColor = lightGray
+            //            topLbl.backgroundColor = lightGray
+//            filterByLbl.backgroundColor = lightGray
+            
+
+        } else if traitCollection.userInterfaceStyle == .dark {
+//            let darkGray = UIColor(red: (18/255), green: (18/255), blue: (18/255), alpha: 1)
+//            topStackView.backgroundColor = darkGray
+//            cancelButton.backgroundColor = darkGray
+//            submitButton.backgroundColor = darkGray
+//            topLbl.backgroundColor = darkGray
+//            filterByLbl.backgroundColor = darkGray
+        }
+        
+
+        backgroundStackView.layer.cornerRadius = 10
+    
+        topStackView.layer.cornerRadius = 10
+        topStackView.clipsToBounds = true
+        topStackView.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
+        cancelButton.clipsToBounds = true
+        cancelButton.layer.cornerRadius = 5
+        cancelButton.layer.maskedCorners = [ .layerMinXMaxYCorner]
+
+        submitButton.layer.cornerRadius = 5
+        submitButton.clipsToBounds = true
+        submitButton.layer.maskedCorners = [.layerMaxXMaxYCorner]
+
+        bottomStackView.clipsToBounds = true
+        bottomStackView.layer.cornerRadius = 10
+        bottomStackView.layer.maskedCorners = [.layerMaxXMaxYCorner, .layerMinXMaxYCorner]
+
+        slider.outerTrackColor = .lightGray
+        slider.tintColor = lightBlue
+
+        
+
+        
+        
+        
+    }
+    
+    func configureMultiSlider() {
+        
+        let gameArray = persistenceManager.fetchGame(SavedGames.self, byGameTitle: nil, sortBy: nil, sortByAscending: true, platformID: id, selectedGenres: nil, selectedPlatforms: nil)
+//        let leftThumb = UIImage(named: "Switch_Left_Stick65")
+//        let rightThumb = UIImage(named: "Switch_Right_Stick65")
         var releaseDate : String?
         var array : [String] = []
         for game in gameArray {
@@ -46,65 +135,38 @@ class AgeRangeVC: UIViewController {
         slider.value = [slider.minimumValue, slider.maximumValue]
         slider.addTarget(self, action: #selector(sliderChanged), for: .valueChanged) // continuous changes
         slider.thumbCount = 2
+        
         slider.trackWidth = 1
-        slider.valueLabelPosition = .topMargin
+
+//        print(" left right thumb", leftThumb, rightThumb)
+//        print("thumbs", slider.thumbViews[0].image, slider.thumbViews[1].image)
+        slider.valueLabelPosition = .top
         slider.hasRoundTrackEnds = true
         slider.orientation = .horizontal
         slider.valueLabelFormatter.roundingMode = .down
         slider.valueLabelFormatter.roundingIncrement = 1
         slider.valueLabelFormatter.alwaysShowsDecimalSeparator = false
-        sliderView.addConstrainedSubview(slider, constrain: .leftMargin, .rightMargin, .bottomMargin)
-//        sliderView.addSubview(slider)
-        sliderView.layoutMargins = UIEdgeInsets(top: 1, left: 10, bottom: 1, right: 10)
-//        slider.addTarget(self, action: #selector(sliderDragEnded(_:)), for: . touchUpInside) // sent when drag ends
-        // Do any additional setup after loading the view.
+        slider.showsThumbImageShadow = false
+        slider.layer.frame = sliderView.bounds
         
-        if self.traitCollection.userInterfaceStyle == .light {
-            backgroundView.layer.shadowColor = UIColor.black.cgColor
-            backgroundView.layer.shadowOpacity = 0.50
-            backgroundView.layer.shadowOffset = .zero
-            backgroundView.layer.shadowRadius = 15
-            topStackView.layer.cornerRadius = 10
-            backgroundView.layer.cornerRadius = 10
-            cancelButton.layer.cornerRadius = 5
-            submitButton.layer.cornerRadius = 5
-            bottomStackView.layer.cornerRadius = 10
-            slider.outerTrackColor = .lightGray
-            slider.showsThumbImageShadow = true
-            slider.tintColor = .black
-            
-        } else {
-            backgroundView.layer.shadowColor = UIColor.white.cgColor
-            backgroundView.layer.shadowOpacity = 0.50
-            backgroundView.layer.shadowOffset = .zero
-            backgroundView.layer.shadowRadius = 15
-            topStackView.layer.cornerRadius = 10
-            backgroundView.layer.cornerRadius = 10
-            cancelButton.layer.cornerRadius = 10
-            submitButton.layer.cornerRadius = 10
-            bottomStackView.layer.cornerRadius = 10
-        }
-
-    }
-    
-    
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(true)
-        
+        sliderView.addConstrainedSubview(slider, constrain: .leftMargin, .rightMargin, .bottomMargin, .topMargin)
+        sliderView.layoutMargins = UIEdgeInsets(top: 1, left: 20, bottom: 1, right: 20)
 
         
-        
+        slider.thumbViews[0].image = UIImage(named: "Switch_Left_Stick")
+        slider.thumbViews[1].image = UIImage(named: "Switch_Right_Stick")
+                slider.showsThumbImageShadow = true
+
         
     }
-    
     
     @objc func sliderChanged(slider: MultiSlider) {
         print("thumb \(slider.draggedThumbIndex) moved")
         print("now thumbs are at \(slider.value)") // e.g., [1.0, 4.5, 5.0]
-        var sliderValues = slider.value
+        let sliderValues = slider.value
         var newArray : [Int] = []
         for value in sliderValues {
-            var newValue = Int(value)
+            let newValue = Int(value)
             newArray.append(newValue)
             
         }
@@ -138,29 +200,20 @@ class AgeRangeVC: UIViewController {
     }
     
     @IBAction func submitButtonPressed(_ sender: Any) {
-        var sliderValues = slider.value
+        let sliderValues = slider.value
         var dateRange : [Int] = []
         for value in sliderValues {
-            var dateValue = Int(value)
+            let dateValue = Int(value)
             dateRange.append(dateValue)
         }
         print("dateRange = \(dateRange)")
-        print("id == \(id)")
+//        print("id == \(id)")
         delegate?.changeDateRange(dateRange: dateRange, platformID: id!)
         print("submit button pressed")
         self.presentingViewController?.dismiss(animated: true, completion: nil)
 
     }
-    
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
-    }
-    */
+ 
 
 }
 
@@ -171,7 +224,8 @@ extension String {
             if length <= 0 {
                 return self
             } else if let to = self.index(self.startIndex, offsetBy: length, limitedBy: self.endIndex) {
-                return self.substring(from: to)
+                return String(self[to...])
+
 
             } else {
                 return ""

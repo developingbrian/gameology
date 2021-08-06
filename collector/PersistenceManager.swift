@@ -27,6 +27,7 @@ final class PersistenceManager {
         return container
     }()
     
+
     
     lazy var context = persistenceContainer.viewContext // MARK: - define
     
@@ -110,6 +111,28 @@ final class PersistenceManager {
         let filterPredicate = NSPredicate(format: "id == \(Int64(platformID))")
         let sortAscending = NSSortDescriptor(key: "name", ascending: true)
         fetchRequest.predicate = filterPredicate
+        
+        fetchRequest.sortDescriptors = [sortAscending]
+        do {
+            let fetchedObjects = try context.fetch(fetchRequest) as? [T]
+            return fetchedObjects ?? [T]()
+        } catch {
+            print("error")
+            return [T]()
+        }
+    
+        
+        
+    }
+    
+    
+    func fetchFilteredByGenre<T: NSManagedObject>(_ objectType: T.Type, name: String) -> [T]{
+        let entityName = String(describing: objectType)
+        let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: entityName)
+        let filterPredicate = NSPredicate(format: "name == %@", name)
+        let sortAscending = NSSortDescriptor(key: "name", ascending: true)
+        fetchRequest.predicate = filterPredicate
+        
         fetchRequest.sortDescriptors = [sortAscending]
         do {
             let fetchedObjects = try context.fetch(fetchRequest) as? [T]
@@ -130,7 +153,7 @@ final class PersistenceManager {
         fetchRequest.predicate = filterPredicate
         do {
             let fetchedObjects = try context.fetch(fetchRequest) as? [T]
-            print("fetchedObjects = \(fetchedObjects?.count)")
+//            print("fetchedObjects = \(fetchedObjects?.count)")
 
             return fetchedObjects ?? [T]()
         } catch {
@@ -161,12 +184,12 @@ final class PersistenceManager {
     func updateCompletedPercent<T: NSManagedObject>(objectType: T.Type, gameTitle: String, completedValue: Float) {
         let entityName = String(describing: objectType)
         let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: entityName)
-        var filterPredicate = NSPredicate(format: "title == %@", gameTitle)
+        let filterPredicate = NSPredicate(format: "title == %@", gameTitle)
         fetchRequest.predicate = filterPredicate
         do {
             let fetchedObjects = try context.fetch(fetchRequest) as? [T]
             let objectUpdate = (fetchedObjects?[0])! as NSManagedObject
-            let object = fetchedObjects?[0]
+//            let object = fetchedObjects?[0]
 //            object
             print(completedValue)
             objectUpdate.setValue(completedValue, forKeyPath: "percentComplete")
@@ -182,12 +205,12 @@ final class PersistenceManager {
     func updateGameConditionPercent<T: NSManagedObject>(objectType: T.Type, gameTitle: String, gameCondition: Float) {
         let entityName = String(describing: objectType)
         let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: entityName)
-        var filterPredicate = NSPredicate(format: "title == %@", gameTitle)
+        let filterPredicate = NSPredicate(format: "title == %@", gameTitle)
         fetchRequest.predicate = filterPredicate
         do {
             let fetchedObjects = try context.fetch(fetchRequest) as? [T]
             let objectUpdate = (fetchedObjects?[0])! as NSManagedObject
-            let object = fetchedObjects?[0]
+//            let object = fetchedObjects?[0]
 //            object
             print(gameCondition)
             objectUpdate.setValue(gameCondition, forKeyPath: "gameCondition")
@@ -203,12 +226,12 @@ final class PersistenceManager {
     func updateBoxConditionPercent<T: NSManagedObject>(objectType: T.Type, gameTitle: String, boxCondition: Float) {
         let entityName = String(describing: objectType)
         let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: entityName)
-        var filterPredicate = NSPredicate(format: "title == %@", gameTitle)
+        let filterPredicate = NSPredicate(format: "title == %@", gameTitle)
         fetchRequest.predicate = filterPredicate
         do {
             let fetchedObjects = try context.fetch(fetchRequest) as? [T]
             let objectUpdate = (fetchedObjects?[0])! as NSManagedObject
-            let object = fetchedObjects?[0]
+//            let object = fetchedObjects?[0]
 //            object
             print(boxCondition)
             objectUpdate.setValue(boxCondition, forKeyPath: "boxCondition")
@@ -225,12 +248,12 @@ final class PersistenceManager {
     func updateManualConditionPercent<T: NSManagedObject>(objectType: T.Type, gameTitle: String, manualCondition: Float) {
         let entityName = String(describing: objectType)
         let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: entityName)
-        var filterPredicate = NSPredicate(format: "title == %@", gameTitle)
+        let filterPredicate = NSPredicate(format: "title == %@", gameTitle)
         fetchRequest.predicate = filterPredicate
         do {
             let fetchedObjects = try context.fetch(fetchRequest) as? [T]
             let objectUpdate = (fetchedObjects?[0])! as NSManagedObject
-            let object = fetchedObjects?[0]
+//            let object = fetchedObjects?[0]
 //            object
             print(manualCondition)
             objectUpdate.setValue(manualCondition, forKeyPath: "manualCondition")
@@ -247,12 +270,12 @@ final class PersistenceManager {
         
         let entityName = String(describing: objectType)
         let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: entityName)
-        var filterPredicate = NSPredicate(format: "title == %@", gameTitle)
+        let filterPredicate = NSPredicate(format: "title == %@", gameTitle)
         fetchRequest.predicate = filterPredicate
         do {
             let fetchedObjects = try context.fetch(fetchRequest) as? [T]
             let objectUpdate = (fetchedObjects?[0])! as NSManagedObject
-            let object = fetchedObjects?[0]
+//            let object = fetchedObjects?[0]
 //            object
             print(gameOwned)
             objectUpdate.setValue(gameOwned, forKeyPath: "gameOwned")
@@ -269,12 +292,12 @@ final class PersistenceManager {
         
         let entityName = String(describing: objectType)
         let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: entityName)
-        var filterPredicate = NSPredicate(format: "title == %@", gameTitle)
+        let filterPredicate = NSPredicate(format: "title == %@", gameTitle)
         fetchRequest.predicate = filterPredicate
         do {
             let fetchedObjects = try context.fetch(fetchRequest) as? [T]
             let objectUpdate = (fetchedObjects?[0])! as NSManagedObject
-            let object = fetchedObjects?[0]
+//            let object = fetchedObjects?[0]
 //            object
             print(boxOwned)
             objectUpdate.setValue(boxOwned, forKeyPath: "boxOwned")
@@ -291,12 +314,12 @@ final class PersistenceManager {
         
         let entityName = String(describing: objectType)
         let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: entityName)
-        var filterPredicate = NSPredicate(format: "title == %@", gameTitle)
+        let filterPredicate = NSPredicate(format: "title == %@", gameTitle)
         fetchRequest.predicate = filterPredicate
         do {
             let fetchedObjects = try context.fetch(fetchRequest) as? [T]
             let objectUpdate = (fetchedObjects?[0])! as NSManagedObject
-            let object = fetchedObjects?[0]
+//            let object = fetchedObjects?[0]
 //            object
             print(manualOwned)
             objectUpdate.setValue(manualOwned, forKeyPath: "manualOwned")
@@ -314,12 +337,12 @@ final class PersistenceManager {
         
         let entityName = String(describing: objectType)
         let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: entityName)
-        var filterPredicate = NSPredicate(format: "title == %@", gameTitle)
+        let filterPredicate = NSPredicate(format: "title == %@", gameTitle)
         fetchRequest.predicate = filterPredicate
         do {
             let fetchedObjects = try context.fetch(fetchRequest) as? [T]
             let objectUpdate = (fetchedObjects?[0])! as NSManagedObject
-            let object = fetchedObjects?[0]
+//            let object = fetchedObjects?[0]
 //            object
             print(physicalCopy)
             objectUpdate.setValue(physicalCopy, forKeyPath: "physicalCopy")
@@ -336,12 +359,12 @@ final class PersistenceManager {
         
         let entityName = String(describing: objectType)
         let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: entityName)
-        var filterPredicate = NSPredicate(format: "title == %@", gameTitle)
+        let filterPredicate = NSPredicate(format: "title == %@", gameTitle)
         fetchRequest.predicate = filterPredicate
         do {
             let fetchedObjects = try context.fetch(fetchRequest) as? [T]
             let objectUpdate = (fetchedObjects?[0])! as NSManagedObject
-            let object = fetchedObjects?[0]
+//            let object = fetchedObjects?[0]
 //            object
             print(digitalCopy)
             objectUpdate.setValue(digitalCopy, forKeyPath: "digitalCopy")
@@ -359,12 +382,12 @@ final class PersistenceManager {
         
         let entityName = String(describing: objectType)
         let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: entityName)
-        var filterPredicate = NSPredicate(format: "title == %@", gameTitle)
+        let filterPredicate = NSPredicate(format: "title == %@", gameTitle)
         fetchRequest.predicate = filterPredicate
         do {
             let fetchedObjects = try context.fetch(fetchRequest) as? [T]
             let objectUpdate = (fetchedObjects?[0])! as NSManagedObject
-            let object = fetchedObjects?[0]
+//            let object = fetchedObjects?[0]
 //            object
             print(beat)
             objectUpdate.setValue(beat, forKeyPath: "hasBeaten")
@@ -381,12 +404,12 @@ final class PersistenceManager {
         
         let entityName = String(describing: objectType)
         let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: entityName)
-        var filterPredicate = NSPredicate(format: "title == %@", gameTitle)
+        let filterPredicate = NSPredicate(format: "title == %@", gameTitle)
         fetchRequest.predicate = filterPredicate
         do {
             let fetchedObjects = try context.fetch(fetchRequest) as? [T]
             let objectUpdate = (fetchedObjects?[0])! as NSManagedObject
-            let object = fetchedObjects?[0]
+//            let object = fetchedObjects?[0]
 //            object
             print(completed)
             objectUpdate.setValue(completed, forKeyPath: "hasCompleted")
@@ -405,12 +428,12 @@ final class PersistenceManager {
         
         let entityName = String(describing: objectType)
         let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: entityName)
-        var filterPredicate = NSPredicate(format: "title == %@", gameTitle)
+        let filterPredicate = NSPredicate(format: "title == %@", gameTitle)
         fetchRequest.predicate = filterPredicate
         do {
             let fetchedObjects = try context.fetch(fetchRequest) as? [T]
             let objectUpdate = (fetchedObjects?[0])! as NSManagedObject
-            let object = fetchedObjects?[0]
+//            let object = fetchedObjects?[0]
 //            object
             print(pricePaid)
             objectUpdate.setValue(pricePaid, forKeyPath: "pricePaid")
@@ -429,12 +452,12 @@ final class PersistenceManager {
         
         let entityName = String(describing: objectType)
         let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: entityName)
-        var filterPredicate = NSPredicate(format: "title == %@", gameTitle)
+        let filterPredicate = NSPredicate(format: "title == %@", gameTitle)
         fetchRequest.predicate = filterPredicate
         do {
             let fetchedObjects = try context.fetch(fetchRequest) as? [T]
             let objectUpdate = (fetchedObjects?[0])! as NSManagedObject
-            let object = fetchedObjects?[0]
+//            let object = fetchedObjects?[0]
 //            object
             print(notes)
             
@@ -606,7 +629,9 @@ final class PersistenceManager {
         let filterPredicate = NSPredicate(format: "platformID == \(Int32(platformID))")
         let sortAscending = NSSortDescriptor(key: "title", ascending: true)
         print("filterPredicates \(filterPredicate)")
+        if platformID != 0 {
         fetchRequest.predicate = filterPredicate
+        }
         fetchRequest.sortDescriptors = [sortAscending]
         do {
             let fetchedObjects = try context.fetch(fetchRequest) as? [T]
@@ -662,7 +687,7 @@ final class PersistenceManager {
     }
     
     
-    func fetchFilteredByReleaseDate<T: NSManagedObject>(_ objectType: T.Type, platformID: Int?, dateRange: [Int]?) -> [T]{
+    func fetchFilteredByReleaseDate<T: NSManagedObject>(_ objectType: T.Type, platformID: Int?, sortBy: String?, dateRange: [Int]?) -> [T]{
         
         let entityName = String(describing: objectType)
         let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: entityName)
@@ -671,18 +696,14 @@ final class PersistenceManager {
         let startYear = Int32((dateRange?.first)!)
         let endYear = Int32((dateRange?.last)!)
         
-        if platformID != nil {
+     
             
             if dateRange != nil{
-                
-                if platformID != 0 {
-                    filterPredicate = NSPredicate(format: "(releaseYear >= %i) AND (releaseYear <= %i) AND platformID == %i", startYear, endYear, Int32(platformID!))
-                    
-                } else {
+             
                     filterPredicate = NSPredicate(format: "(releaseYear >= %i) AND (releaseYear <= %i)", startYear, endYear)
-                }
                 
-                sortAscending = NSSortDescriptor(key: "title", ascending: true)
+                
+                sortAscending = NSSortDescriptor(key: sortBy, ascending: true)
                 fetchRequest.predicate = filterPredicate
                 fetchRequest.sortDescriptors = [sortAscending!]
               
@@ -691,10 +712,10 @@ final class PersistenceManager {
             }
             
             
-      
+    
             
         
-    }
+    
         do {
             let fetchedObjects = try context.fetch(fetchRequest) as? [T]
             return fetchedObjects ?? [T]()
@@ -704,78 +725,122 @@ final class PersistenceManager {
         }
     }
     
-    
-    func fetchGame<T: NSManagedObject>(_ objectType: T.Type, platformID: Int?, selectedGenres: [String]?) -> [T]{
+    func fetchGenres<T: NSManagedObject>(_ objectType: T.Type, selectedGenres: [String]) -> [T] {
         let entityName = String(describing: objectType)
         let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: entityName)
-        let filterPredicate : NSPredicate?
-        let sortAscending : NSSortDescriptor?
-        if platformID != nil {
-            
-            if selectedGenres != nil {
-                //if we have a platform id and a selected genre:
-                
-                //compound predicates for platform and selected genre
-               
-                var filterPredicates : [NSPredicate]?
-                
-                if platformID != 0 {
-                    print("persistenceManager.fetchGame platformID != 0  platformID == \(platformID!)")
-                    
-                    filterPredicates = selectedGenres!.map {
-                        NSPredicate(format: "genre CONTAINS %@ AND platformID == \(platformID!)", $0)
-                    }
-                    //will filter and present only those platforms that arent id 0 (all platforms)
-//                let platformPredicate = NSPredicate(format: "platformID == \(Int64(platformID!))")
-//                    filterPredicates.insert(platformPredicate, at: 0)
-                print("filterPredicates \(filterPredicates)")
-                } else {
-                    
-                    filterPredicates = selectedGenres!.map {
-                        NSPredicate(format: "genre CONTAINS %@", $0)
-                    }
-                }
-                
-                filterPredicate = NSCompoundPredicate(orPredicateWithSubpredicates: filterPredicates!)
-                sortAscending = NSSortDescriptor(key: "title", ascending: true)
-                fetchRequest.predicate = filterPredicate
-                fetchRequest.sortDescriptors = [sortAscending!]
-
-
-            }
-            else {
-                print("if we have platform id but no selected genre")
-
-                if platformID != 0 {
-                filterPredicate = NSPredicate(format: "platformID == \(Int64(platformID!))")
-                fetchRequest.predicate = filterPredicate
-                }
-
-                sortAscending = NSSortDescriptor(key: "title", ascending: true)
-                fetchRequest.sortDescriptors = [sortAscending!]
-
-            }
-            
-            
-            
-        } else {
-            print("selectedGenres is nil")
-
-            if selectedGenres != nil {
-                //predicate for genres but no platform id
-                let filterPredicates = selectedGenres!.map {
-                    NSPredicate(format: "genre CONTAINS %@", $0)
-                }
-                filterPredicate = NSCompoundPredicate(orPredicateWithSubpredicates: filterPredicates)
-                sortAscending = NSSortDescriptor(key: "title", ascending: true)
-                fetchRequest.predicate = filterPredicate
-                fetchRequest.sortDescriptors = [sortAscending!]
-
-
-                }
-            
-            
+        var filterPrediate: NSPredicate?
+        
+        filterPrediate = NSPredicate(format: "%K = %@", #keyPath(GameGenre.name), selectedGenres )
+        
+        fetchRequest.predicate = filterPrediate
+        
+        do {
+            let fetchedObjects = try context.fetch(fetchRequest) as? [T]
+            return fetchedObjects ?? [T]()
+        } catch {
+            print("error")
+            return [T]()
         }
+        
+    }
+    
+    
+    func fetchGame<T: NSManagedObject>(_ objectType: T.Type, byGameTitle: String?, sortBy: String? , sortByAscending: Bool, platformID: Int?, selectedGenres: [String]?, selectedPlatforms: [Int]?) -> [T]{
+        let entityName = String(describing: objectType)
+        let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: entityName)
+        var filterPredicate : NSPredicate?
+        var sortAscending : NSSortDescriptor?
+        var platforms : [Int] = []
+        var genres : [String] = []
+        var title = ""
+        if let platform = selectedPlatforms{
+        platforms = platform
+        }
+        if let genre = selectedGenres {
+            genres = genre
+        }
+
+        if let sortKey = sortBy {
+            
+            sortAscending = NSSortDescriptor(key: sortKey, ascending: sortByAscending)
+        } else {
+            sortAscending = NSSortDescriptor(key: "title", ascending: sortByAscending)
+        }
+
+        if let gameTitle = byGameTitle {
+            title = gameTitle
+        }
+        
+        
+                print("selectedPlatform is", platforms)
+                print("selectedGenre is", genres)
+                
+        switch (platforms.isEmpty, genres.isEmpty, byGameTitle == nil) {
+                
+                case (true, true, true):
+                    // all arrays are empty so we don't filter anything and return all SavedGame objects
+                    print("all arrays are empty so we don't filter anything and return all SavedGame objects")
+                    filterPredicate = NSPredicate(value: true)
+                    
+                case (true, false, true):
+                    // only filter genres
+                    print("only filter genres")
+                    
+                    filterPredicate = NSPredicate(format: "SUBQUERY(%K, $genre, $genre.name IN %@).@count > 0", #keyPath(SavedGames.genreType), genres)
+
+                case (false, true, true):
+                    // only filter platforms
+                    print("only filter platforms")
+                    
+                    filterPredicate = NSPredicate(format: "%K in %@", argumentArray: [#keyPath(SavedGames.platformID), platforms])
+                    
+                case (false, false, true):
+                    // filter both genres and platforms
+                    print("filter both genres and platforms")
+                    
+                    filterPredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [
+                        NSPredicate(format: "SUBQUERY(%K, $genre, $genre.name IN %@).@count > 0", #keyPath(SavedGames.genreType), genres),
+                        NSPredicate(format: "%K IN %@", argumentArray: [#keyPath(SavedGames.platformID), platforms])
+                    ])
+                    
+                    
+                case (true, true, false):
+                    //Filtering by name only
+                    filterPredicate = NSPredicate(format: "%K CONTAINS [c] %@", argumentArray: [#keyPath(SavedGames.title), title])
+                    
+                    
+                case (true, false, false):
+                    //filtering by name and genre
+                    filterPredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [
+                        NSPredicate(format: "%K CONTAINS [c] %@", argumentArray: [#keyPath(SavedGames.title), title]),
+                        NSPredicate(format: "SUBQUERY(%K, $genre, $genre.name IN %@).@count > 0", #keyPath(SavedGames.genreType), genres)
+                    ])
+                    
+                case (false, true, false):
+                    //filtering by name and platform
+                    filterPredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [
+                        NSPredicate(format: "%K CONTAINS [c] %@", argumentArray: [#keyPath(SavedGames.title), title]),
+                        NSPredicate(format: "%K in %@", argumentArray: [#keyPath(SavedGames.platformID), platforms])
+                    ])
+                    
+                case (false, false, false):
+                    //filtering by name, genre, and platform
+        
+                    filterPredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [
+                        NSPredicate(format: "%K CONTAINS [c] %@", argumentArray: [#keyPath(SavedGames.title), title]),
+                        NSPredicate(format: "SUBQUERY(%K, $genre, $genre.name IN %@).@count > 0", #keyPath(SavedGames.genreType), genres),
+                        NSPredicate(format: "%K IN %@", argumentArray: [#keyPath(SavedGames.platformID), platforms])
+                        
+                    ])
+        }
+        
+        
+//        print("filterPredicate", filterPredicate)
+                
+                fetchRequest.predicate = filterPredicate
+                fetchRequest.sortDescriptors = [sortAscending!]
+                
+
    
 
         do {
@@ -790,3 +855,6 @@ final class PersistenceManager {
         
     }
 }
+
+
+

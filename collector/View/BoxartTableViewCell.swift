@@ -10,26 +10,31 @@ import UIKit
 
 class BoxartTableViewCell: UITableViewCell, UICollectionViewDelegate, UICollectionViewDataSource {
     var images : Image?
+    var parent: UIViewController?
+    var game : GameObject?
+    
     @IBOutlet var boxartCardView: UIView!
     
     @IBOutlet weak var boxartBackgroundView: UIView!
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        if let boxartArray = images?.boxartArray {
-            return boxartArray.count
-        } else {
-            return 0
-            
-        }
+        return 1
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = boxartCollectionView.dequeueReusableCell(withReuseIdentifier: "boxartCollection", for: indexPath) as? BoxartCollectionViewCell
-        let imageURLString = (images?.boxartArray?[indexPath.row])!
-        cell?.boxartImageView.loadImage(from: baseURL.small.rawValue + imageURLString, completed: {
-            print("boxart images in collectionview downloaded")
-        })
+        
+        cell?.game = game
+
         
         return cell!
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        let boxartURL = baseURL.fullHD.rawValue + (game?.boxartFrontImage)!
+        let vc = (parent?.storyboard?.instantiateViewController(identifier: "fullImage"))! as FullImageVC
+
+        vc.imageURL = boxartURL
+        parent?.navigationController?.pushViewController(vc, animated: true)
     }
     
     @IBOutlet weak var boxartCollectionView: UICollectionView!
@@ -42,15 +47,7 @@ class BoxartTableViewCell: UITableViewCell, UICollectionViewDelegate, UICollecti
         boxartCardView.layer.cornerRadius = 20
 
         
-        if traitCollection.userInterfaceStyle == .light {
-            let lightGray = UIColor(red: (246/255), green: (246/255), blue: (246/255), alpha: 1)
-            boxartBackgroundView.backgroundColor = lightGray
-            boxartCardView.backgroundColor = UIColor.white
-        } else {
-            boxartBackgroundView.backgroundColor = .systemBackground
-            
-            boxartCardView.backgroundColor = .tertiarySystemBackground
-        }
+        setAppearance()
         
     }
 
@@ -59,5 +56,41 @@ class BoxartTableViewCell: UITableViewCell, UICollectionViewDelegate, UICollecti
 
         // Configure the view for the selected state
     }
+    
+    
+    func setAppearance() {
+        print("setting appearance")
+        
+        let defaults = UserDefaults.standard
+        let appearanceSelection = defaults.integer(forKey: "appearanceSelection")
+
+        
+        if appearanceSelection == 0 {
+           
+            overrideUserInterfaceStyle = .unspecified
+        } else if appearanceSelection == 1 {
+            overrideUserInterfaceStyle = .light
+           
+
+
+        } else {
+            overrideUserInterfaceStyle = .dark
+           
+
+        }
+        
+        if traitCollection.userInterfaceStyle == .light {
+            let lightGray = UIColor(red: 246/255, green: 246/255, blue: 246/255, alpha: 1)
+            boxartBackgroundView.backgroundColor = lightGray
+            
+        } else if traitCollection.userInterfaceStyle == .dark {
+            let darkGray = UIColor(red: 18/255, green: 18/255, blue: 18/255, alpha: 1)
+            boxartBackgroundView.backgroundColor = darkGray
+           
+
+        }
+    }
+    
+
 
 }

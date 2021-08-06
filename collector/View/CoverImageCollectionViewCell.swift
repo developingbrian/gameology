@@ -10,7 +10,18 @@ import UIKit
 
 class CoverImageCollectionViewCell: UICollectionViewCell {
     
+
     @IBOutlet weak var largeImage: UIImageView!
+    private var shadowLayer : CAShapeLayer!
+
+    override class func awakeFromNib() {
+        super.awakeFromNib()
+        
+
+        
+        
+    }
     
-    
+   
+
 }

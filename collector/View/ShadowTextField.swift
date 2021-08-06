@@ -12,6 +12,10 @@ final class ShadowTextField: UITextField {
 
     private var shadowLayer: CAShapeLayer!
 
+    override class func awakeFromNib() {
+        
+    }
+    
     override func layoutSubviews() {
         super.layoutSubviews()
 
@@ -19,7 +23,7 @@ final class ShadowTextField: UITextField {
             shadowLayer = CAShapeLayer()
             shadowLayer.path = UIBezierPath(roundedRect: bounds, cornerRadius: 12).cgPath
             if traitCollection.userInterfaceStyle == .light {
-            shadowLayer.fillColor = UIColor.white.cgColor
+            shadowLayer.fillColor = UIColor.tertiarySystemBackground.cgColor
 
             shadowLayer.shadowColor = UIColor.darkGray.cgColor
             } else {
@@ -34,6 +38,15 @@ final class ShadowTextField: UITextField {
             layer.insertSublayer(shadowLayer, at: 0)
             //layer.insertSublayer(shadowLayer, below: nil) // also works
         }
+        if traitCollection.userInterfaceStyle == .light {
+        shadowLayer.fillColor = UIColor.tertiarySystemBackground.cgColor
+
+        shadowLayer.shadowColor = UIColor.darkGray.cgColor
+        } else {
+            shadowLayer.fillColor = UIColor.tertiarySystemBackground.cgColor
+            shadowLayer.shadowColor = UIColor.gray.cgColor
+        }
+        
     }
 
 }

@@ -48,9 +48,9 @@ extension OwnedGamesViewController {
         let savedPlatforms = persistenceManager.fetch(Platform.self)
         
         for platform in savedPlatforms {
-            print(platform.name, platform.id)
+//            print(platform.name, platform.id)
             if platform.name == name && platform.id == id {
-                print("Platform \(platform.name) is in library")
+//                print("Platform \(platform.name) is in library")
                 return true
             }
             
@@ -91,6 +91,7 @@ extension OwnedGamesViewController {
         let platform = Platform(context: persistenceManager.context)
         let platformObject = fetchPlatformObject(platformID: id)
         platform.id = Int32(platformObject.id)
+        
         platform.name = platformObject.name
         print(platformObject)
         
@@ -142,6 +143,13 @@ extension OwnedGamesViewController {
             cell.platformID = platformObject.id
             cell.platformName = platformObject.name
             game.boxartImageURL = cell.game?.boxartFrontImage
+            if let width = cell.game?.boxartInfo?.width {
+            game.boxartWidth = Int32(width)
+            }
+           if let height = cell.game?.boxartInfo?.height {
+            game.boxartHeight = Int32(height)
+            }
+            
             game.releaseDate = cell.game?.releaseDate
             
             game.rating = cell.game?.rating
@@ -149,7 +157,9 @@ extension OwnedGamesViewController {
             game.owned = true
             game.gameID = Int32((cell.game?.id)!)
             game.platformID = Int64((cell.game?.platformID)!)
-            game.maxPlayers = Int64((cell.game?.maxPlayers)!)
+            // TODO: FIX CORE DATA MAX PLAYER TO STRING
+
+            game.maxPlayers = cell.game?.maxPlayers
             
 //            game.platform?.id = Int32(platformObject.id)
 //            game.platform?.name = platformObject.name
@@ -209,12 +219,12 @@ extension OwnedGamesViewController {
     func deleteGameFromCoreData(index: IndexPath) {
         print("deleting game from core data")
 //        var platform = Platform(context: persistenceManager.context)
-        let savedPlatforms = persistenceManager.fetch(Platform.self)
+//        let savedPlatforms = persistenceManager.fetch(Platform.self)
         let savedGames = persistenceManager.fetch(SavedGames.self)
         let indexPath = index
         if let cell = tableView.cellForRow(at: indexPath) as? OwnedGamesVCTableViewCell {
-            var platform1 = fetchCoreDataPlatformObject(id: cell.platformID!)
-
+            let platform1 = fetchCoreDataPlatformObject(id: cell.platformID!)
+            print("platform1 is", platform1)
 //            for platform in savedPlatforms {
 //                print("platformSavedBefore")
 //                print(platform)
@@ -247,13 +257,15 @@ extension OwnedGamesViewController {
 //                    platform.removeFromGames(currentGame)
                     print(platform1.games!.count)
                     platform1.removeFromGames(currentGame)
-                    print(platform1.games?.count)
+//                    print(platform1.games?.count)
 
                     print("persistencemanager.delete(currentGame)")
  
                     persistenceManager.delete(currentGame)
                     
                     if platform1.games!.count < 1 {
+                        
+//                        print("going to delete the following platform:", platform1.name)
                         persistenceManager.delete(platform1)
                         
                     }
@@ -320,7 +332,7 @@ extension OwnedGamesViewController {
         
         ownedGames.forEach { (game) in
             print("game core data")
-            print(game.title, game.gameID)
+//            print(game.title, game.gameID)
             
         }
     }
@@ -329,7 +341,7 @@ extension OwnedGamesViewController {
         
         savedPlatforms.forEach{ (platform) in
             print("platform core data")
-            print(platform.name, platform.id)
+//            print(platform.name, platform.id)
         }
     }
     

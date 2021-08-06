@@ -2,7 +2,7 @@
 //  SavedGames+CoreDataProperties.swift
 //  collector
 //
-//  Created by Brian on 1/25/21.
+//  Created by Brian on 8/2/21.
 //  Copyright © 2021 Brian. All rights reserved.
 //
 //
@@ -17,8 +17,10 @@ extension SavedGames {
         return NSFetchRequest<SavedGames>(entityName: "SavedGames")
     }
 
+    @NSManaged public var boxartHeight: Int32
     @NSManaged public var boxartImage: Data?
     @NSManaged public var boxartImageURL: String?
+    @NSManaged public var boxartWidth: Int32
     @NSManaged public var boxCondition: Float
     @NSManaged public var boxOwned: Bool
     @NSManaged public var clearlogoImage: Data?
@@ -36,7 +38,7 @@ extension SavedGames {
     @NSManaged public var hasCompleted: Bool
     @NSManaged public var manualCondition: Float
     @NSManaged public var manualOwned: Bool
-    @NSManaged public var maxPlayers: Int64
+    @NSManaged public var maxPlayers: String?
     @NSManaged public var notes: String?
     @NSManaged public var overview: String?
     @NSManaged public var owned: Bool
@@ -50,8 +52,26 @@ extension SavedGames {
     @NSManaged public var releaseYear: Int32
     @NSManaged public var title: String?
     @NSManaged public var youtubeURL: String?
+    @NSManaged public var genreType: NSSet?
     @NSManaged public var photo: NSSet?
     @NSManaged public var platform: Platform?
+
+}
+
+// MARK: Generated accessors for genreType
+extension SavedGames {
+
+    @objc(addGenreTypeObject:)
+    @NSManaged public func addToGenreType(_ value: GameGenre)
+
+    @objc(removeGenreTypeObject:)
+    @NSManaged public func removeFromGenreType(_ value: GameGenre)
+
+    @objc(addGenreType:)
+    @NSManaged public func addToGenreType(_ values: NSSet)
+
+    @objc(removeGenreType:)
+    @NSManaged public func removeFromGenreType(_ values: NSSet)
 
 }
 

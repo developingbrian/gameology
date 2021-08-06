@@ -8,18 +8,35 @@
 
 import UIKit
 
-protocol SectionHeaderDelegate: class {
+protocol SectionHeaderDelegate: AnyObject {
     func didPressButton(isOpen: Bool, section: Int)
 }
 
 
 class WishlistHeaderView: UICollectionReusableView {
     
+//    struct SectionData {
+//
+//        var isOpen : Bool
+//        var game : [WishList]
+//
+//    }
+    
+    
+    
     var sectionHeaderDelegate: SectionHeaderDelegate?
     var collectionIsExpanded = false
     @IBOutlet weak var headerImageView: UIImageView!
     @IBOutlet weak var moreButton: UIButton!
-    
+    var indexPath : IndexPath?
+
+    var platformName : String?
+
+    var section: SectionData? {
+        didSet {
+            configureHeader()
+        }
+    }
     override func awakeFromNib() {
         super.awakeFromNib()
     }
@@ -29,5 +46,45 @@ class WishlistHeaderView: UICollectionReusableView {
         sectionHeaderDelegate?.didPressButton(isOpen: collectionIsExpanded, section: moreButton.tag)
         print("more button pressed")
     }
+    
+    
+    
+    func configureHeader() {
+        if let platformName = platformName {
+        let platformImage = getPlatformImage(platformName: platformName, mode: self.traitCollection.userInterfaceStyle)
+            
+            headerImageView.image = platformImage
+            
+        }
+        
+        if let index = indexPath {
+        moreButton.tag = index.section
+        }
+        if let open = section?.isOpen {
+            
+        if open {
+            moreButton.setTitle("Close", for: .normal)
+            moreButton.setImage(UIImage(systemName: "chevron.up"), for: .normal)
+        } else {
+            moreButton.setTitle("Open", for: .normal)
+            moreButton.setImage(UIImage(systemName: "chevron.down"), for: .normal)
+
+        }
+            
+        }
+    }
+    
+    func getPlatformImage(platformName: String, mode: UIUserInterfaceStyle) -> UIImage {
+       
+        let platformID = changePlatformNameToID(platformName: platformName)
+        print("platform id:", platformID)
+        let platformIcon = setPlatformIcon(platformID: platformID, mode: mode)
+        print("platformIcon \(platformIcon)")
+        guard let platformImage = UIImage(named: platformIcon) else { fatalError("no platform icon was found") }
+        
+        return platformImage
+    }
+    
+
     
 }
