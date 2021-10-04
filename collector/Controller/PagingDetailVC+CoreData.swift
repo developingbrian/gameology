@@ -13,7 +13,7 @@ import UIKit
 extension PagingDetailVC {
     
     
-    func saveGameToCoreData(_ title: String,_ id: Int,_ imageData: Data?,_ platformObject: PlatformObject) {
+    func saveGameToCoreData(_ title: String,_ id: Int,_ platformObject: PlatformObject) {
         
         let persistedGame = SavedGames(context: persistenceManager.context)
         guard let gamePlatformID = game.platformID else { return }
@@ -23,7 +23,6 @@ extension PagingDetailVC {
         
         persistedGame.title = title
         persistedGame.gameID = Int32(id)
-        persistedGame.boxartImage = imageData
         persistedGame.owned = true
         persistedGame.releaseDate = game.releaseDate
         persistedGame.overview = game.overview
@@ -33,7 +32,23 @@ extension PagingDetailVC {
             persistedGame.releaseYear = Int32(releaseYear)!
         }
         persistedGame.rating = game.rating
+        if let totalRating = game.totalRating {
+        persistedGame.totalRating = Int32(totalRating)
+        }
+        if let userRating = game.userRating {
+        persistedGame.userRating = Int32(userRating)
+        }
         persistedGame.boxartImageURL = game.boxartFrontImage
+        
+        if let screenshots = game.screenshots {
+        for screenshot in screenshots {
+            
+            if let imageID = screenshot.imageID {
+            persistedGame.screenshotImageIDs?.append(imageID)
+            }
+        }
+        }
+        
         if let width = game.boxartInfo?.width {
         persistedGame.boxartWidth = Int32(width)
         }

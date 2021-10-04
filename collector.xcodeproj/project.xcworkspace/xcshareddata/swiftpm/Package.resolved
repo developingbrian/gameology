@@ -2,12 +2,39 @@
   "object": {
     "pins": [
       {
+        "package": "AcknowList",
+        "repositoryURL": "https://github.com/vtourraine/AcknowList",
+        "state": {
+          "branch": null,
+          "revision": "d0e560cccc39d07598ad3032c701a0e77eaacbe5",
+          "version": "2.0.1"
+        }
+      },
+      {
         "package": "AvailableHapticFeedback",
         "repositoryURL": "https://github.com/yonat/AvailableHapticFeedback",
         "state": {
           "branch": null,
           "revision": "f9ae6d54af1fb06fff0ddb16246091c6de22f989",
           "version": "1.0.2"
+        }
+      },
+      {
+        "package": "BarcodeScanner",
+        "repositoryURL": "https://github.com/hyperoslo/BarcodeScanner",
+        "state": {
+          "branch": null,
+          "revision": "059cd71c4e3b9efc8d7e42fa1948bf572471b448",
+          "version": "5.0.1"
+        }
+      },
+      {
+        "package": "Lottie",
+        "repositoryURL": "https://github.com/airbnb/lottie-ios",
+        "state": {
+          "branch": null,
+          "revision": "79a0b70547f7c40ea54c67487f935fa2f2eaaadc",
+          "version": "3.2.3"
         }
       },
       {
@@ -56,12 +83,30 @@
         }
       },
       {
+        "package": "SPM-Acknowledgments",
+        "repositoryURL": "https://github.com/timroesner/SPM-Acknowledgments",
+        "state": {
+          "branch": null,
+          "revision": "2920539ece40b29cf2afc0a0d535e9ba0ee82d15",
+          "version": "1.0.0"
+        }
+      },
+      {
         "package": "SweeterSwift",
         "repositoryURL": "https://github.com/yonat/SweeterSwift",
         "state": {
           "branch": null,
           "revision": "783afac9c3492e905ab3f5afea4069a737edfc40",
           "version": "1.1.4"
+        }
+      },
+      {
+        "package": "SwiftSoup",
+        "repositoryURL": "https://github.com/scinfu/SwiftSoup",
+        "state": {
+          "branch": null,
+          "revision": "02c63b7be50bda384f22c56c64d347231754a07e",
+          "version": "2.3.3"
         }
       }
     ]

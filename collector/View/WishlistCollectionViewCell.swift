@@ -40,6 +40,9 @@ class WishlistCollectionViewCell: UICollectionViewCell {
      
     }
     
+    override func prepareForReuse() {
+        boxartImageView.image = nil
+    }
     
     func configureCell() {
         

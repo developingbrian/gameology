@@ -143,6 +143,17 @@ extension OwnedGamesViewController {
             cell.platformID = platformObject.id
             cell.platformName = platformObject.name
             game.boxartImageURL = cell.game?.boxartFrontImage
+            
+            if let screenshots = cell.game?.screenshots {
+            for screenshot in screenshots {
+                
+                if let imageID = screenshot.imageID {
+                game.screenshotImageIDs?.append(imageID)
+                }
+            }
+            }
+            
+            
             if let width = cell.game?.boxartInfo?.width {
             game.boxartWidth = Int32(width)
             }
@@ -153,6 +164,13 @@ extension OwnedGamesViewController {
             game.releaseDate = cell.game?.releaseDate
             
             game.rating = cell.game?.rating
+            if let totalRating = cell.game?.totalRating {
+                game.totalRating = Int32(totalRating)
+            }
+            if let userRating = cell.game?.userRating {
+                game.userRating = Int32(userRating)
+            }
+            
             game.developerName = cell.game?.developer
             game.owned = true
             game.gameID = Int32((cell.game?.id)!)

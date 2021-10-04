@@ -186,6 +186,21 @@ extension ViewController {
             cell.platformName = platformObject.name
             game.platformName = platformObject.name
             game.boxartImageURL = cell.game?.boxartFrontImage
+            
+            var screenshots : [String] = []
+            if let gameScreenshots = cell.game?.screenshots {
+            for screenshot in gameScreenshots {
+                
+                if let imageID = screenshot.imageID {
+               
+                    screenshots.append(imageID)
+                    print("saving screenshots")
+                    print("imageID is", imageID)
+                }
+            }
+            }
+            game.screenshotImageIDs = screenshots
+            
             if let width = cell.game?.boxartInfo?.width {
             game.boxartWidth = Int32(width)
             }
@@ -212,7 +227,12 @@ extension ViewController {
             if let platformID = cell.game?.platformID {
                 game.platformID = Int64(platformID)
             }
-            
+            if let userRating = cell.game?.userRating {
+            game.userRating = Int32(userRating)
+            }
+            if let totalRating = cell.game?.totalRating {
+            game.totalRating = Int32(totalRating)
+            }
             // TODO: FIX CORE DATA MAX PLAYER TO STRING
 //            if let maxPlayers = cell.game?.maxPlayers {
 //                game.maxPlayers = maxPlayers
@@ -235,8 +255,8 @@ extension ViewController {
 //            print("platform CORE DATA1 \(platformObject1)")
             
         }
-
-        
+        print("image ids")
+        print(game.screenshotImageIDs)
         persistenceManager.save()
         
         let deadline = DispatchTime.now() + 2
@@ -291,6 +311,7 @@ extension ViewController {
         if let cell = tableView.cellForRow(at: indexPath) as? ViewControllerTableViewCell {
             let platform1 = fetchCoreDataPlatformObject(id: cell.platformID!)
 
+            print("game info", cell.game?.title, cell.game?.platformID, ViewController.savedGameIndex)
 //            for platform in savedPlatforms {
 //                print("platformSavedBefore")
 //                print(platform)
@@ -328,7 +349,11 @@ extension ViewController {
                     persistenceManager.delete(currentGame)
 //                    print("persistencemanager.delete(platform)")
 //                    persistenceManager.delete(platform)
-                    let unownedImage = fetchSaveToLibraryBtnImg(platformID: (cell.game?.platformID)!, owned: false)
+                    var unownedImage = ""
+                    if let platformID = cell.game?.platformID {
+                     unownedImage = fetchAddToButtonIcon(platformID: platformID, owned: false)
+                    }
+//                    let unownedImage = fetchSaveToLibraryBtnImg(platformID: (cell.game?.platformID)!, owned: false)
                     print("viewcontroller + coredata \(unownedImage)")
                     cell.addToLibraryButton.setImage(UIImage(named: unownedImage), for: .normal)
                     persistenceManager.save()
@@ -432,6 +457,34 @@ extension ViewController {
         
         persistedGame.title = title
         persistedGame.gameID = Int32(id)
+        
+        if let userRating = game.userRating {
+        persistedGame.userRating = Int32(userRating)
+            print("userRating", userRating, persistedGame.userRating)
+
+        }
+        if let totalRating = game.totalRating {
+            persistedGame.totalRating = Int32(totalRating)
+
+            print("totalRating", totalRating, persistedGame.totalRating)
+
+            
+        }
+        
+        var screenshotsArray : [String]? = []
+        if let screenshots = game.screenshots {
+            for screenshot in screenshots {
+                if let imageID = screenshot.imageID {
+                    
+                    print("adding screenshot", imageID)
+                    screenshotsArray?.append(imageID)
+                }
+            }
+        }
+        print("screenshots array", screenshotsArray)
+        persistedGame.screenshotImageIDs = screenshotsArray
+//        persistedGame.screenshotImageIDs?.append(contentsOf: screenshotsArray)
+        print("persisted screenshots", persistedGame.screenshotImageIDs)
         persistedGame.inWishlist = true
             persistedGame.overview = game.overview
             persistedGame.releaseDate = game.releaseDate
@@ -452,7 +505,7 @@ extension ViewController {
         persistedGame.developerName = game.developer
         persistedGame.platformName = platformName
         persistedGame.platformID = Int64(platform.id)
-        
+        persistedGame.youtubeURL = game.youtubePath
         
         
         if let maxPlayers = game.maxPlayers {
@@ -460,6 +513,7 @@ extension ViewController {
         }
         persistedGame.genre = game.genreDescriptions
         persistedGame.genres = game.genres
+        print("genres", persistedGame.genres)
         
         
         persistenceManager.save()

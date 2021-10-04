@@ -51,6 +51,8 @@ extension MyPhotoCell {
                     }
         
         
+
+        
         imageView.translatesAutoresizingMaskIntoConstraints = false
         imageView.image = UIImage(named: "noBoxart")
         if let image = photo?.photo {
@@ -61,6 +63,7 @@ extension MyPhotoCell {
             
         }
         
+        
         imageView.contentMode = .scaleAspectFill
         imageView.clipsToBounds = true
 //        imageView.layer.masksToBounds = false
@@ -69,6 +72,10 @@ extension MyPhotoCell {
         imageView.isUserInteractionEnabled = true
         
         container.addSubview(imageView)
+        
+        
+
+        
         
         deleteButton.translatesAutoresizingMaskIntoConstraints = false
         deleteButton.setBackgroundImage(UIImage(systemName: "xmark.circle.fill"), for: .normal)

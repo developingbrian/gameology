@@ -14,6 +14,7 @@ class ComingSoonCell: UICollectionViewCell {
     static let cellIdentifier = "comingSoonCell"
     
     let container = UIView()
+    let shadowView = UIImageView()
     let imageView = UIImageView()
     let titleLabel = UILabel()
     let dateLabel = UILabel()
@@ -27,6 +28,12 @@ class ComingSoonCell: UICollectionViewCell {
         }
         
     }
+    
+    
+    override func prepareForReuse() {
+        imageView.image = nil
+        shadowView.image = nil
+    }
    
 }
 
@@ -34,9 +41,11 @@ class ComingSoonCell: UICollectionViewCell {
 
 extension ComingSoonCell {
     func configureCell() {
+//        shadowView.backgroundColor = .red
         container.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(container)
         contentView.addSubview(imageView)
+        contentView.addSubview(shadowView)
         contentView.backgroundColor = .tertiarySystemBackground
         container.backgroundColor = .tertiarySystemBackground
         container.clipsToBounds = true
@@ -54,19 +63,45 @@ extension ComingSoonCell {
                         container.layer.shadowColor = UIColor.gray.cgColor
                     }
         
+        shadowView.translatesAutoresizingMaskIntoConstraints = false
+        shadowView.contentMode = .scaleAspectFill
+        shadowView.isUserInteractionEnabled = true
+        shadowView.layer.cornerRadius = 10
         
+        container.addSubview(shadowView)
+        
+        
+        let maskLayer = CAGradientLayer()
+//        maskLayer.frame = shadowView.bounds
+//        maskLayer.shadowRadius = 3
+//        maskLayer.shadowPath = CGPath(roundedRect: shadowView.bounds.insetBy(dx: 3, dy: 3), cornerWidth: 10, cornerHeight: 10, transform: nil)
+//        maskLayer.shadowOpacity = 1
+//        maskLayer.shadowOffset = CGSize.zero
+//        maskLayer.shadowColor = UIColor.darkGray.cgColor
+//
+//
+//        shadowView.layer.mask = maskLayer
+//        imageView.alpha = 0.5
         imageView.translatesAutoresizingMaskIntoConstraints = false
+//        imageView.clipsToBounds = true
+//        imageView.layer.masksToBounds = true
         if let boxartURL = game?.boxartFrontImage {
             let gameURL = baseURL.hd.rawValue + boxartURL
             let url = URL(string: gameURL)!
             imageView.setImageAnimated(imageUrl: url, placeholderImage: nil) {
                 print("coming soon image loaded")
                 self.boxartImage = self.imageView.image
+                
+                let blurredImage = self.boxartImage?.getImageWithBlur(blurAmount: 6)
+                
+                self.shadowView.image = blurredImage
 //                print("game.boxartimage", self.game?.boxartImage)
             }
         } else {
-            imageView.image = UIImage(named: "noBoxart")
-            self.boxartImage = imageView.image
+            self.imageView.image = UIImage(named: "noBoxart")
+            self.boxartImage = self.imageView.image
+            let blurredImage = self.boxartImage?.getImageWithBlur(blurAmount: 20)
+            self.shadowView.image = blurredImage
         }
         
         imageView.contentMode = .scaleAspectFit
@@ -79,7 +114,7 @@ extension ComingSoonCell {
         imageView.layer.shadowRadius = 5
         imageView.layer.shadowColor = UIColor.gray.cgColor
 
-        container.addSubview(imageView)
+        shadowView.addSubview(imageView)
         
 //        if let image = imageView.image {
 //        game?.boxartImage = image
@@ -120,14 +155,20 @@ extension ComingSoonCell {
             container.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
             container.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
             
-            imageView.topAnchor.constraint(equalTo: container.topAnchor, constant: 5),
-//            imageView.bottomAnchor.constraint(equalTo: titleLabel.topAnchor, constant: 3),
-            imageView.centerXAnchor.constraint(equalTo: container.centerXAnchor),
-//            imageView.centerYAnchor.constraint(equalTo: container.centerYAnchor),
-            imageView.bottomAnchor.constraint(equalTo: titleLabel.topAnchor, constant: 0),
+            shadowView.topAnchor.constraint(equalTo: container.topAnchor, constant: 5),
+
+            shadowView.centerXAnchor.constraint(equalTo: container.centerXAnchor),
+
+            shadowView.bottomAnchor.constraint(equalTo: titleLabel.topAnchor, constant: 0),
             
-            imageView.leadingAnchor.constraint(lessThanOrEqualTo: container.leadingAnchor, constant: 4),
-            imageView.trailingAnchor.constraint(lessThanOrEqualTo: container.trailingAnchor, constant: -4),
+//            shadowView.leadingAnchor.constraint(lessThanOrEqualTo: container.leadingAnchor, constant: 0),
+//            shadowView.trailingAnchor.constraint(lessThanOrEqualTo: container.trailingAnchor, constant: 0),
+            shadowView.widthAnchor.constraint(equalTo: shadowView.heightAnchor, multiplier: (103/137)),
+            imageView.topAnchor.constraint(equalTo: shadowView.topAnchor),
+            imageView.leadingAnchor.constraint(equalTo: shadowView.leadingAnchor),
+            imageView.bottomAnchor.constraint(equalTo: shadowView.bottomAnchor, constant: -6),
+            imageView.trailingAnchor.constraint(equalTo: shadowView.trailingAnchor, constant: -6),
+            
 //            imageView.heightAnchor.constraint(equalTo: container.heightAnchor, constant: 50),
             
             

@@ -53,7 +53,7 @@ extension MyManualCell {
         imageView.translatesAutoresizingMaskIntoConstraints = false
         
         if let image = photo?.photo {
-                var myGameImage = UIImage(data: image)
+            let myGameImage = UIImage(data: image)
                 imageView.image = myGameImage
                 
                 

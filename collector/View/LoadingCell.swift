@@ -11,6 +11,9 @@ import UIKit
 class LoadingCell: UITableViewCell {
 
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
+    @IBOutlet weak var label: UILabel!
+    @IBOutlet weak var refreshImage: UIImageView!
+    
     override func awakeFromNib() {
         super.awakeFromNib()
         // Initialization code

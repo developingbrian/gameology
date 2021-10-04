@@ -2,7 +2,7 @@
 //  SavedGames+CoreDataProperties.swift
 //  collector
 //
-//  Created by Brian on 8/2/21.
+//  Created by Brian on 9/29/21.
 //  Copyright © 2021 Brian. All rights reserved.
 //
 //
@@ -52,6 +52,9 @@ extension SavedGames {
     @NSManaged public var releaseYear: Int32
     @NSManaged public var title: String?
     @NSManaged public var youtubeURL: String?
+    @NSManaged public var screenshotImageIDs: Array<String>?
+    @NSManaged public var userRating: Int32
+    @NSManaged public var totalRating: Int32
     @NSManaged public var genreType: NSSet?
     @NSManaged public var photo: NSSet?
     @NSManaged public var platform: Platform?

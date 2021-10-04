@@ -17,6 +17,11 @@ class SpotlightVC: UIViewController {
     var top20PlatformID = 167
     let screen = UIScreen.main.bounds
     var boxartImage : UIImage?
+    
+    let label = UILabel()
+    let refreshButton = GradientButton(gradientStartColor: .red, gradientEndColor: .orange)
+    var dataFetchComplete = false
+    
     @IBOutlet weak var spinview: UIView!
     var top20MenuPlatforms : [String] {
         var platforms : [String] = []
@@ -183,7 +188,7 @@ class SpotlightVC: UIViewController {
                 let platformID = self.fetchPlatformID(platformName: self.comingSoonMenuPlatforms[0])
                 
                 
-                self.network.fetchIGDBComingSoonData(platformID: platformID) {
+                self.network.fetchIGDBComingSoonData(platformID: platformID) {_ in
                         self.comingSoonGames.removeAll()
                     self.comingSoonGames = self.network.comingSoonArray
                     self.spotlightCollectionView.reloadData()
@@ -208,7 +213,7 @@ class SpotlightVC: UIViewController {
             UIAction(title: comingSoonMenuPlatforms[1], image: UIImage(named: platformImage1)?.withTintColor(.label), handler: { (_) in
                 print("button pressed")
                 let platformID = self.fetchPlatformID(platformName: self.comingSoonMenuPlatforms[1])
-                self.network.fetchIGDBComingSoonData(platformID: platformID) {
+                self.network.fetchIGDBComingSoonData(platformID: platformID) { error in
                     self.comingSoonGames.removeAll()
 
                     self.comingSoonGames = self.network.comingSoonArray
@@ -232,7 +237,7 @@ class SpotlightVC: UIViewController {
             UIAction(title: comingSoonMenuPlatforms[2], image: UIImage(named: platformImage2)?.withTintColor(.label), handler: { (_) in
                 print("button pressed")
                 let platformID = self.fetchPlatformID(platformName: self.comingSoonMenuPlatforms[2])
-                self.network.fetchIGDBComingSoonData(platformID: platformID) {
+                self.network.fetchIGDBComingSoonData(platformID: platformID) { error in
                     self.comingSoonGames.removeAll()
 
                     self.comingSoonGames = self.network.comingSoonArray
@@ -256,7 +261,7 @@ class SpotlightVC: UIViewController {
             UIAction(title: comingSoonMenuPlatforms[3], image: UIImage(named: platformImage3)?.withTintColor(.label), handler: { (_) in
                 print("button pressed")
                 let platformID = self.fetchPlatformID(platformName: self.comingSoonMenuPlatforms[3])
-                self.network.fetchIGDBComingSoonData(platformID: platformID) {
+                self.network.fetchIGDBComingSoonData(platformID: platformID) { error in
                     self.comingSoonGames.removeAll()
 
                     self.comingSoonGames = self.network.comingSoonArray
@@ -374,7 +379,7 @@ class SpotlightVC: UIViewController {
                 let platformID = self.fetchPlatformID(platformName: self.recentlyAddedMenuPlatforms[0])
                 
                 
-                self.network.fetchIGDBRecentlyReleasedData(platformID: platformID) {
+                self.network.fetchIGDBRecentlyReleasedData(platformID: platformID) { error in
                     self.recentlyReleasedGames.removeAll()
                     self.recentlyReleasedGames = self.network.recentlyReleasedArray
                     print("reloading recently released games")
@@ -398,7 +403,7 @@ class SpotlightVC: UIViewController {
             UIAction(title: recentlyAddedMenuPlatforms[1], image: UIImage(named: platformImage1)?.withTintColor(.label), handler: { (_) in
                 print("button pressed")
                 let platformID = self.fetchPlatformID(platformName: self.recentlyAddedMenuPlatforms[1])
-                self.network.fetchIGDBRecentlyReleasedData(platformID: platformID) {
+                self.network.fetchIGDBRecentlyReleasedData(platformID: platformID) { error in
                     self.recentlyReleasedGames.removeAll()
 
                     self.recentlyReleasedGames = self.network.recentlyReleasedArray
@@ -422,7 +427,7 @@ class SpotlightVC: UIViewController {
             UIAction(title: recentlyAddedMenuPlatforms[2], image: UIImage(named: platformImage2)?.withTintColor(.label), handler: { (_) in
                 print("button pressed")
                 let platformID = self.fetchPlatformID(platformName: self.recentlyAddedMenuPlatforms[2])
-                self.network.fetchIGDBRecentlyReleasedData(platformID: platformID) {
+                self.network.fetchIGDBRecentlyReleasedData(platformID: platformID) { error in
                     self.recentlyReleasedGames.removeAll()
 
                     self.recentlyReleasedGames = self.network.recentlyReleasedArray
@@ -446,7 +451,7 @@ class SpotlightVC: UIViewController {
             UIAction(title: recentlyAddedMenuPlatforms[3], image: UIImage(named: platformImage3)?.withTintColor(.label), handler: { (_) in
                 print("button pressed")
                 let platformID = self.fetchPlatformID(platformName: self.recentlyAddedMenuPlatforms[3])
-                self.network.fetchIGDBRecentlyReleasedData(platformID: platformID) {
+                self.network.fetchIGDBRecentlyReleasedData(platformID: platformID) { error in
                     self.recentlyReleasedGames.removeAll()
 
                     self.recentlyReleasedGames = self.network.recentlyReleasedArray
@@ -558,7 +563,7 @@ class SpotlightVC: UIViewController {
             UIAction(title: top20MenuPlatforms[0], image: UIImage(named: platformImage0)?.withTintColor(.label), handler: { (_) in
                 print("button pressed")
                 let platformID = self.fetchPlatformID(platformName: self.top20MenuPlatforms[0])
-                self.network.fetchIGDBTop20Data(platformID: platformID) {
+                self.network.fetchIGDBTop20Data(platformID: platformID) { error in
                     self.topTwentyGames.removeAll()
                     self.topTwentyGames = self.network.topTwentyArray
                     self.spotlightCollectionView.reloadData()
@@ -580,7 +585,7 @@ class SpotlightVC: UIViewController {
             UIAction(title: top20MenuPlatforms[1], image: UIImage(named: platformImage1)?.withTintColor(.label), handler: { (_) in
                 print("button pressed")
                 let platformID = self.fetchPlatformID(platformName: self.top20MenuPlatforms[1])
-                self.network.fetchIGDBTop20Data(platformID: platformID) {
+                self.network.fetchIGDBTop20Data(platformID: platformID) { error in
                     self.topTwentyGames.removeAll()
 
                     self.topTwentyGames = self.network.topTwentyArray
@@ -604,7 +609,7 @@ class SpotlightVC: UIViewController {
             UIAction(title: top20MenuPlatforms[2], image: UIImage(named: platformImage2)?.withTintColor(.label), handler: { (_) in
                 print("button pressed")
                 let platformID = self.fetchPlatformID(platformName: self.top20MenuPlatforms[2])
-                self.network.fetchIGDBTop20Data(platformID: platformID) {
+                self.network.fetchIGDBTop20Data(platformID: platformID) { error in
                     self.topTwentyGames.removeAll()
 
                     self.topTwentyGames = self.network.topTwentyArray
@@ -628,7 +633,7 @@ class SpotlightVC: UIViewController {
             UIAction(title: self.top20MenuPlatforms[3], image: UIImage(named: platformImage3)?.withTintColor(.label), handler: { (_) in
                 print("button pressed")
                 let platformID = self.fetchPlatformID(platformName: self.top20MenuPlatforms[3])
-                self.network.fetchIGDBTop20Data(platformID: platformID) {
+                self.network.fetchIGDBTop20Data(platformID: platformID) { error in
                     self.topTwentyGames.removeAll()
 
                     self.topTwentyGames = self.network.topTwentyArray
@@ -716,6 +721,7 @@ class SpotlightVC: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setAppearance()
+        setupLabel()
         self.navigationController?.navigationBar.isTranslucent = false
 
         spotlightCollectionView.collectionViewLayout = setupCollectionViewLayout()
@@ -743,61 +749,241 @@ class SpotlightVC: UIViewController {
         spotlightCollectionView.register(SpotlightHeaderView.self, forSupplementaryViewOfKind: SpotlightVC.sectionHeaderElementKind, withReuseIdentifier: SpotlightHeaderView.reuseIdentifier)
 
         prepareData()
+//        spinview.isHidden = false
+//        self.showSpinner(onView: spinview, userInterfaceStyle: traitCollection.userInterfaceStyle)
+//        tabBarController?.view.isUserInteractionEnabled = false
+//
+//        while dataFetchComplete == false {
+//            print("dataFetchComplete = ", dataFetchComplete)
+//            if network.genreFetchSuccess == true && network.platformFetchSuccess == true && network.gameFetchSuccess == true {
+//                
+//                dataFetchComplete = true
+//                tabBarController?.view.isUserInteractionEnabled = true
+//                removeSpinner()
+//
+//            }
+//            
+//        }
     }
     
 
 
     
     func prepareData() {
+        let priceObject = network.scrapePriceCharting(platformID: 48, gameName: "grand-theft-auto-v", uneditedGameName: "Grand Theft Auto V")
+        print("priceObject is", priceObject.title, priceObject.loosePrice, priceObject.cibPrice, priceObject.newPrice)
+        
+        label.isHidden = true
+        refreshButton.isHidden = true
+        spotlightCollectionView.isHidden = false
+        
         spinview.isHidden = false
+        
         tabBarController?.view.isUserInteractionEnabled = false
         print("user interface style", traitCollection.userInterfaceStyle.rawValue)
         self.showSpinner(onView: spinview, userInterfaceStyle: traitCollection.userInterfaceStyle)
 //        self.showSpinner(onView: self.spinview)
         let platformIDS = [48, 49, 130, 167, 169]
-        self.network.fetchIGDBGenreData {
-            
         
-        self.network.fetchIGDBPlatformData {
-            self.network.fetchIGDBGamesData(filterBy: "platforms = ", platformID: 18, searchByName: nil, sortByField: "name", sortAscending: true, offset: self.network.currentOffset, resultsPerPage: 20, completed: {
-                print("data downloaded")
-                self.network.currentOffset = self.network.gameArray.count
-                self.tabBarController?.view.isUserInteractionEnabled = true
+        
+            self.label.isHidden = true
+            self.spotlightCollectionView.isHidden = false
+            let randomPlatformIDComingSoon = platformIDS.randomElement()
+            self.network.fetchIGDBComingSoonData(platformID: randomPlatformIDComingSoon!) { error in
+                if error == nil {
+                self.comingSoonGames = self.network.comingSoonArray
+                self.spotlightCollectionView.reloadData()
+                if let platformID = self.comingSoonGames[0].platformID {
+                    self.comingSoonPlatformID = platformID
+                }
+                    
+           
+                    
+                } else {
+                    self.spotlightCollectionView.isHidden = true
+                    self.label.isHidden = false
+                    self.refreshButton.isHidden = false
+
+                    self.removeSpinner()
+                    self.spinview.isHidden = true
+                    self.tabBarController?.view.isUserInteractionEnabled = true
+
+                }
+            }
+        
+                let randomPlatformIDRecentlyReleased = platformIDS.randomElement()
+                self.network.fetchIGDBRecentlyReleasedData(platformID: randomPlatformIDRecentlyReleased!) { error in
+                    if error == nil {
+                        print("recently released data")
+                        self.recentlyReleasedGames = self.network.recentlyReleasedArray
+                        self.spotlightCollectionView.reloadData()
+                        if let platformID = self.recentlyReleasedGames[0].platformID {
+                            self.recentlyReleasedPlatformID = platformID
+                    }
+                        
+                        
+                    } else {
+                        self.spotlightCollectionView.isHidden = true
+                        self.label.isHidden = false
+                        self.refreshButton.isHidden = false
+
+                        self.removeSpinner()
+                        self.spinview.isHidden = true
+                        self.tabBarController?.view.isUserInteractionEnabled = true
+
+                        
+                    }
+                }
+                    
+                
+
+                            let randomPlatformIDTop20 = platformIDS.randomElement()
+                            self.network.fetchIGDBTop20Data(platformID: randomPlatformIDTop20!) { error in
+                                if error == nil {
+                                print("top20 fetched")
+                                self.topTwentyGames = self.network.topTwentyArray
+                                self.spotlightCollectionView.reloadData()
+                                if let platformID = self.topTwentyGames[0].platformID {
+                                    self.top20PlatformID = platformID
+                                }
+                                    
+                                } else {
+                                    self.spotlightCollectionView.isHidden = true
+                                    self.label.isHidden = false
+                                    self.refreshButton.isHidden = false
+                                    self.removeSpinner()
+                                    self.spinview.isHidden = true
+                                    self.tabBarController?.view.isUserInteractionEnabled = true
+                                    
+                                    
+                                }
+                            }
+        
+                            
+//
+//
+//                        } else {
+//                            self.spotlightCollectionView.isHidden = true
+//                            self.label.isHidden = false
+//                            self.refreshButton.isHidden = false
+//
+//                            self.removeSpinner()
+//                            self.spinview.isHidden = true
+//                            self.tabBarController?.view.isUserInteractionEnabled = true
+//                        }
+//
+//
+//                    }
+//
+//                } else {
+//                    self.spotlightCollectionView.isHidden = true
+//                    self.label.isHidden = false
+//                    self.refreshButton.isHidden = false
+//
+//                    self.removeSpinner()
+//                    self.spinview.isHidden = true
+//                    self.tabBarController?.view.isUserInteractionEnabled = true
+//                }
+                
+       
+                    
+
+                        
+                
+                        
+                 
+                        
+                        
+                     
+                    
+                    
+
+                
+        
+        self.network.fetchIGDBGenreData { error in
+            print("attempting to fetch genre data")
+            if error == nil {
+            print("success fetching genre data")
+            
+        self.network.fetchIGDBPlatformData { error in
+            
+            if error == nil {
+            
+            self.network.fetchIGDBGamesData(filterBy: "platforms = ", platformID: 18, searchByName: nil, sortByField: "name", sortAscending: true, offset: self.network.currentOffset, resultsPerPage: 500, completed: { error in
+                
+                print("error is", error)
+                
+                if error == nil {
+                    
+                    if self.network.initialFetchComplete == true {
+                        
+                        
+                        print("all data downloaded")
+                        self.network.currentOffset += 500
+//                        self.network.currentOffset = self.network.gameArray.count
+                        self.removeSpinner()
+                        self.spinview.isHidden = true
+                        self.tabBarController?.view.isUserInteractionEnabled = true
+                    }
+                
+                }
+                        
+                    else {
+                        self.network.genreFetchDidFail = false
+                        self.network.platformFetchDidFail = false
+                        self.network.gameFetchDidFail = true
+                    self.label.isHidden = false
+                    self.spotlightCollectionView.isHidden = true
+                        self.refreshButton.isHidden = false
+
+                    self.removeSpinner()
+                    self.spinview.isHidden = true
+                    self.tabBarController?.view.isUserInteractionEnabled = true
+                }
+                
+          
+
+
+                
+
+                
+
+
+            })
+            } else {
+                self.network.genreFetchDidFail = false
+                self.network.platformFetchDidFail = true
+                self.network.gameFetchDidFail = true
+                self.label.isHidden = false
+                self.spotlightCollectionView.isHidden = true
+                    self.refreshButton.isHidden = false
 
                 self.removeSpinner()
                 self.spinview.isHidden = true
-            })
-        }
+                self.tabBarController?.view.isUserInteractionEnabled = true
+                
+                
+            }
         }
         
-        let randomPlatformIDComingSoon = platformIDS.randomElement()
-        self.network.fetchIGDBComingSoonData(platformID: randomPlatformIDComingSoon!) {
-            self.comingSoonGames = self.network.comingSoonArray
-            self.spotlightCollectionView.reloadData()
-            if let platformID = self.comingSoonGames[0].platformID {
-                self.comingSoonPlatformID = platformID
+            } else {
+                
+                print("error is", error)
+                self.network.genreFetchDidFail = true
+                self.network.platformFetchDidFail = true
+                self.network.gameFetchDidFail = true
+                self.label.isHidden = false
+                self.spotlightCollectionView.isHidden = true
+                    self.refreshButton.isHidden = false
+
+                self.removeSpinner()
+                self.spinview.isHidden = true
+                self.tabBarController?.view.isUserInteractionEnabled = true
+                
+                
             }
             
-        }
-        let randomPlatformIDRecentlyReleased = platformIDS.randomElement()
-        self.network.fetchIGDBRecentlyReleasedData(platformID: randomPlatformIDRecentlyReleased!) {
-            print("recently released data")
-            self.recentlyReleasedGames = self.network.recentlyReleasedArray
-            self.spotlightCollectionView.reloadData()
-            if let platformID = self.recentlyReleasedGames[0].platformID {
-                self.recentlyReleasedPlatformID = platformID
-            }
-
-        }
-        
-        let randomPlatformIDTop20 = platformIDS.randomElement()
-        self.network.fetchIGDBTop20Data(platformID: randomPlatformIDTop20!) {
-            print("top20 fetched")
-            self.topTwentyGames = self.network.topTwentyArray
-            self.spotlightCollectionView.reloadData()
-            if let platformID = self.topTwentyGames[0].platformID {
-                self.top20PlatformID = platformID
-            }
+            
             
         }
     }
@@ -945,6 +1131,68 @@ class SpotlightVC: UIViewController {
         
     }
     
+    @objc func refreshButtonPressed() {
+
+        print("refresh pressed")
+        prepareData()
+    }
+    
+    
+    func setupLabel() {
+       
+        let darkBlue = UIColorFromRGB(0x2ECAD5)
+        let blue = UIColorFromRGB(0x2B95CE)
+        let colors = [blue.cgColor, darkBlue.cgColor]
+        view.addSubview(label)
+        view.addSubview(refreshButton)
+        refreshButton.translatesAutoresizingMaskIntoConstraints = false
+//        refreshButton.layer.masksToBounds = true
+        refreshButton.clipsToBounds = true
+        refreshButton.gradientStartColor = darkBlue
+        refreshButton.gradientEndColor = blue
+        refreshButton.setTitle("Refresh", for: .normal)
+        refreshButton.layer.cornerRadius = 10
+//        refreshButton.backgroundColor = .red
+
+//        refreshButton.applyGradientRounded(layoutIfNeeded: false, colors: colors )
+//        refreshButton.applyGradient(colors: [blue.cgColor, darkBlue.cgColor])
+//        let gradientLayer = CAGradientLayer()
+//        gradientLayer.colors = colors
+//        gradientLayer.startPoint = CGPoint(x: 0, y: 0)
+//        gradientLayer.endPoint = CGPoint(x: 0.5, y: 0)
+//        gradientLayer.frame = refreshButton.bounds
+//        refreshButton.layer.insertSublayer(gradientLayer, at: 0)
+//        refreshButton.layer.insertSublayer(gradientLayer, above: refreshButton.imageView?.layer)
+        refreshButton.isHidden = true
+        refreshButton.addTarget(self, action: #selector(refreshButtonPressed), for: .touchUpInside)
+        
+                spotlightCollectionView.isHidden = true
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.text = "OH Dang....Something went wrong."
+        label.textColor = .label
+//        label.backgroundColor = .red
+        label.numberOfLines = 0
+        label.textAlignment = .center
+        label.isHidden = true
+        
+        NSLayoutConstraint.activate(
+        [
+            label.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+//            label.topAnchor.constraint(equalTo: view.topAnchor),
+//            label.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            label.heightAnchor.constraint(equalToConstant: 50),
+            
+            label.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            label.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            refreshButton.topAnchor.constraint(equalTo: label.bottomAnchor),
+            refreshButton.widthAnchor.constraint(equalTo: label.widthAnchor, multiplier: 0.5),
+            refreshButton.heightAnchor.constraint(equalToConstant: 50),
+            refreshButton.centerXAnchor.constraint(equalTo: view.centerXAnchor)
+        ]
+            
+        )
+    }
+    
     func setAppearance() {
         
         let defaults = UserDefaults.standard
@@ -1050,11 +1298,10 @@ extension SpotlightVC : UICollectionViewDataSource, UICollectionViewDelegate {
                     comingSoonPlatform.isSelected = false
                 }
                 
-                if #available(iOS 14.0, *) {
                     
                 supplementaryView.button.menu = comingSoonMenu
                 supplementaryView.button.showsMenuAsPrimaryAction = true
-                }
+                
             }
             
         case .recentlyReleased:
@@ -1070,11 +1317,10 @@ extension SpotlightVC : UICollectionViewDataSource, UICollectionViewDelegate {
                 print("button width",supplementaryView.button.frame.width)
                 print("button height",supplementaryView.button.frame.height)
                 
-                if #available(iOS 14.0, *) {
                     
                 supplementaryView.button.menu = recentlyReleasedMenu
                 supplementaryView.button.showsMenuAsPrimaryAction = true
-                }
+                
             }
         case .top20:
             platform = fetchPlatformName(platformID: top20PlatformID)
@@ -1087,11 +1333,10 @@ extension SpotlightVC : UICollectionViewDataSource, UICollectionViewDelegate {
                 }
             }
             
-            if #available(iOS 14.0, *) {
                 
             supplementaryView.button.menu = top20Menu
             supplementaryView.button.showsMenuAsPrimaryAction = true
-            }
+            
             
         }
          

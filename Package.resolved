@@ -2,12 +2,39 @@
   "object": {
     "pins": [
       {
+        "package": "AcknowList",
+        "repositoryURL": "https://github.com/vtourraine/AcknowList",
+        "state": {
+          "branch": null,
+          "revision": "d0e560cccc39d07598ad3032c701a0e77eaacbe5",
+          "version": "2.0.1"
+        }
+      },
+      {
         "package": "AvailableHapticFeedback",
         "repositoryURL": "https://github.com/yonat/AvailableHapticFeedback",
         "state": {
           "branch": null,
           "revision": "f9ae6d54af1fb06fff0ddb16246091c6de22f989",
           "version": "1.0.2"
+        }
+      },
+      {
+        "package": "BarcodeScanner",
+        "repositoryURL": "https://github.com/hyperoslo/BarcodeScanner",
+        "state": {
+          "branch": null,
+          "revision": "059cd71c4e3b9efc8d7e42fa1948bf572471b448",
+          "version": "5.0.1"
+        }
+      },
+      {
+        "package": "Lottie",
+        "repositoryURL": "https://github.com/airbnb/lottie-ios",
+        "state": {
+          "branch": null,
+          "revision": "79a0b70547f7c40ea54c67487f935fa2f2eaaadc",
+          "version": "3.2.3"
         }
       },
       {
@@ -20,12 +47,48 @@
         }
       },
       {
+        "package": "NVActivityIndicatorView",
+        "repositoryURL": "https://github.com/ninjaprox/NVActivityIndicatorView.git",
+        "state": {
+          "branch": null,
+          "revision": "bcb52371f2259254bac6690f92bb474a61768c47",
+          "version": "5.1.1"
+        }
+      },
+      {
+        "package": "Parchment",
+        "repositoryURL": "https://github.com/rechsteiner/Parchment",
+        "state": {
+          "branch": null,
+          "revision": "af4c9773ad7833df93b3f6226ccd78acad6f5735",
+          "version": "2.4.0"
+        }
+      },
+      {
         "package": "SDWebImage",
         "repositoryURL": "https://github.com/SDWebImage/SDWebImage.git",
         "state": {
           "branch": null,
-          "revision": "88b3ba211c0d604e60eab204c1baf8229c513399",
-          "version": "5.9.4"
+          "revision": "ae3d0a7703eb883a876864f17a4591158199e9f2",
+          "version": "5.9.0"
+        }
+      },
+      {
+        "package": "SPAlert",
+        "repositoryURL": "https://github.com/varabeis/SPAlert",
+        "state": {
+          "branch": null,
+          "revision": "0c28dc4aa42c4f2c1cef7ad892d5d6ecbb30ebd2",
+          "version": "3.0.3"
+        }
+      },
+      {
+        "package": "SPM-Acknowledgments",
+        "repositoryURL": "https://github.com/timroesner/SPM-Acknowledgments",
+        "state": {
+          "branch": null,
+          "revision": "2920539ece40b29cf2afc0a0d535e9ba0ee82d15",
+          "version": "1.0.0"
         }
       },
       {
@@ -35,6 +98,15 @@
           "branch": null,
           "revision": "783afac9c3492e905ab3f5afea4069a737edfc40",
           "version": "1.1.4"
+        }
+      },
+      {
+        "package": "SwiftSoup",
+        "repositoryURL": "https://github.com/scinfu/SwiftSoup",
+        "state": {
+          "branch": null,
+          "revision": "02c63b7be50bda384f22c56c64d347231754a07e",
+          "version": "2.3.3"
         }
       }
     ]

@@ -157,9 +157,10 @@ class FilterVC: UIViewController {
         
         if network.sourceTag == 0 {
             // use genre data source
+            filterByLbl.text = "Select Genre(s)"
             platformSegmentedControl.isHidden = true
 
-            let gameArray = persistenceManager.fetchGame(SavedGames.self, byGameTitle: nil, sortBy: nil, sortByAscending: true, platformID: nil, selectedGenres: nil, selectedPlatforms: nil)
+            let gameArray = persistenceManager.fetchGame(SavedGames.self, byGameTitle: nil, sortBy: nil, sortByAscending: true, platformID: nil, selectedGenres: nil, selectedPlatforms: nil, selectedDateRange: nil)
          
         var array: [String] = []
         
@@ -176,8 +177,9 @@ class FilterVC: UIViewController {
             
             
         } else {
-            
-            let gameArray = persistenceManager.fetchGame(SavedGames.self, byGameTitle: nil, sortBy: nil, sortByAscending: true, platformID: 0, selectedGenres:  nil, selectedPlatforms: nil)
+            filterByLbl.text = "Select Platform(s)"
+
+            let gameArray = persistenceManager.fetchGame(SavedGames.self, byGameTitle: nil, sortBy: nil, sortByAscending: true, platformID: 0, selectedGenres:  nil, selectedPlatforms: nil, selectedDateRange: nil)
             var consoles : [String] = []
             var portables : [String] = []
 

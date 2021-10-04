@@ -11,6 +11,12 @@ import UIKit
 class RoundedGradientButton: UIButton {
 
     private var shadowLayer : CAShapeLayer!
+    let gradientLayer = CAGradientLayer()
+
+    override open func layoutSubviews() {
+        super.layoutSubviews()
+        gradientLayer.frame = self.layer.bounds
+    }
     
     override func awakeFromNib() {
         super.awakeFromNib()
@@ -37,7 +43,6 @@ class RoundedGradientButton: UIButton {
             let lightBlue = UIColorFromRGB(0x2B95CE)
             let blue = UIColorFromRGB(0x2ECAD5)
 //            self.applyGradientRounded(layoutIfNeeded: false, colors: [ blue.cgColor, lightBlue.cgColor])
-            let gradientLayer = CAGradientLayer()
             gradientLayer.colors = [lightBlue, blue]
             gradientLayer.startPoint = CGPoint(x: 0, y: 0)
             gradientLayer.endPoint = CGPoint(x: 0.5, y: 0)

@@ -14,7 +14,7 @@ class MediaVC: UIViewController {
     
     @IBOutlet var backgroundView: UIView!
     @IBOutlet weak var mediaTableView: UITableView!
-    @IBOutlet var clearlogoImageView: UIImageView!
+//    @IBOutlet var clearlogoImageView: UIImageView!
     @IBOutlet var fanartImageView: UIImageView!
     @IBOutlet var gameNameLabel: UILabel!
     @IBOutlet var webView: WKWebView!
@@ -40,7 +40,7 @@ class MediaVC: UIViewController {
         webView.isHidden = true
         gradient.isHidden = false
         fanartImageView.isHidden = false
-        clearlogoImageView.isHidden = false
+//        clearlogoImageView.isHidden = false
         playButton.isHidden = false
         gameNameLabel.isHidden = false
 
@@ -64,11 +64,16 @@ class MediaVC: UIViewController {
 
         
         if let screenshots = game.screenshots {
+            if screenshots.count > 0 {
             let random = screenshots.randomElement()
             let image = (random?.imageID)! + ".jpg"
             let url = URL(string: baseURL.screenshotMedium.rawValue + image)
             fanartImageView.setImageAnimated(imageUrl: url!, placeholderImage: nil) {
                 print("screenshot set")
+            }
+            } else {
+                fanartImageView.image = UIImage(named: "arcadeBackground")
+
             }
         } else {
             fanartImageView.image = UIImage(named: "arcadeBackground")
@@ -96,7 +101,7 @@ class MediaVC: UIViewController {
         gradient.isHidden = true
         gameNameLabel.isHidden = true
         fanartImageView.isHidden = true
-        clearlogoImageView.isHidden = true
+//        clearlogoImageView.isHidden = true
         playButton.isHidden = true
                     let embedURLString = Constants.youtubeEmbedURL
                 var url : URL

@@ -156,6 +156,12 @@ extension OwnedGamesVCTableViewCell {
     func configureCell() {
         setAppearance()
         
+        backgroundCell.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            backgroundCell.trailingAnchor.constraint(equalTo: self.layoutMarginsGuide.trailingAnchor, constant: -6),
+            removeFromLibraryBtn.trailingAnchor.constraint(equalTo: self.layoutMarginsGuide.trailingAnchor, constant: -3)
+        ])
+        
         let effect = UIBlurEffect(style: .regular)
                 let effectView = UIVisualEffectView(effect: effect)
                 effectView.frame = boxartShadowImageView.bounds
@@ -193,9 +199,22 @@ extension OwnedGamesVCTableViewCell {
         landscapeBoxart.layer.shadowColor = UIColor.darkGray.cgColor
         landscapeBoxart.clipsToBounds = false
         landscapeBoxart.layer.masksToBounds = false
-        landscapeBoxart.translatesAutoresizingMaskIntoConstraints = true
+        landscapeBoxart.translatesAutoresizingMaskIntoConstraints = false
         landscapeBoxart.layer.cornerRadius = 10
 
+        
+
+        
+        let landscapeMaskLayer = CAGradientLayer()
+        landscapeMaskLayer.frame = landscapeShadow.bounds
+        landscapeMaskLayer.shadowRadius = 4
+        landscapeMaskLayer.shadowPath = CGPath(roundedRect: landscapeShadow.bounds.insetBy(dx: 3, dy: 3), cornerWidth: 10, cornerHeight: 10, transform: nil)
+        landscapeMaskLayer.shadowOpacity = 1
+        landscapeMaskLayer.shadowOffset = CGSize.zero
+        landscapeMaskLayer.shadowColor = UIColor.darkGray.cgColor
+//
+        landscapeShadow.layer.mask = landscapeMaskLayer
+        
 //        boxartShadowImageView.layer.mask = maskLayer
         boxartShadowImageView.layer.cornerRadius = 10
         
@@ -207,9 +226,24 @@ extension OwnedGamesVCTableViewCell {
         boxartImageView.layer.shadowColor = UIColor.darkGray.cgColor
         boxartImageView.clipsToBounds = false
         boxartImageView.layer.masksToBounds = false
-        boxartImageView.translatesAutoresizingMaskIntoConstraints = true
+        boxartImageView.translatesAutoresizingMaskIntoConstraints = false
         boxartImageView.layer.cornerRadius = 10
         boxartShadowImageView.backgroundColor = .clear
+        
+        
+        let maskLayer = CAGradientLayer()
+        maskLayer.frame = boxartShadowImageView.bounds
+        maskLayer.shadowRadius = 4
+        maskLayer.shadowPath = CGPath(roundedRect: boxartShadowImageView.bounds.insetBy(dx: 3, dy: 3), cornerWidth: 10, cornerHeight: 10, transform: nil)
+        maskLayer.shadowOpacity = 1
+        maskLayer.shadowOffset = CGSize.zero
+        maskLayer.shadowColor = UIColor.darkGray.cgColor
+
+
+        boxartShadowImageView.layer.mask = maskLayer
+        
+        boxartShadowImageView.alpha = 0.75
+        landscapeShadow.alpha = 0.75
         
         let color1 = UIColorFromRGB(0x2B95CE)
         let color2 = UIColorFromRGB(0x2ECAD5)
@@ -233,6 +267,7 @@ extension OwnedGamesVCTableViewCell {
             id = Int(gameID)
         }
         gameName = game?.title
+        
         if let platform = game?.platformID {
             platformID = Int(platform)
         }
@@ -249,7 +284,7 @@ extension OwnedGamesVCTableViewCell {
                 
                 if let boxImage = image {
                     
-                    let blurredImage = self.blurImage(usingImage: boxImage, blurAmount: 3.0)
+                    let blurredImage = self.blurImage(usingImage: boxImage, blurAmount: 1.5)
                     self.boxartShadowImageView.image = blurredImage
                     self.landscapeShadow.image = blurredImage
                     
@@ -296,8 +331,23 @@ extension OwnedGamesVCTableViewCell {
 //        let array = set?.value(forKey: "name")
 
         gameTitleLabel.text = game?.title
-        releaseDateLabel.text = game?.releaseDate
+    
+        if let genre = game?.genre {
+            genreLabel.text = genre
+        } else {
+            genreLabel.text = " "
+        }
+        if let releaseDate = game?.releaseDate {
+        releaseDateLabel.text = releaseDate
+        } else {
+            releaseDateLabel.text = " "
+        }
+        
+        if let developer = game?.developerName {
         developerLabel.text = game?.developerName
+        } else {
+            developerLabel.text = " "
+        }
         if let platformID = game?.platformID {
         let platformName =
             self.setPlatformIconName(platformID: Int(platformID), mode: self.traitCollection.userInterfaceStyle)

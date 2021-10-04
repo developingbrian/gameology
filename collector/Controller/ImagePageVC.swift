@@ -13,7 +13,8 @@ class ImagePageVC: UIPageViewController {
     var images : [UIImage] = []
     var imageURLs : [String] = []
     var selectedIndex = 0
-    
+    var sb = UIStoryboard(name: "Main", bundle: nil)
+
     
     
     override func viewDidLoad() {
@@ -22,14 +23,16 @@ class ImagePageVC: UIPageViewController {
         dataSource = self
         
         print("selected index is", selectedIndex)
-        
-        let fullImageVC = (parent?.storyboard?.instantiateViewController(identifier: "fullImage"))! as FullImageVC
+
+        let fullImageVC = sb.instantiateViewController(identifier: "fullImage") as! FullImageVC
         
         if imageURLs.count > 0 {
             
             fullImageVC.imageURL = imageURLs[selectedIndex]
+            print(imageURLs[selectedIndex])
         } else {
             fullImageVC.image = images[selectedIndex]
+            print(images[selectedIndex])
         }
         
         let viewControllers = [fullImageVC]
@@ -56,7 +59,7 @@ extension ImagePageVC: UIPageViewControllerDataSource {
 
         if currentIndex < imageURLs.count - 1 {
 
-            let fullImageVC = (parent?.storyboard?.instantiateViewController(identifier: "fullImage"))! as FullImageVC
+            let fullImageVC = sb.instantiateViewController(identifier: "fullImage") as! FullImageVC
             fullImageVC.imageURL = imageURLs[currentIndex + 1]
             return fullImageVC
         }
@@ -69,7 +72,7 @@ extension ImagePageVC: UIPageViewControllerDataSource {
 
             if currentIndex < images.count - 1 {
 
-                let fullImageVC = (parent?.storyboard?.instantiateViewController(identifier: "fullImage"))! as FullImageVC
+                let fullImageVC = sb.instantiateViewController(identifier: "fullImage") as! FullImageVC
                 fullImageVC.image = images[currentIndex + 1]
                 return fullImageVC
             }
@@ -90,7 +93,7 @@ extension ImagePageVC: UIPageViewControllerDataSource {
         
         if currentIndex > 0 {
             
-            let fullImageVC = (parent?.storyboard?.instantiateViewController(identifier: "fullImage"))! as FullImageVC
+            let fullImageVC = sb.instantiateViewController(identifier: "fullImage") as! FullImageVC
             fullImageVC.imageURL = imageURLs[currentIndex - 1]
             return fullImageVC
         }
@@ -101,7 +104,7 @@ extension ImagePageVC: UIPageViewControllerDataSource {
             
             if currentIndex > 0 {
                 
-                let fullImageVC = (parent?.storyboard?.instantiateViewController(identifier: "fullImage"))! as FullImageVC
+                let fullImageVC = sb.instantiateViewController(identifier: "fullImage") as! FullImageVC
                 fullImageVC.image = images[currentIndex - 1]
                 return fullImageVC
                 

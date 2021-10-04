@@ -43,8 +43,69 @@ class OwnedGamesViewController: UIViewController, OwnedGameDelegate, ModalDelega
     @IBOutlet weak var noGamesInLibraryView: UIView!
     @IBOutlet weak var gameLibraryImage: UIImageView!
     
+    
+    var numericGames : [SavedGames] = []
+    var aGames : [SavedGames] = []
+    var bGames : [SavedGames] = []
+    var cGames : [SavedGames] = []
+    var dGames : [SavedGames] = []
+    var eGames : [SavedGames] = []
+    var fGames : [SavedGames] = []
+    var gGames : [SavedGames] = []
+    var hGames : [SavedGames] = []
+    var iGames : [SavedGames] = []
+    var jGames : [SavedGames] = []
+    var kGames : [SavedGames] = []
+    var lGames : [SavedGames] = []
+    var mGames : [SavedGames] = []
+    var nGames : [SavedGames] = []
+    var oGames : [SavedGames] = []
+    var pGames : [SavedGames] = []
+    var qGames : [SavedGames] = []
+    var rGames : [SavedGames] = []
+    var sGames : [SavedGames] = []
+    var tGames : [SavedGames] = []
+    var uGames : [SavedGames] = []
+    var vGames : [SavedGames] = []
+    var wGames : [SavedGames] = []
+    var xGames : [SavedGames] = []
+    var yGames : [SavedGames] = []
+    var zGames : [SavedGames] = []
     let persistenceManager = PersistenceManager.shared
-    var ownedGames: [SavedGames] = [SavedGames]()
+    var ownedGames: [SavedGames] = [] {
+        didSet {
+            numericGames = ownedGames.filter { $0.title?.first.flatMap { Int(String($0)) } != nil }
+            aGames = ownedGames.filter { ($0.title?.hasPrefix("A"))! || ($0.title?.hasPrefix("a"))!  }
+            bGames = ownedGames.filter { ($0.title?.hasPrefix("B"))! || ($0.title?.hasPrefix("b"))!  }
+            cGames = ownedGames.filter { ($0.title?.hasPrefix("C"))! || ($0.title?.hasPrefix("c"))!  }
+            dGames = ownedGames.filter { ($0.title?.hasPrefix("D"))! || ($0.title?.hasPrefix("d"))!  }
+            eGames = ownedGames.filter { ($0.title?.hasPrefix("E"))! || ($0.title?.hasPrefix("e"))!  }
+            fGames = ownedGames.filter { ($0.title?.hasPrefix("F"))! || ($0.title?.hasPrefix("f"))!  }
+            gGames = ownedGames.filter { ($0.title?.hasPrefix("G"))! || ($0.title?.hasPrefix("g"))!  }
+            hGames = ownedGames.filter { ($0.title?.hasPrefix("H"))! || ($0.title?.hasPrefix("h"))!  }
+            iGames = ownedGames.filter { ($0.title?.hasPrefix("I"))! || ($0.title?.hasPrefix("i"))!  }
+            jGames = ownedGames.filter { ($0.title?.hasPrefix("J"))! || ($0.title?.hasPrefix("j"))!  }
+            kGames = ownedGames.filter { ($0.title?.hasPrefix("K"))! || ($0.title?.hasPrefix("k"))!  }
+            lGames = ownedGames.filter { ($0.title?.hasPrefix("L"))! || ($0.title?.hasPrefix("l"))!  }
+            mGames = ownedGames.filter { ($0.title?.hasPrefix("M"))! || ($0.title?.hasPrefix("m"))!  }
+            nGames = ownedGames.filter { ($0.title?.hasPrefix("N"))! || ($0.title?.hasPrefix("n"))!  }
+            oGames = ownedGames.filter { ($0.title?.hasPrefix("O"))! || ($0.title?.hasPrefix("o"))!  }
+            pGames = ownedGames.filter { ($0.title?.hasPrefix("P"))! || ($0.title?.hasPrefix("p"))!  }
+            qGames = ownedGames.filter { ($0.title?.hasPrefix("Q"))! || ($0.title?.hasPrefix("q"))!  }
+            rGames = ownedGames.filter { ($0.title?.hasPrefix("R"))! || ($0.title?.hasPrefix("r"))!  }
+            sGames = ownedGames.filter { ($0.title?.hasPrefix("S"))! || ($0.title?.hasPrefix("s"))!  }
+            tGames = ownedGames.filter { ($0.title?.hasPrefix("T"))! || ($0.title?.hasPrefix("t"))!  }
+            uGames = ownedGames.filter { ($0.title?.hasPrefix("U"))! || ($0.title?.hasPrefix("u"))!  }
+            vGames = ownedGames.filter { ($0.title?.hasPrefix("V"))! || ($0.title?.hasPrefix("v"))!  }
+            wGames = ownedGames.filter { ($0.title?.hasPrefix("W"))! || ($0.title?.hasPrefix("w"))!  }
+            xGames = ownedGames.filter { ($0.title?.hasPrefix("X"))! || ($0.title?.hasPrefix("x"))!  }
+            yGames = ownedGames.filter { ($0.title?.hasPrefix("Y"))! || ($0.title?.hasPrefix("y"))!  }
+            zGames = ownedGames.filter { ($0.title?.hasPrefix("Z"))! || ($0.title?.hasPrefix("z"))!  }
+        }
+        
+        
+    }
+
     var persistedGame : SavedGames?
     var indexPath: IndexPath?
     var selectedGameID: String?
@@ -64,10 +125,14 @@ class OwnedGamesViewController: UIViewController, OwnedGameDelegate, ModalDelega
     var platformSelections: [String] = []
     var ascendingLabel = "Descending"
     let search = UISearchController(searchResultsController: nil)
+    let sectionTitles = "0ABCDEFGHIJKLMNOPQRSTUVWXYZ".map(String.init)
+    var allGames : [SavedGames] = []
+    
+    
 
     var totalGameCount : Int {
         
-        let allGames = persistenceManager.fetchGame(SavedGames.self, byGameTitle: nil, sortBy: sortSelection, sortByAscending: asecending, platformID: nil, selectedGenres: nil, selectedPlatforms: nil)
+        allGames = persistenceManager.fetchGame(SavedGames.self, byGameTitle: nil, sortBy: sortSelection, sortByAscending: asecending, platformID: nil, selectedGenres: nil, selectedPlatforms: nil, selectedDateRange: nil)
         return allGames.count
     }
     
@@ -99,6 +164,8 @@ class OwnedGamesViewController: UIViewController, OwnedGameDelegate, ModalDelega
         
         tableView.dataSource = self
         tableView.delegate = self
+        let lightBlue = UIColorFromRGB(0x2B95CE)
+        tableView.sectionIndexColor = lightBlue
         self.tableView.reloadData()
     }
     
@@ -155,7 +222,7 @@ class OwnedGamesViewController: UIViewController, OwnedGameDelegate, ModalDelega
                 
          
                 self.deleteGameFromCoreData(index: index)
-                self.ownedGames = (self.persistenceManager.fetchGame(SavedGames.self, byGameTitle: nil, sortBy: self.sortSelection, sortByAscending: self.asecending, platformID: nil, selectedGenres: self.genreSelections, selectedPlatforms: self.platformsToFilter))
+                self.ownedGames = (self.persistenceManager.fetchGame(SavedGames.self, byGameTitle: nil, sortBy: self.sortSelection, sortByAscending: self.asecending, platformID: nil, selectedGenres: self.genreSelections, selectedPlatforms: self.platformsToFilter, selectedDateRange: self.dateSelections))
                 
                 if self.ownedGames.count < 1 {
                     self.toggleNavigationControllerItems(isGameLibraryEmpty: true)
@@ -318,7 +385,7 @@ class OwnedGamesViewController: UIViewController, OwnedGameDelegate, ModalDelega
     func changeDateRange(dateRange: [Int], platformID: Int?) {
         print("changeDateRange called")
         self.dateSelections = dateRange
-      
+        self.ownedGames = persistenceManager.fetchGame(SavedGames.self, byGameTitle: nil, sortBy: sortSelection, sortByAscending: self.asecending, platformID: nil, selectedGenres: genreSelections, selectedPlatforms: platformsToFilter, selectedDateRange: dateRange)
             self.ownedGames = persistenceManager.fetchFilteredByReleaseDate(SavedGames.self, platformID: nil, sortBy: sortSelection, dateRange: dateRange)
         self.setFilterIndicators()
         filteredGameCountLbl.text = "\(ownedGames.count)"
@@ -338,11 +405,11 @@ class OwnedGamesViewController: UIViewController, OwnedGameDelegate, ModalDelega
 
         let searchText = search.searchBar.text
         if searchText == "" {
-        self.ownedGames = persistenceManager.fetchGame(SavedGames.self, byGameTitle: nil, sortBy: sortSelection, sortByAscending: self.asecending, platformID: nil, selectedGenres: genreSelections, selectedPlatforms: platformsToFilter)
+        self.ownedGames = persistenceManager.fetchGame(SavedGames.self, byGameTitle: nil, sortBy: sortSelection, sortByAscending: self.asecending, platformID: nil, selectedGenres: genreSelections, selectedPlatforms: platformsToFilter, selectedDateRange: dateSelections)
         }
         else {
             
-            self.ownedGames = persistenceManager.fetchGame(SavedGames.self, byGameTitle: searchText, sortBy: sortSelection, sortByAscending: self.asecending, platformID: nil, selectedGenres: genreSelections, selectedPlatforms: platformsToFilter)
+            self.ownedGames = persistenceManager.fetchGame(SavedGames.self, byGameTitle: searchText, sortBy: sortSelection, sortByAscending: self.asecending, platformID: nil, selectedGenres: genreSelections, selectedPlatforms: platformsToFilter, selectedDateRange: dateSelections)
 
         }
  
@@ -359,9 +426,9 @@ class OwnedGamesViewController: UIViewController, OwnedGameDelegate, ModalDelega
         
         let searchText = search.searchBar.text
         if searchText == "" {
-        self.ownedGames = (self.persistenceManager.fetchGame(SavedGames.self, byGameTitle: nil, sortBy: self.sortSelection, sortByAscending: self.asecending, platformID: nil, selectedGenres: genreSelections, selectedPlatforms: platformsToFilter))
+        self.ownedGames = (self.persistenceManager.fetchGame(SavedGames.self, byGameTitle: nil, sortBy: self.sortSelection, sortByAscending: self.asecending, platformID: nil, selectedGenres: genreSelections, selectedPlatforms: platformsToFilter, selectedDateRange: dateSelections))
         } else {
-            self.ownedGames = (self.persistenceManager.fetchGame(SavedGames.self, byGameTitle: searchText, sortBy: self.sortSelection, sortByAscending: self.asecending, platformID: nil, selectedGenres: genreSelections, selectedPlatforms: platformsToFilter))
+            self.ownedGames = (self.persistenceManager.fetchGame(SavedGames.self, byGameTitle: searchText, sortBy: self.sortSelection, sortByAscending: self.asecending, platformID: nil, selectedGenres: genreSelections, selectedPlatforms: platformsToFilter, selectedDateRange: dateSelections))
 
         }
         filteredGameCountLbl.text = "\(ownedGames.count)"
@@ -374,6 +441,19 @@ class OwnedGamesViewController: UIViewController, OwnedGameDelegate, ModalDelega
     
     func createGameObjectFromCoreData(persistedObject: SavedGames) -> GameObject {
         print("persisted object \(persistedObject)")
+        var screenshots : [ImageInfo] = []
+        
+        if let persistedScreenshots = persistedObject.screenshotImageIDs {
+        for screenshot in persistedScreenshots {
+            let imageInfo = ImageInfo(id: nil, alphaChannel: nil, animated: nil, game: nil, height: nil, imageID: screenshot, url: nil, width: nil, checksum: nil)
+
+            print("should be adding imageinfo")
+            print(imageInfo)
+            screenshots.append(imageInfo)
+        }
+        }
+        
+        
         let game = GameObject(
             title: persistedObject.title,
             id: Int(persistedObject.gameID),
@@ -387,6 +467,7 @@ class OwnedGamesViewController: UIViewController, OwnedGameDelegate, ModalDelega
             releaseDate: persistedObject.releaseDate,
             owned: true,
             index: nil,
+            screenshots: screenshots,
             developerIDs: nil,
             genreIDs: nil,
             pusblisherIDs: nil,
@@ -398,7 +479,10 @@ class OwnedGamesViewController: UIViewController, OwnedGameDelegate, ModalDelega
             developer: persistedObject.developerName,
             gamePhotos: nil,
             manualPhotos: nil,
-            boxPhotos: nil)
+            boxPhotos: nil,
+            totalRating: Int(persistedObject.totalRating),
+            userRating: Int(persistedObject.userRating)
+            )
         
         return game
         
@@ -420,11 +504,11 @@ class OwnedGamesViewController: UIViewController, OwnedGameDelegate, ModalDelega
         if searchText == "" {
             print("genreSelections", genreSelections)
             print("platformsToFilter", platformsToFilter)
-            self.ownedGames = self.persistenceManager.fetchGame(SavedGames.self, byGameTitle: nil, sortBy: sortSelection, sortByAscending: self.asecending, platformID: nil, selectedGenres: genreSelections, selectedPlatforms: platformsToFilter)
+            self.ownedGames = self.persistenceManager.fetchGame(SavedGames.self, byGameTitle: nil, sortBy: sortSelection, sortByAscending: self.asecending, platformID: nil, selectedGenres: genreSelections, selectedPlatforms: platformsToFilter, selectedDateRange: dateSelections)
         } else {
             print("genreSelections", genreSelections)
             print("platformsToFilter", platformsToFilter)
-            self.ownedGames = self.persistenceManager.fetchGame(SavedGames.self, byGameTitle: searchText, sortBy: sortSelection, sortByAscending: self.asecending, platformID: nil, selectedGenres: genreSelections, selectedPlatforms: platformsToFilter)
+            self.ownedGames = self.persistenceManager.fetchGame(SavedGames.self, byGameTitle: searchText, sortBy: sortSelection, sortByAscending: self.asecending, platformID: nil, selectedGenres: genreSelections, selectedPlatforms: platformsToFilter, selectedDateRange: dateSelections)
         }
         self.setFilterIndicators()
         filteredGameCountLbl.text = "\(ownedGames.count)"
@@ -577,11 +661,12 @@ class OwnedGamesViewController: UIViewController, OwnedGameDelegate, ModalDelega
             self?.platformsToFilter.removeAll()
             self?.genreSelections.removeAll()
             self?.platformSelections.removeAll()
+            self?.dateSelections.removeAll()
             let searchText = self?.search.searchBar.text
             if searchText == "" {
-            self?.ownedGames = (self?.persistenceManager.fetchGame(SavedGames.self, byGameTitle: nil, sortBy: self?.sortSelection, sortByAscending: self!.asecending, platformID: nil, selectedGenres: nil, selectedPlatforms: nil))!
+            self?.ownedGames = (self?.persistenceManager.fetchGame(SavedGames.self, byGameTitle: nil, sortBy: self?.sortSelection, sortByAscending: self!.asecending, platformID: nil, selectedGenres: nil, selectedPlatforms: nil, selectedDateRange: nil))!
             } else {
-                self?.ownedGames = (self?.persistenceManager.fetchGame(SavedGames.self, byGameTitle: searchText, sortBy: self?.sortSelection, sortByAscending: self!.asecending, platformID: nil, selectedGenres: nil, selectedPlatforms: nil))!
+                self?.ownedGames = (self?.persistenceManager.fetchGame(SavedGames.self, byGameTitle: searchText, sortBy: self?.sortSelection, sortByAscending: self!.asecending, platformID: nil, selectedGenres: nil, selectedPlatforms: nil, selectedDateRange: nil))!
 
             }
             self?.setFilterIndicators()
@@ -649,9 +734,9 @@ class OwnedGamesViewController: UIViewController, OwnedGameDelegate, ModalDelega
             self?.sortSelection = SortSection.title.rawValue
 
                 if searchText == "" {
-                    self?.ownedGames = (self?.persistenceManager.fetchGame(SavedGames.self, byGameTitle: nil, sortBy: self?.sortSelection, sortByAscending: self!.asecending, platformID: nil, selectedGenres: self?.genreSelections, selectedPlatforms: self?.platformsToFilter))!}
+                    self?.ownedGames = (self?.persistenceManager.fetchGame(SavedGames.self, byGameTitle: nil, sortBy: self?.sortSelection, sortByAscending: self!.asecending, platformID: nil, selectedGenres: self?.genreSelections, selectedPlatforms: self?.platformsToFilter, selectedDateRange: self?.dateSelections))!}
                 else {
-                    self?.ownedGames = (self?.persistenceManager.fetchGame(SavedGames.self, byGameTitle: searchText, sortBy: self?.sortSelection, sortByAscending: self!.asecending, platformID: nil, selectedGenres: self?.genreSelections, selectedPlatforms: self?.platformsToFilter))!}
+                    self?.ownedGames = (self?.persistenceManager.fetchGame(SavedGames.self, byGameTitle: searchText, sortBy: self?.sortSelection, sortByAscending: self!.asecending, platformID: nil, selectedGenres: self?.genreSelections, selectedPlatforms: self?.platformsToFilter, selectedDateRange: self?.dateSelections))!}
 
             self?.setSortLabels()
 
@@ -666,10 +751,10 @@ class OwnedGamesViewController: UIViewController, OwnedGameDelegate, ModalDelega
             let searchText = self?.search.searchBar.text
 
             if searchText == "" {
-                self?.ownedGames = (self?.persistenceManager.fetchGame(SavedGames.self, byGameTitle: nil, sortBy: self?.sortSelection, sortByAscending: self!.asecending, platformID: nil, selectedGenres: self?.genreSelections, selectedPlatforms: self?.platformsToFilter))! }
+                self?.ownedGames = (self?.persistenceManager.fetchGame(SavedGames.self, byGameTitle: nil, sortBy: self?.sortSelection, sortByAscending: self!.asecending, platformID: nil, selectedGenres: self?.genreSelections, selectedPlatforms: self?.platformsToFilter, selectedDateRange: self?.dateSelections))! }
             else {
                 
-                self?.ownedGames = (self?.persistenceManager.fetchGame(SavedGames.self, byGameTitle: searchText, sortBy: self?.sortSelection, sortByAscending: self!.asecending, platformID: nil, selectedGenres: self?.genreSelections, selectedPlatforms: self?.platformsToFilter))!
+                self?.ownedGames = (self?.persistenceManager.fetchGame(SavedGames.self, byGameTitle: searchText, sortBy: self?.sortSelection, sortByAscending: self!.asecending, platformID: nil, selectedGenres: self?.genreSelections, selectedPlatforms: self?.platformsToFilter, selectedDateRange: self?.dateSelections))!
 
             }
 
@@ -687,10 +772,10 @@ class OwnedGamesViewController: UIViewController, OwnedGameDelegate, ModalDelega
             let searchText = self?.search.searchBar.text
 
             if searchText == "" {
-                self?.ownedGames = (self?.persistenceManager.fetchGame(SavedGames.self, byGameTitle: nil, sortBy: self?.sortSelection, sortByAscending: self!.asecending, platformID: nil, selectedGenres: self?.genreSelections, selectedPlatforms: self?.platformsToFilter))! }
+                self?.ownedGames = (self?.persistenceManager.fetchGame(SavedGames.self, byGameTitle: nil, sortBy: self?.sortSelection, sortByAscending: self!.asecending, platformID: nil, selectedGenres: self?.genreSelections, selectedPlatforms: self?.platformsToFilter, selectedDateRange: self?.dateSelections))! }
             else {
                 
-                self?.ownedGames = (self?.persistenceManager.fetchGame(SavedGames.self, byGameTitle: searchText, sortBy: self?.sortSelection, sortByAscending: self!.asecending, platformID: nil, selectedGenres: self?.genreSelections, selectedPlatforms: self?.platformsToFilter))!
+                self?.ownedGames = (self?.persistenceManager.fetchGame(SavedGames.self, byGameTitle: searchText, sortBy: self?.sortSelection, sortByAscending: self!.asecending, platformID: nil, selectedGenres: self?.genreSelections, selectedPlatforms: self?.platformsToFilter, selectedDateRange: self?.dateSelections))!
 
                 
             }
@@ -729,18 +814,12 @@ class OwnedGamesViewController: UIViewController, OwnedGameDelegate, ModalDelega
 
         var filterButton : UIBarButtonItem?
         
-        if #available(iOS 14.0, *) {
-             filterButton = UIBarButtonItem(image: UIImage(systemName: "line.horizontal.3.decrease.circle"), menu: mainMenu)
+              filterButton = UIBarButtonItem(image: UIImage(systemName: "line.horizontal.3.decrease.circle"), menu: mainMenu)
             
-        } else {
-            // Fallback on earlier versions
-        }
+     
         var sortButton : UIBarButtonItem?
-        if #available(iOS 14.0, *) {
              sortButton = UIBarButtonItem(image: UIImage(systemName: "arrow.up.arrow.down"), menu: sortMenu)
-        } else {
-            // Fallback on earlier versions
-        }
+      
         self.navigationItem.rightBarButtonItem = filterButton
         self.navigationItem.leftBarButtonItem = sortButton
         
@@ -877,6 +956,12 @@ class OwnedGamesViewController: UIViewController, OwnedGameDelegate, ModalDelega
     }
     
     
+    @IBAction func pressHereButtonAction(_ sender: Any) {
+        self.tabBarController?.selectedIndex = 1
+        
+    }
+    
+    
 //    func setTotalGameCount() {
 //
 //
@@ -893,9 +978,103 @@ class OwnedGamesViewController: UIViewController, OwnedGameDelegate, ModalDelega
 
 
 extension OwnedGamesViewController: UITableViewDelegate, UITableViewDataSource {
+    func numberOfSections(in tableView: UITableView) -> Int {
+        return sectionTitles.count
+    }
+    
+    func tableView(_ tableView: UITableView, willDisplayHeaderView view: UIView, forSection section: Int) {
+        let lightGray = UIColor(red: 246/255, green: 246/255, blue: 246/255, alpha: 1)
+        let darkGray = UIColor(red: (18/255), green: (18/255), blue: (18/255), alpha: 1)
+        
+        let header = view as! UITableViewHeaderFooterView
+        header.textLabel?.font = UIFont.preferredFont(forTextStyle: .callout)
+        if traitCollection.userInterfaceStyle == .light {
+            header.contentView.backgroundColor = lightGray
+        } else {
+            header.contentView.backgroundColor = darkGray
+
+        }
+        
+    }
+    
+    func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+        switch section {
+            case 0   :     if numericGames.count > 0 { return "0-9"}
+            case 1   :     if aGames.count > 0 { return sectionTitles[section] }
+            case 2   :     if bGames.count > 0 { return sectionTitles[section] }
+            case 3   :     if cGames.count > 0 { return sectionTitles[section] }
+            case 4   :     if dGames.count > 0 { return sectionTitles[section] }
+            case 5   :     if eGames.count > 0 { return sectionTitles[section] }
+            case 6   :     if fGames.count > 0 { return sectionTitles[section] }
+            case 7   :     if gGames.count > 0 { return sectionTitles[section] }
+            case 8   :     if hGames.count > 0 { return sectionTitles[section] }
+            case 9   :     if iGames.count > 0 { return sectionTitles[section] }
+            case 10  :     if jGames.count > 0 { return sectionTitles[section] }
+            case 11  :     if kGames.count > 0 { return sectionTitles[section] }
+            case 12  :     if lGames.count > 0 { return sectionTitles[section] }
+            case 13  :     if mGames.count > 0 { return sectionTitles[section] }
+            case 14  :     if nGames.count > 0 { return sectionTitles[section] }
+            case 15  :     if oGames.count > 0 { return sectionTitles[section] }
+            case 16  :     if pGames.count > 0 { return sectionTitles[section] }
+            case 17  :     if qGames.count > 0 { return sectionTitles[section] }
+            case 18  :     if rGames.count > 0 { return sectionTitles[section] }
+            case 19  :     if sGames.count > 0 { return sectionTitles[section] }
+            case 20  :     if tGames.count > 0 { return sectionTitles[section] }
+            case 21  :     if uGames.count > 0 { return sectionTitles[section] }
+            case 22  :     if vGames.count > 0 { return sectionTitles[section] }
+            case 23  :     if wGames.count > 0 { return sectionTitles[section] }
+            case 24  :     if xGames.count > 0 { return sectionTitles[section] }
+            case 25  :     if yGames.count > 0 { return sectionTitles[section] }
+            case 26  :     if zGames.count > 0 { return sectionTitles[section] }
+
+            default  :     return nil
+        }
+        
+        return nil
+    }
+    
+    func sectionIndexTitles(for tableView: UITableView) -> [String]? {
+        return sectionTitles
+    }
+    
+    func tableView(_ tableView: UITableView, sectionForSectionIndexTitle title: String, at index: Int) -> Int {
+        return index
+    }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return ownedGames.count
+//        return ownedGames.count
+        
+        switch section {
+            case 0   :     return numericGames.count
+            case 1   :     return aGames.count
+            case 2   :     return bGames.count
+            case 3   :     return cGames.count
+            case 4   :     return dGames.count
+            case 5   :     return eGames.count
+            case 6   :     return fGames.count
+            case 7   :     return gGames.count
+            case 8   :     return hGames.count
+            case 9   :     return iGames.count
+            case 10  :     return jGames.count
+            case 11  :     return kGames.count
+            case 12  :     return lGames.count
+            case 13  :     return mGames.count
+            case 14  :     return nGames.count
+            case 15  :     return oGames.count
+            case 16  :     return pGames.count
+            case 17  :     return qGames.count
+            case 18  :     return rGames.count
+            case 19  :     return sGames.count
+            case 20  :     return tGames.count
+            case 21  :     return uGames.count
+            case 22  :     return vGames.count
+            case 23  :     return wGames.count
+            case 24  :     return xGames.count
+            case 25  :     return yGames.count
+            case 26  :     return zGames.count
+
+            default  :     return 0
+        }
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -904,9 +1083,40 @@ extension OwnedGamesViewController: UITableViewDelegate, UITableViewDataSource {
         print(genreSelections)
         
         cell?.index = indexPath
-        cell?.game = ownedGames[indexPath.row]
+//        cell?.game = ownedGames[indexPath.row]
         cell?.delegate = self
+        
+        switch indexPath.section {
+            case 0   :     cell?.game = numericGames[indexPath.row]
+            case 1   :     cell?.game = aGames[indexPath.row]
+            case 2   :     cell?.game = bGames[indexPath.row]
+            case 3   :     cell?.game = cGames[indexPath.row]
+            case 4   :     cell?.game = dGames[indexPath.row]
+            case 5   :     cell?.game = eGames[indexPath.row]
+            case 6   :     cell?.game = fGames[indexPath.row]
+            case 7   :     cell?.game = gGames[indexPath.row]
+            case 8   :     cell?.game = hGames[indexPath.row]
+            case 9   :     cell?.game = iGames[indexPath.row]
+            case 10  :     cell?.game = jGames[indexPath.row]
+            case 11  :     cell?.game = kGames[indexPath.row]
+            case 12  :     cell?.game = lGames[indexPath.row]
+            case 13  :     cell?.game = mGames[indexPath.row]
+            case 14  :     cell?.game = nGames[indexPath.row]
+            case 15  :     cell?.game = oGames[indexPath.row]
+            case 16  :     cell?.game = pGames[indexPath.row]
+            case 17  :     cell?.game = qGames[indexPath.row]
+            case 18  :     cell?.game = rGames[indexPath.row]
+            case 19  :     cell?.game = sGames[indexPath.row]
+            case 20  :     cell?.game = tGames[indexPath.row]
+            case 21  :     cell?.game = uGames[indexPath.row]
+            case 22  :     cell?.game = vGames[indexPath.row]
+            case 23  :     cell?.game = wGames[indexPath.row]
+            case 24  :     cell?.game = xGames[indexPath.row]
+            case 25  :     cell?.game = yGames[indexPath.row]
+            case 26  :     cell?.game = zGames[indexPath.row]
 
+            default  :     cell?.game = ownedGames[indexPath.row]
+        }
 
         return cell!
     }
@@ -917,8 +1127,42 @@ extension OwnedGamesViewController: UITableViewDelegate, UITableViewDataSource {
             print("destination")
             print(destination)
             let index = (tableView.indexPathForSelectedRow?.row)!
-            let selectedGame = ownedGames[index]
-         
+            var selectedGame = ownedGames[index]
+            
+//            let selectedGame : SavedGames?
+            if let indexPath = indexPath {
+            switch indexPath.section {
+            case 0   :    selectedGame = numericGames[indexPath.row]
+                case 1   :    selectedGame = aGames[indexPath.row]
+                case 2   :    selectedGame = bGames[indexPath.row]
+                case 3   :    selectedGame = cGames[indexPath.row]
+                case 4   :    selectedGame = dGames[indexPath.row]
+                case 5   :    selectedGame = eGames[indexPath.row]
+                case 6   :    selectedGame = fGames[indexPath.row]
+                case 7   :    selectedGame = gGames[indexPath.row]
+                case 8   :    selectedGame = hGames[indexPath.row]
+                case 9   :    selectedGame = iGames[indexPath.row]
+                case 10  :    selectedGame = jGames[indexPath.row]
+                case 11  :    selectedGame = kGames[indexPath.row]
+                case 12  :    selectedGame = lGames[indexPath.row]
+                case 13  :    selectedGame = mGames[indexPath.row]
+                case 14  :    selectedGame = nGames[indexPath.row]
+                case 15  :    selectedGame = oGames[indexPath.row]
+                case 16  :    selectedGame = pGames[indexPath.row]
+                case 17  :    selectedGame = qGames[indexPath.row]
+                case 18  :    selectedGame = rGames[indexPath.row]
+                case 19  :    selectedGame = sGames[indexPath.row]
+                case 20  :    selectedGame = tGames[indexPath.row]
+                case 21  :    selectedGame = uGames[indexPath.row]
+                case 22  :    selectedGame = vGames[indexPath.row]
+                case 23  :    selectedGame = wGames[indexPath.row]
+                case 24  :    selectedGame = xGames[indexPath.row]
+                case 25  :    selectedGame = yGames[indexPath.row]
+                case 26  :    selectedGame = zGames[indexPath.row]
+
+                default  :    selectedGame = ownedGames[indexPath.row]
+            }
+            }
             let game = createGameObjectFromCoreData(persistedObject: selectedGame)
             
             print("prepare persistedGame = \(game)")
@@ -930,7 +1174,8 @@ extension OwnedGamesViewController: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-
+        print("row selected")
+        self.performSegue(withIdentifier: "pageVC", sender: self)
         
 
     }
@@ -944,14 +1189,16 @@ extension OwnedGamesViewController : UISearchResultsUpdating {
     func updateSearchResults(for searchController: UISearchController) {
         guard let text = searchController.searchBar.text else { return }
         print(text)
+
+            
         
             if text == "" {
 
-                self.ownedGames = self.persistenceManager.fetchGame(SavedGames.self, byGameTitle: nil, sortBy: sortSelection, sortByAscending: self.asecending, platformID: nil, selectedGenres: genreSelections, selectedPlatforms: platformsToFilter)
+                self.ownedGames = self.persistenceManager.fetchGame(SavedGames.self, byGameTitle: nil, sortBy: sortSelection, sortByAscending: self.asecending, platformID: nil, selectedGenres: genreSelections, selectedPlatforms: platformsToFilter, selectedDateRange: dateSelections)
 
             } else {
 
-                self.ownedGames = self.persistenceManager.fetchGame(SavedGames.self, byGameTitle: text, sortBy: sortSelection, sortByAscending: self.asecending, platformID: nil, selectedGenres: genreSelections, selectedPlatforms: platformsToFilter)
+                self.ownedGames = self.persistenceManager.fetchGame(SavedGames.self, byGameTitle: text, sortBy: sortSelection, sortByAscending: self.asecending, platformID: nil, selectedGenres: genreSelections, selectedPlatforms: platformsToFilter,selectedDateRange: dateSelections)
             }
         self.filteredGameCountLbl.text = "\(self.ownedGames.count)"
 
@@ -969,7 +1216,7 @@ extension OwnedGamesViewController: UISearchBarDelegate {
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
         guard let text = searchBar.text else { return }
         
-                self.ownedGames = self.persistenceManager.fetchGame(SavedGames.self, byGameTitle: text, sortBy: sortSelection, sortByAscending: self.asecending, platformID: nil, selectedGenres: genreSelections, selectedPlatforms: platformsToFilter)
+                self.ownedGames = self.persistenceManager.fetchGame(SavedGames.self, byGameTitle: text, sortBy: sortSelection, sortByAscending: self.asecending, platformID: nil, selectedGenres: genreSelections, selectedPlatforms: platformsToFilter, selectedDateRange: dateSelections)
             
       
         print("search bar search button clicked")

@@ -745,19 +745,32 @@ final class PersistenceManager {
     }
     
     
-    func fetchGame<T: NSManagedObject>(_ objectType: T.Type, byGameTitle: String?, sortBy: String? , sortByAscending: Bool, platformID: Int?, selectedGenres: [String]?, selectedPlatforms: [Int]?) -> [T]{
+    func fetchGame<T: NSManagedObject>(_ objectType: T.Type, byGameTitle: String?, sortBy: String? , sortByAscending: Bool, platformID: Int?, selectedGenres: [String]?, selectedPlatforms: [Int]?, selectedDateRange: [Int]? ) -> [T]{
         let entityName = String(describing: objectType)
         let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: entityName)
         var filterPredicate : NSPredicate?
         var sortAscending : NSSortDescriptor?
         var platforms : [Int] = []
         var genres : [String] = []
+        var dates : [Int] = []
         var title = ""
+        var startYear = 0
+        var endYear = 0
+        
         if let platform = selectedPlatforms{
         platforms = platform
         }
         if let genre = selectedGenres {
             genres = genre
+        }
+        
+        if let date = selectedDateRange {
+            dates = date
+
+        }
+        if dates.count > 0 {
+            startYear = dates.first!
+            endYear = dates.last!
         }
 
         if let sortKey = sortBy {
@@ -775,26 +788,26 @@ final class PersistenceManager {
                 print("selectedPlatform is", platforms)
                 print("selectedGenre is", genres)
                 
-        switch (platforms.isEmpty, genres.isEmpty, byGameTitle == nil) {
+        switch (dates.isEmpty, platforms.isEmpty, genres.isEmpty, byGameTitle == nil) {
                 
-                case (true, true, true):
+                case (true, true, true, true):
                     // all arrays are empty so we don't filter anything and return all SavedGame objects
                     print("all arrays are empty so we don't filter anything and return all SavedGame objects")
                     filterPredicate = NSPredicate(value: true)
                     
-                case (true, false, true):
+                case (true ,true, false, true):
                     // only filter genres
                     print("only filter genres")
                     
                     filterPredicate = NSPredicate(format: "SUBQUERY(%K, $genre, $genre.name IN %@).@count > 0", #keyPath(SavedGames.genreType), genres)
 
-                case (false, true, true):
+                case (true, false, true, true):
                     // only filter platforms
                     print("only filter platforms")
                     
                     filterPredicate = NSPredicate(format: "%K in %@", argumentArray: [#keyPath(SavedGames.platformID), platforms])
                     
-                case (false, false, true):
+                case (true, false, false, true):
                     // filter both genres and platforms
                     print("filter both genres and platforms")
                     
@@ -804,26 +817,26 @@ final class PersistenceManager {
                     ])
                     
                     
-                case (true, true, false):
+                case (true, true, true, false):
                     //Filtering by name only
                     filterPredicate = NSPredicate(format: "%K CONTAINS [c] %@", argumentArray: [#keyPath(SavedGames.title), title])
                     
                     
-                case (true, false, false):
+                case (true, true, false, false):
                     //filtering by name and genre
                     filterPredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [
                         NSPredicate(format: "%K CONTAINS [c] %@", argumentArray: [#keyPath(SavedGames.title), title]),
                         NSPredicate(format: "SUBQUERY(%K, $genre, $genre.name IN %@).@count > 0", #keyPath(SavedGames.genreType), genres)
                     ])
                     
-                case (false, true, false):
+                case (true, false, true, false):
                     //filtering by name and platform
                     filterPredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [
                         NSPredicate(format: "%K CONTAINS [c] %@", argumentArray: [#keyPath(SavedGames.title), title]),
                         NSPredicate(format: "%K in %@", argumentArray: [#keyPath(SavedGames.platformID), platforms])
                     ])
                     
-                case (false, false, false):
+                case (true, false, false, false):
                     //filtering by name, genre, and platform
         
                     filterPredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [
@@ -832,6 +845,60 @@ final class PersistenceManager {
                         NSPredicate(format: "%K IN %@", argumentArray: [#keyPath(SavedGames.platformID), platforms])
                         
                     ])
+            case (false, true, true, true):
+                //filtering only by date range
+                filterPredicate = NSPredicate(format: "(releaseYear >= %i) AND (releaseYear <= %i)", startYear, endYear)
+            case (false, false, true, true):
+            //filtering by date range and platforms
+                filterPredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [
+                    NSPredicate(format: "(releaseYear >= %i) AND (releaseYear <= %i)", startYear, endYear),
+                    NSPredicate(format: "%K in %@", argumentArray: [#keyPath(SavedGames.platformID), platforms])
+                ])
+                    
+            case (false, false, false, true):
+            //filtering by date range, platforms, and genres
+                filterPredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [
+                    NSPredicate(format: "(releaseYear >= %i) AND (releaseYear <= %i)", startYear, endYear),
+                    NSPredicate(format: "%K in %@", argumentArray: [#keyPath(SavedGames.platformID), platforms]),
+                    NSPredicate(format: "SUBQUERY(%K, $genre, $genre.name IN %@).@count > 0", #keyPath(SavedGames.genreType), genres)
+                ])
+            case (false, false, false, false):
+            //filtering by date range, platforms, genres, and name
+                filterPredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [
+                    NSPredicate(format: "(releaseYear >= %i) AND (releaseYear <= %i)", startYear, endYear),
+                    NSPredicate(format: "%K in %@", argumentArray: [#keyPath(SavedGames.platformID), platforms]),
+                    NSPredicate(format: "SUBQUERY(%K, $genre, $genre.name IN %@).@count > 0", #keyPath(SavedGames.genreType), genres),
+                    NSPredicate(format: "%K CONTAINS [c] %@", argumentArray: [#keyPath(SavedGames.title), title])
+                ])
+            case (false, true, false, false):
+            //filtering by date range, genres, and name
+                filterPredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [
+                    NSPredicate(format: "(releaseYear >= %i) AND (releaseYear <= %i)", startYear, endYear),
+                    NSPredicate(format: "SUBQUERY(%K, $genre, $genre.name IN %@).@count > 0", #keyPath(SavedGames.genreType), genres),
+                    NSPredicate(format: "%K CONTAINS [c] %@", argumentArray: [#keyPath(SavedGames.title), title])
+                ])
+        
+            case (false, true, false, true):
+            //filtering by date range and genres
+                filterPredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [
+                    NSPredicate(format: "(releaseYear >= %i) AND (releaseYear <= %i)", startYear, endYear),
+                    NSPredicate(format: "SUBQUERY(%K, $genre, $genre.name IN %@).@count > 0", #keyPath(SavedGames.genreType), genres)
+                ])
+            case (false, true, true, false):
+            //filtering by date range and name
+                filterPredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [
+                    NSPredicate(format: "(releaseYear >= %i) AND (releaseYear <= %i)", startYear, endYear),
+                    NSPredicate(format: "%K CONTAINS [c] %@", argumentArray: [#keyPath(SavedGames.title), title])
+                ])
+            case (false, false, true, false):
+            //filtering by date range, platforms, and name
+                filterPredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [
+                    NSPredicate(format: "(releaseYear >= %i) AND (releaseYear <= %i)", startYear, endYear),
+                    NSPredicate(format: "%K in %@", argumentArray: [#keyPath(SavedGames.platformID), platforms]),
+                    NSPredicate(format: "%K CONTAINS [c] %@", argumentArray: [#keyPath(SavedGames.title), title])
+                ])
+       
+
         }
         
         

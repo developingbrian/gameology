@@ -14,6 +14,7 @@ class TopTwentyCell: UICollectionViewCell {
     
     let container = UIView()
     let imageView = UIImageView()
+    let shadowView = UIImageView()
     let titleLabel = UILabel()
     let genreLabel = UILabel()
     let maxRatingLabel = UILabel()
@@ -26,6 +27,12 @@ class TopTwentyCell: UICollectionViewCell {
             self.configureCell()
         }
     }
+    
+    override func prepareForReuse() {
+        imageView.image = nil
+        shadowView.image = nil
+    }
+    
     
 }
 
@@ -53,6 +60,7 @@ extension TopTwentyCell {
 //          }
         container.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(container)
+        contentView.addSubview(shadowView)
         contentView.addSubview(imageView)
         container.layer.cornerRadius = 4
         container.layer.shadowOffset = CGSize(width: 3.0, height: 3.0)
@@ -68,17 +76,22 @@ extension TopTwentyCell {
                         container.layer.shadowColor = UIColor.gray.cgColor
                     }
         imageView.translatesAutoresizingMaskIntoConstraints = false
-        
-        
-        if let boxartURL = game?.boxartFrontImage {
+        shadowView.translatesAutoresizingMaskIntoConstraints = false
+        shadowView.contentMode = .scaleAspectFill
+        shadowView.layer.cornerRadius = 10
+                if let boxartURL = game?.boxartFrontImage {
             let gameURL = baseURL.hd.rawValue + boxartURL
             print("gameurl", gameURL)
             let url = URL(string: gameURL)!
             imageView.setImageAnimated(imageUrl: url, placeholderImage: nil) {
                 print("new release image loaded")
+                let blurredImage = self.imageView.image?.getImageWithBlur(blurAmount: 10)
+                self.shadowView.image = blurredImage
             }
         } else {
             imageView.image = UIImage(named: "noBoxart")
+            let blurredImage = self.imageView.image?.getImageWithBlur(blurAmount: 10)
+            self.shadowView.image = blurredImage
         }
         
         
@@ -92,7 +105,8 @@ extension TopTwentyCell {
       
         imageView.clipsToBounds = false
         
-        container.addSubview(imageView)
+        container.addSubview(shadowView)
+        shadowView.addSubview(imageView)
         
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         titleLabel.text = game?.title
@@ -144,10 +158,16 @@ extension TopTwentyCell {
             container.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
             container.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
         
-            imageView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 5),
-            imageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 5),
-            imageView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -5),
-            imageView.widthAnchor.constraint(equalToConstant: 70),
+            shadowView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 5),
+            shadowView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 5),
+            shadowView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -5),
+            shadowView.widthAnchor.constraint(equalToConstant: 70),
+            
+            
+            imageView.topAnchor.constraint(equalTo: shadowView.topAnchor),
+            imageView.leadingAnchor.constraint(equalTo: shadowView.leadingAnchor),
+            imageView.trailingAnchor.constraint(equalTo: shadowView.trailingAnchor, constant: -1),
+            imageView.bottomAnchor.constraint(equalTo: shadowView.bottomAnchor, constant: -1),
             
             titleLabel.leadingAnchor.constraint(equalTo: imageView.trailingAnchor, constant: 5),
             titleLabel.bottomAnchor.constraint(equalTo: container.centerYAnchor),

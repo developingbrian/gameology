@@ -10,6 +10,7 @@ import UIKit
 import MessageUI
 import StoreKit
 import SafariServices
+import AcknowList
 
 class MenuTableViewController: UITableViewController, SFSafariViewControllerDelegate {
     @IBOutlet weak var vesionLabel: UILabel!
@@ -23,7 +24,7 @@ class MenuTableViewController: UITableViewController, SFSafariViewControllerDele
     let appStoreURLStringForRating = "itms-apps://apple.com/app/id1534974973"
     let appStoreURLStringForShareSheet = "https://apps.apple.com/us/app/id1534974973"
     let twitterURLString = "https://twitter.com/davejacobseniOS"
-    let gameDBURLString = "https://thegamesdb.net"
+    let igdbURLString = "https://igdb.com"
     let neorameURLString = "https://www.deviantart.com/neorame"
     let supportEmail = "marketcapp.app@gmail.com"
     
@@ -76,10 +77,14 @@ class MenuTableViewController: UITableViewController, SFSafariViewControllerDele
         }
         
         if traitCollection.userInterfaceStyle == .light {
-            tableView.backgroundColor = UIColor(red: 246/255, green: 246/255, blue: 246/255, alpha: 1)
+            let lightGray = UIColor(red: 246/255, green: 246/255, blue: 246/255, alpha: 1)
+            tableView.backgroundColor = lightGray
+//            tabBarController?.tabBar.backgroundColor = lightGray
 
         } else if traitCollection.userInterfaceStyle == .dark {
-           tableView.backgroundColor = UIColor(red: (18/255), green: (18/255), blue: (18/255), alpha: 1)
+           let darkGray = UIColor(red: (18/255), green: (18/255), blue: (18/255), alpha: 1)
+            tableView.backgroundColor = darkGray
+//            tabBarController?.tabBar.backgroundColor = darkGray
 
         }
     }
@@ -160,7 +165,7 @@ class MenuTableViewController: UITableViewController, SFSafariViewControllerDele
     }
     
     func launchHelpfulLink() {
-        let urlString = gameDBURLString
+        let urlString = igdbURLString
         
         if let url = URL(string: urlString) {
             let vc = SFSafariViewController(url: url)
@@ -171,15 +176,12 @@ class MenuTableViewController: UITableViewController, SFSafariViewControllerDele
     }
     
     func launchNeorameLink() {
-       
-            let urlString = neorameURLString
-            
-            if let url = URL(string: urlString) {
-                let vc = SFSafariViewController(url: url)
-                vc.delegate = self
-                
-                present(vc, animated: true)
-            }
+//
+//        let acknowledgmentList = AcknowledgmentsTableViewController(style: .grouped)
+//        navigationController?.pushViewController(acknowledgmentList, animated: true)
+        
+        let viewController = AcknowListViewController()
+        self.navigationController?.pushViewController(viewController, animated: true)
         
     }
     

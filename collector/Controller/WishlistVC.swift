@@ -9,20 +9,20 @@
 import UIKit
 import SDWebImage
 import SPAlert
+import CoreData
 
 protocol WishlistDelegate {
     func didPressManageButton(_ sender: WishlistCollectionViewCell)
 }
 
 class WishlistVC: UIViewController {
-//    struct SectionData {
-//
-//        var isOpen : Bool
-//        var game : [WishList]
-//
-//    }
+
+    
+ 
         
+    @IBOutlet weak var clickHereButton: UIButton!
     @IBOutlet weak var collectionView: UICollectionView!
+    @IBOutlet weak var clickHerePlusButton: UIButton!
     @IBOutlet weak var noGamesInWishlistView: UIView!
     
 //    let network = Networking.shared
@@ -36,6 +36,7 @@ class WishlistVC: UIViewController {
     var savedGenres : [GameGenre] = []
 //    var twoDimensionalArray : [ExpandablePlatforms] = []
     var sectionArray : [SectionData] = []
+
     private let sectionInsets = UIEdgeInsets(
       top: 50.0,
       left: 20.0,
@@ -43,8 +44,10 @@ class WishlistVC: UIViewController {
       right: 20.0)
     private var itemsPerRow = 3
     
+    
     override func viewDidLoad() {
         super.viewDidLoad()
+        
 //        items = wishlist[0].platformName
 //        wishlistCollectionView.dataSource = self
 //        wishlistCollectionView.delegate = self
@@ -100,6 +103,12 @@ class WishlistVC: UIViewController {
     }
     */
     
+    
+
+    
+
+
+    
     func getPlatformImage(platformName: String, mode: UIUserInterfaceStyle) -> UIImage {
        
         let platformID = changePlatformNameToID(platformName: platformName)
@@ -111,6 +120,16 @@ class WishlistVC: UIViewController {
         return platformImage
     }
 
+    
+    @IBAction func clickHereAction(_ sender: Any) {
+        
+        
+        self.tabBarController?.selectedIndex = 1
+        
+        
+    }
+    
+    
 }
 
 
@@ -296,49 +315,15 @@ extension WishlistVC: SectionHeaderDelegate {
     
     func didPressButton(isOpen: Bool, section: Int) {
         print("protocol working")
-        var indexPaths = [IndexPath]()
-        for row in sectionArray[section].game.indices {
-            print("didpressbutton 0, \(row)")
-            let indexPath = IndexPath(row: row, section: section)
-            indexPaths.append(indexPath)
-        }
+
         let open = sectionArray[section].isOpen
         sectionArray[section].isOpen = !open
-        if open {
-            
-        } else {
-            
-        }
-//        if open {
-//            collectionView.deleteItems(at: indexPaths)
-//        } else {
-//            collectionView.insertItems(at: indexPaths)
-//        }
-        let offsetBeforeReload = collectionView.contentOffset
+
         let indexSet = IndexSet(integer: section)
-        collectionView.reloadSections(indexSet)
+        self.collectionView.reloadSections(indexSet)
 
-        collectionView.performBatchUpdates({
-
-        }, completion: { _ in
-            self.collectionView.setContentOffset(offsetBeforeReload, animated: false)
-        })
-//        collectionView.reloadData()
     }
-//
-//
-//
-//        //        for section in sectionArray {
-////            for game in section.game.enumerated() {
-////                if sectionTitle == game.element.platformName {
-////                    print("Item \(game.element) at index \(game.offset)")
-//////                    sectionArray[game.offset].isOpen = isOpen
-////                }
-////            }
-////        }
-//    }
-    
-    
+
     
     
 }
@@ -692,18 +677,23 @@ func didPressManageButton(_ sender: WishlistCollectionViewCell) {
         
         persistedGame.title = game.title
         persistedGame.gameID = game.gameID
+        persistedGame.overview = game.overview
         persistedGame.boxartImage = game.boxartImage
         persistedGame.owned = true
         persistedGame.releaseDate = game.releaseDate
         persistedGame.releaseYear = game.releaseYear
         persistedGame.rating = game.rating
         persistedGame.boxartImageURL = game.boxartImageURL
+        persistedGame.screenshotImageIDs = game.screenshotImageIDs
         persistedGame.developerName = game.developerName
         persistedGame.platformName = game.platformName
         persistedGame.platformID = game.platformID
         persistedGame.maxPlayers = game.maxPlayers
         persistedGame.genre = game.genre
         persistedGame.genres = game.genres
+        persistedGame.totalRating = game.totalRating
+        persistedGame.userRating = game.userRating
+        persistedGame.youtubeURL = game.youtubeURL
         
         persistenceManager.save()
         
@@ -731,6 +721,15 @@ func didPressManageButton(_ sender: WishlistCollectionViewCell) {
     }
     
     func fetchGameObject(wishlistObject: WishList) -> GameObject {
+       
+        var screenshots : [ImageInfo] = []
+        
+        if let screenshotImages = wishlistObject.screenshotImageIDs {
+        for screenshot in screenshotImages {
+            let screenshot = ImageInfo(id: nil, alphaChannel: nil, animated: nil, game: nil, height: nil, imageID: screenshot, url: nil, width: nil, checksum: nil)
+            screenshots.append(screenshot)
+        }
+        }
         
         let game = GameObject(
             title: wishlistObject.title,
@@ -745,6 +744,7 @@ func didPressManageButton(_ sender: WishlistCollectionViewCell) {
             releaseDate: wishlistObject.releaseDate ,
             owned: false,
             index: nil,
+            screenshots: screenshots,
             developerIDs: nil,
             genreIDs: nil,
             pusblisherIDs: nil,
@@ -756,7 +756,10 @@ func didPressManageButton(_ sender: WishlistCollectionViewCell) {
             developer: wishlistObject.developerName,
             gamePhotos: nil,
             manualPhotos: nil,
-            boxPhotos: nil)
+            boxPhotos: nil,
+            totalRating: Int(wishlistObject.totalRating),
+            userRating: Int(wishlistObject.userRating))
+            
         
         return game
     }

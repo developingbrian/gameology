@@ -178,23 +178,23 @@ class PlatformsVC: UIViewController {
         }
     }
     
-    func prepareData() {
-        
-        self.showSpinner(onView: self.view, userInterfaceStyle: traitCollection.userInterfaceStyle)
-        self.network.fetchIGDBGenreData {
-            
-        
-        self.network.fetchIGDBPlatformData {
-            self.network.fetchIGDBGamesData(filterBy: "platforms = ", platformID: 18, searchByName: nil, sortByField: "name", sortAscending: true, offset: self.network.currentOffset, resultsPerPage: 20, completed: {
-                print("data downloaded")
-                self.network.currentOffset = self.network.gameArray.count
-                self.tableView.reloadData()
-                self.removeSpinner()
-            })
-        }
-        }
-
-}
+//    func prepareData() {
+//
+//        self.showSpinner(onView: self.view, userInterfaceStyle: traitCollection.userInterfaceStyle)
+//        self.network.fetchIGDBGenreData { error in
+//
+//
+//        self.network.fetchIGDBPlatformData { error in
+//            self.network.fetchIGDBGamesData(filterBy: "platforms = ", platformID: 18, searchByName: nil, sortByField: "name", sortAscending: true, offset: self.network.currentOffset, resultsPerPage: 20, completed: {_ in
+//                print("data downloaded")
+//                self.network.currentOffset = self.network.gameArray.count
+//                self.tableView.reloadData()
+//                self.removeSpinner()
+//            })
+//        }
+//        }
+//
+//}
 
 }
 

@@ -114,7 +114,7 @@ class AgeRangeVC: UIViewController {
     
     func configureMultiSlider() {
         
-        let gameArray = persistenceManager.fetchGame(SavedGames.self, byGameTitle: nil, sortBy: nil, sortByAscending: true, platformID: id, selectedGenres: nil, selectedPlatforms: nil)
+        let gameArray = persistenceManager.fetchGame(SavedGames.self, byGameTitle: nil, sortBy: nil, sortByAscending: true, platformID: id, selectedGenres: nil, selectedPlatforms: nil, selectedDateRange: nil)
 //        let leftThumb = UIImage(named: "Switch_Left_Stick65")
 //        let rightThumb = UIImage(named: "Switch_Right_Stick65")
         var releaseDate : String?

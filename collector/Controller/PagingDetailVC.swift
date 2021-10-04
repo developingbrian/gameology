@@ -38,7 +38,7 @@ class PagingDetailVC: UIViewController {
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(true)
-
+       
 
     }
     
@@ -73,8 +73,8 @@ class PagingDetailVC: UIViewController {
         mediaVC?.game = self.game
         myGameVC?.game = self.game
 
-
-
+        
+        
         
         if let gameTitle = game.title {
             titled = gameTitle
@@ -199,8 +199,8 @@ class PagingDetailVC: UIViewController {
         
         button = UIButton(frame: CGRect(x: 100, y: 100, width: 430, height: 60))
         button.backgroundColor = UIColor(red: 121/255, green: 121/255, blue: 121/255, alpha: 1)
-        button.layer.shadowRadius = 5
-        button.layer.shadowOpacity = 0.35
+//        button.layer.shadowRadius = 5
+//        button.layer.shadowOpacity = 0.35
         button.layer.masksToBounds = false
         button.translatesAutoresizingMaskIntoConstraints = false
         button.tintColor = UIColor.white
@@ -252,16 +252,16 @@ class PagingDetailVC: UIViewController {
 
         self.view.addSubview(button)
         NSLayoutConstraint.activate([
-            button.bottomAnchor.constraint(equalTo: pagingViewController.view.bottomAnchor),
-            button.leadingAnchor.constraint(equalTo: pagingViewController.view.leadingAnchor),
-            button.trailingAnchor.constraint(equalTo: pagingViewController.view.trailingAnchor),
+            button.bottomAnchor.constraint(equalTo: pagingViewController.view.bottomAnchor, constant: -5),
+            button.leadingAnchor.constraint(equalTo: pagingViewController.view.leadingAnchor, constant: 5),
+            button.trailingAnchor.constraint(equalTo: pagingViewController.view.trailingAnchor, constant: -5),
             button.heightAnchor.constraint(equalToConstant: 60)
         
         ])
         
         let color2 = UIColorFromRGB(0x2ECAD5)
         let color1 = UIColorFromRGB(0x2B95CE)
-
+        button.layer.cornerRadius = 6
         button.backgroundColor = .red
         gradientLayer.colors = [color2.cgColor
                                 ,color1.cgColor]
@@ -273,6 +273,7 @@ class PagingDetailVC: UIViewController {
         gradientLayer.shadowRadius = 5.0
         gradientLayer.shadowOpacity = 0.3
         gradientLayer.masksToBounds = false
+        gradientLayer.cornerRadius = 6
         button.layer.insertSublayer(gradientLayer, at: 0)
         
     }
@@ -361,17 +362,15 @@ class PagingDetailVC: UIViewController {
             self.buttonImgView.image = UIImage(named: ownedImage)
             button.setTitle("Remove from Library", for: .normal)
             game.owned = true
-    guard let gameTitle = game.title, let gameID = game.id, let image = boxartImage else {
+    guard let gameTitle = game.title, let gameID = game.id else {
                 print("One of the following may be nil:")
-//                print("game.title", game.title)
-//                print("game.id", game.id)
-//                print("image", boxartImage)
+                print("game.title", game.title)
+                print("game.id", game.id)
                 return }
-    let imageData = image.jpegData(compressionQuality: 1)
 //            print("imageData \(imageData)")
             
                 
-           saveGameToCoreData(gameTitle, gameID , imageData, platform)
+           saveGameToCoreData(gameTitle, gameID , platform)
     
                 print("Paging VC saving game")
             

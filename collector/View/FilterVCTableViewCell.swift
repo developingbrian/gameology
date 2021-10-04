@@ -10,6 +10,7 @@ import UIKit
 
 class FilterVCTableViewCell: UITableViewCell {
     @IBOutlet weak var filterChoiceLbl: UILabel!
+    @IBOutlet weak var filterChoiceImage: UIImageView!
     var filterChoice : String? {
         didSet {
             configureCell()
@@ -46,7 +47,17 @@ extension FilterVCTableViewCell {
     func configureCell() {
         
         filterChoiceLbl.text = filterChoice
-        
+        filterChoiceLbl.isHidden = true
+        if let title = filterChoice {
+            
+        let platformID = formatPrettyPlatformNameToID(platformName: title)
+            let imageName = setPlatformIcon(platformID: platformID, mode: traitCollection.userInterfaceStyle)
+            filterChoiceImage.image = UIImage(named: imageName)
+            
+            print("title:", title)
+            print("platformID:", platformID)
+            print("imageName:", imageName)
+        }
         
     }
     

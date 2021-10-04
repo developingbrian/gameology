@@ -53,6 +53,7 @@ struct IGDBGame: Codable {
     let rating, totalRating: Double?
     let videos: [Video]?
     let ageRatings: [AgeRating]?
+    let releaseDate : [ReleaseDate]?
 
     enum CodingKeys: String, CodingKey {
         case id, cover
@@ -64,12 +65,33 @@ struct IGDBGame: Codable {
         case totalRating = "total_rating"
         case videos
         case ageRatings = "age_ratings"
+        case releaseDate = "release_dates"
     }
 }
 
 struct GameModes: Codable {
     let id: Int?
     let name : String?
+}
+
+// MARK: - ReleaseDate
+struct ReleaseDate: Codable {
+    let id, category, createdAt: Int
+    let date: Int?
+    let game: Int
+    let human: String
+    let m: Int?
+    let platform, region, updatedAt: Int
+    let y: Int?
+    let checksum: String
+
+    enum CodingKeys: String, CodingKey {
+        case id, category
+        case createdAt = "created_at"
+        case date, game, human, m, platform, region
+        case updatedAt = "updated_at"
+        case y, checksum
+    }
 }
 
 // MARK: - AgeRating

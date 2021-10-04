@@ -9,7 +9,7 @@
 import UIKit
 
 
-class DetailViewController: UIViewController {
+class DetailViewController: UIViewController, PriceChartPresentationProtocol {
 
 
     @IBOutlet weak var tableView: UITableView!
@@ -100,6 +100,15 @@ class DetailViewController: UIViewController {
         }
     }
 
+    func presentPriceCharting(controller: UIViewController) {
+//            navigationController?.pushViewController(controller, animated: true)
+        controller.modalTransitionStyle = .flipHorizontal
+                self.present(controller, animated: true) {
+
+        }
+        
+        
+    }
     
 }
 
@@ -109,7 +118,7 @@ extension DetailViewController : UITableViewDelegate, UITableViewDataSource {
     
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 4
+        return 5
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -137,8 +146,16 @@ extension DetailViewController : UITableViewDelegate, UITableViewDataSource {
             cell.game = game
         
             return cell
+        case 2:
+            print(indexPath.section)
             
-        case 2 :
+            let cell = tableView.dequeueReusableCell(withIdentifier: "valueCell", for: indexPath) as! ValueCell
+            
+            cell.game = game
+            cell.delegate = self
+            return cell
+            
+        case 3:
             print(indexPath.section)
 
             let cell = tableView.dequeueReusableCell(withIdentifier: "infoCell", for: indexPath) as! InfoCell
@@ -146,7 +163,7 @@ extension DetailViewController : UITableViewDelegate, UITableViewDataSource {
             cell.game = game
 
             return cell
-        case 3:
+        case 4:
             print(indexPath.section)
 
             let cell = tableView.dequeueReusableCell(withIdentifier: "summaryCell", for: indexPath) as! SummaryCell
@@ -154,6 +171,8 @@ extension DetailViewController : UITableViewDelegate, UITableViewDataSource {
             cell.game = game
             
             return cell
+            
+        
         default:
             print(indexPath.section)
 

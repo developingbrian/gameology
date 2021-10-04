@@ -28,7 +28,6 @@ class ViewControllerTableViewCell: UITableViewCell {
     @IBOutlet weak var tableViewCompanyLabel: UILabel!
     @IBOutlet weak var tableViewReleaseDateLabel: UILabel!
     @IBOutlet weak var backgroundCell: UIView!
-    @IBOutlet weak var tableViewCoverRearImage: UIImageView!
     @IBOutlet weak var coverImageShadow: UIImageView!
     @IBOutlet weak var addToLibraryButton: UIButton!
     @IBOutlet weak var landscapeCoverImage: UIImageView!
@@ -177,6 +176,13 @@ class ViewControllerTableViewCell: UITableViewCell {
     
     
     func configureCell() {
+        backgroundCell.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            backgroundCell.trailingAnchor.constraint(equalTo: self.layoutMarginsGuide.trailingAnchor, constant: -6),
+            addToLibraryButton.trailingAnchor.constraint(equalTo: self.layoutMarginsGuide.trailingAnchor, constant: -3)
+        ])
+        backgroundCell.layer.shadowPath = UIBezierPath(roundedRect: backgroundCell.bounds, cornerRadius: 10).cgPath
+
         tableViewCoverImage.layer.shadowOffset = CGSize(width: 3, height: 3)
         tableViewCoverImage.layer.shadowRadius = 5
         tableViewCoverImage.layer.shadowOpacity = 0.75
@@ -184,6 +190,14 @@ class ViewControllerTableViewCell: UITableViewCell {
         tableViewCoverImage.clipsToBounds = false
         tableViewCoverImage.layer.shadowColor = UIColor.darkGray.cgColor
         tableViewCoverImage.translatesAutoresizingMaskIntoConstraints = false
+        
+        landscapeCoverImage.layer.shadowOffset = CGSize(width: 3, height: 3)
+        landscapeCoverImage.layer.shadowRadius = 5
+        landscapeCoverImage.layer.shadowOpacity = 0.75
+        landscapeCoverImage.layer.cornerRadius = 10
+        landscapeCoverImage.clipsToBounds = false
+        landscapeCoverImage.layer.shadowColor = UIColor.darkGray.cgColor
+        landscapeCoverImage.translatesAutoresizingMaskIntoConstraints = false
 //        let effect = UIBlurEffect(style: .regular)
 //        let effectView = UIVisualEffectView(effect: effect)
 //
@@ -209,10 +223,11 @@ class ViewControllerTableViewCell: UITableViewCell {
 //        coverImageShadow.addSubview(effectView)
 //        coverImageShadow.layer.opacity = 0.9
 //
-//        coverImageShadow.layer.cornerRadius = 10
+        coverImageShadow.clipsToBounds = false
+        coverImageShadow.layer.cornerRadius = 10
 //
 //        backgroundCell.layer.shadowOffset = CGSize(width: 0, height: 5)
-//        backgroundCell.layer.shadowRadius = 5
+//        backgroundCell.layer.shadowRadius = 1
 //        backgroundCell.layer.shadowOpacity = 0.1
 //        backgroundCell.layer.cornerRadius = 10
         if self.traitCollection.userInterfaceStyle == .light {
@@ -289,9 +304,10 @@ class ViewControllerTableViewCell: UITableViewCell {
     //                coverImageShadow.addSubview(effectView)
             
             coverImageShadow.layer.opacity = 1
-            coverImageShadow.alpha = 1
-
+        coverImageShadow.alpha = 0.75
+        landscapeCoverImageShadow.alpha = 0.75
                     coverImageShadow.layer.cornerRadius = 10
+        
             
             let landscapeEffectView = UIVisualEffectView(effect: effect)
                     
@@ -306,14 +322,14 @@ class ViewControllerTableViewCell: UITableViewCell {
             landscapeMaskLayer.shadowOpacity = 1
             landscapeMaskLayer.shadowOffset = CGSize.zero
             landscapeMaskLayer.shadowColor = UIColor.darkGray.cgColor
-            
+//
             landscapeCoverImageShadow.layer.mask = landscapeMaskLayer
-            landscapeCoverImageShadow.addSubview(landscapeEffectView)
-            landscapeCoverImageShadow.layer.opacity = 1
+//            landscapeCoverImageShadow.addSubview(landscapeEffectView)
+//            landscapeCoverImageShadow.layer.opacity = 1
             landscapeCoverImageShadow.layer.cornerRadius = 10
             
             if let platform = game?.platformID {
-
+                print("platform is", platform)
                 let platformObject = fetchPlatformObject(platformID: platform)
                 platformID = platformObject.id
                 platformName = platformObject.name
@@ -324,7 +340,8 @@ class ViewControllerTableViewCell: UITableViewCell {
                 guard let gameName = game?.title else { return }
                 guard let gamedID = game?.id else { return }
                 
-                
+                print("ownedImage",ownedImage)
+                print("unownedImage", unownedImage)
                 
                 if checkForGameInLibrary(name: gameName, id: gamedID, platformID: platform) {
                     addToLibraryButton.setImage(UIImage(named: ownedImage), for: .normal)
@@ -359,19 +376,20 @@ class ViewControllerTableViewCell: UITableViewCell {
                     let imageURLString = baseURL.coverSmall.rawValue + imageFileName
                     let url = URL(string: imageURLString)!
                     
-                        
+                    print("game is", game?.title)
                         if let width = game?.boxartWidth {
-                        
+                            print("width is", game?.boxartWidth)
                             if let height = game?.boxartHeight {
-                            
+                                print("height is", game?.boxartHeight)
+                                print("image info preloaded, game title is", game?.title)
                                 if width > height {
                                     //image is landscape
-                                    
+                                    print("landscape")
                                     landscapeCoverImage.sd_setImage(with: url) { image, error, cacheType, url in
                                         
                                         if let image = image {
                                            
-                                            let blurredImage = self.blurImage(usingImage: image, blurAmount: 3.0)
+                                            let blurredImage = self.blurImage(usingImage: image, blurAmount: 1.5)
                                             self.landscapeCoverImageShadow.image = blurredImage
                                             self.tableViewCoverImage.image = self.landscapeCoverImage.image
 
@@ -387,6 +405,8 @@ class ViewControllerTableViewCell: UITableViewCell {
                                     landscapeCoverImageShadow.isHidden = false
                                 } else {
                                   //image is portrait
+                                    print("portrait")
+
                                     
                                     tableViewCoverImage.sd_setImage(with: url) { image, error, cacheType, url in
                                         
@@ -397,8 +417,8 @@ class ViewControllerTableViewCell: UITableViewCell {
                                         if self.coverImageShadow.image == nil {
                                             
                                             if let image = image {
-                                                
-                                                let blurredImage = self.blurImage(usingImage: image, blurAmount: 3.0)
+//                                                let blurredImage = image.getImageWithBlur(blurAmount: 3)
+                                                let blurredImage = self.blurImage(usingImage: image, blurAmount: 1.5)
                                                 self.coverImageShadow.image = blurredImage
                                                 
                                             }
@@ -421,19 +441,23 @@ class ViewControllerTableViewCell: UITableViewCell {
                         }
                         
                         } else if game?.boxartFrontImage != nil {
-                            
+                            print("image info NOT preloaded, game title is", game?.title)
+
                             tableViewCoverImage.sd_setImage(with: url) { image, error, cacheType, url in
                                 
                                 if let image = image {
-                                let blurredImage = self.blurImage(usingImage: image, blurAmount: 3.0)
-                                    self.landscapeCoverImage.image = self.tableViewCoverImage.image
+//                                    let blurredImage = image.getImageWithBlur(blurAmount: 3)
 
+                                    let blurredImage = self.blurImage(usingImage: image, blurAmount: 1.5)
+                                    self.landscapeCoverImage.image = self.tableViewCoverImage.image
+                                    self.coverImageShadow.image = blurredImage
                                     self.landscapeCoverImageShadow.image = blurredImage
                                     
                                     if let width = self.tableViewCoverImage.image?.size.width {
                                         if let height = self.tableViewCoverImage.image?.size.height {
                                             
                                             if width > height {
+                                                print("not preloaded, height now is", height, "width now is", width, "width should be > height")
                                                 self.tableViewCoverImage.isHidden = true
                                                 self.coverImageShadow.isHidden = true
                                                 self.landscapeCoverImage.isHidden = false
@@ -443,6 +467,7 @@ class ViewControllerTableViewCell: UITableViewCell {
                                                 
                                                 
                                             } else {
+                                                print("not preloaded, height now is", height, "width now is", width, "height should be > width")
                                                 self.tableViewCoverImage.isHidden = false
                                                 self.coverImageShadow.isHidden = false
                                                 self.landscapeCoverImage.isHidden = false
@@ -495,9 +520,18 @@ class ViewControllerTableViewCell: UITableViewCell {
                 
                 
 
-            }
+            } else {
+                
+                
+                tableViewCoverImage.image = UIImage(named: "noBoxart")
+                coverImageShadow.image = tableViewCoverImage.image
+                tableViewCoverImage.isHidden = false
+                coverImageShadow.isHidden = false
+                landscapeCoverImage.isHidden = true
+                landscapeCoverImageShadow.isHidden = false
+
             
-          
+            }
             
 //            if let image = tableViewCoverImage.image {
 //                let ratio = image.size.width / image.size.height

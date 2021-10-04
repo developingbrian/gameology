@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="17506" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
-    <device id="retina6_1" orientation="portrait" appearance="light"/>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="18122" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina5_5" orientation="portrait" appearance="light"/>
     <dependencies>
-        <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17505"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="18093"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
@@ -17,20 +17,45 @@
                 <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
-                    <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" style="medium" translatesAutoresizingMaskIntoConstraints="NO" id="YKc-nR-ege">
-                        <rect key="frame" x="150" y="12" width="20" height="20"/>
+                    <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" horizontalCompressionResistancePriority="751" style="medium" translatesAutoresizingMaskIntoConstraints="NO" id="YKc-nR-ege">
+                        <rect key="frame" x="11" y="12" width="20" height="20"/>
                     </activityIndicatorView>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" horizontalCompressionResistancePriority="751" text="Loading" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontForContentSizeCategory="YES" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="yp6-sm-yMJ">
+                        <rect key="frame" x="39.000000000000014" y="12" width="234.33333333333337" height="20"/>
+                        <fontDescription key="fontDescription" style="UICTFontTextStyleSubhead"/>
+                        <nil key="textColor"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" alpha="0.0" contentMode="scaleAspectFit" horizontalHuggingPriority="252" verticalHuggingPriority="251" image="arrow.clockwise" catalog="system" translatesAutoresizingMaskIntoConstraints="NO" id="GxC-gR-zKi">
+                        <rect key="frame" x="280.66666666666669" y="11.33333333333333" width="17.333333333333314" height="19.666666666666668"/>
+                        <color key="tintColor" systemColor="labelColor"/>
+                    </imageView>
                 </subviews>
                 <constraints>
-                    <constraint firstItem="YKc-nR-ege" firstAttribute="centerX" secondItem="H2p-sc-9uM" secondAttribute="centerX" id="NF5-vJ-uW1"/>
-                    <constraint firstItem="YKc-nR-ege" firstAttribute="centerY" secondItem="H2p-sc-9uM" secondAttribute="centerY" id="qhr-8M-eow"/>
+                    <constraint firstItem="yp6-sm-yMJ" firstAttribute="leading" secondItem="YKc-nR-ege" secondAttribute="trailing" constant="8" id="BKc-Tb-dUe"/>
+                    <constraint firstItem="YKc-nR-ege" firstAttribute="centerY" secondItem="H2p-sc-9uM" secondAttribute="centerY" id="CAc-Vi-wPm"/>
+                    <constraint firstItem="YKc-nR-ege" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" constant="11" id="Ct3-rm-CTE"/>
+                    <constraint firstItem="GxC-gR-zKi" firstAttribute="centerY" secondItem="H2p-sc-9uM" secondAttribute="centerY" id="LDu-hB-H1t"/>
+                    <constraint firstItem="yp6-sm-yMJ" firstAttribute="centerY" secondItem="H2p-sc-9uM" secondAttribute="centerY" id="SeM-fq-08o"/>
+                    <constraint firstItem="GxC-gR-zKi" firstAttribute="leading" secondItem="yp6-sm-yMJ" secondAttribute="trailing" constant="7.5" id="Zt6-ac-czv"/>
+                    <constraint firstItem="GxC-gR-zKi" firstAttribute="bottom" secondItem="YKc-nR-ege" secondAttribute="bottom" id="iQO-bC-E3i"/>
+                    <constraint firstItem="yp6-sm-yMJ" firstAttribute="bottom" secondItem="YKc-nR-ege" secondAttribute="bottom" id="ppg-Gd-J2w"/>
+                    <constraint firstAttribute="trailing" secondItem="GxC-gR-zKi" secondAttribute="trailing" constant="22" id="z8y-ta-pCr"/>
                 </constraints>
             </tableViewCellContentView>
             <viewLayoutGuide key="safeArea" id="njF-e1-oar"/>
             <connections>
                 <outlet property="activityIndicator" destination="YKc-nR-ege" id="Rqv-vx-CsB"/>
+                <outlet property="label" destination="yp6-sm-yMJ" id="XWS-1g-zi2"/>
+                <outlet property="refreshImage" destination="GxC-gR-zKi" id="Oe6-VN-wqh"/>
             </connections>
-            <point key="canvasLocation" x="-1" y="121"/>
+            <point key="canvasLocation" x="-1.4492753623188408" y="120.53571428571428"/>
         </tableViewCell>
     </objects>
+    <resources>
+        <image name="arrow.clockwise" catalog="system" width="115" height="128"/>
+        <systemColor name="labelColor">
+            <color white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
+    </resources>
 </document>

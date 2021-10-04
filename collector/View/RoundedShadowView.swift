@@ -16,14 +16,14 @@ final class RoundedShadowView: UIView {
         super.awakeFromNib()
         
         self.layer.cornerRadius = 10
-        self.layer.shadowOffset = CGSize(width: 3, height: 3)
+        self.layer.shadowOffset = CGSize(width: 2, height: 2)
         self.layer.shadowOpacity = 0.75
         self.layer.shadowRadius = 2
 //        self.layer.masksToBounds = true
 //        self.clipsToBounds = true
 //        self.layer.shadowPath = CGPath(roundedRect: CGRect(x: 0, y: 0, width: self.layer.frame.width, height: self.layer.frame.height), cornerWidth: 0, cornerHeight: 0, transform: nil)
-        self.layer.shadowPath = UIBezierPath(roundedRect: self.bounds, cornerRadius: 10).cgPath
-        self.translatesAutoresizingMaskIntoConstraints = true
+//        self.layer.shadowPath = UIBezierPath(roundedRect: self.bounds, cornerRadius: 10).cgPath
+        self.translatesAutoresizingMaskIntoConstraints = false
                     if traitCollection.userInterfaceStyle == .light {
                   
         
@@ -58,5 +58,10 @@ final class RoundedShadowView: UIView {
 //
 //        }
 //    }
+    }
+    
+    override func layoutSubviews() {
+        self.layer.shadowPath = UIBezierPath(roundedRect: self.bounds, cornerRadius: 10).cgPath
+
     }
 }

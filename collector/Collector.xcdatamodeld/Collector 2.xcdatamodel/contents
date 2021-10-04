@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="18154" systemVersion="20B5022a" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="18154" systemVersion="20G71" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
     <entity name="GameGenre" representedClassName="GameGenre" syncable="YES">
         <attribute name="name" optional="YES" attributeType="String"/>
         <relationship name="ofGame" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="SavedGames" inverseName="genreType" inverseEntity="SavedGames"/>
@@ -49,7 +49,10 @@
         <attribute name="rating" optional="YES" attributeType="String"/>
         <attribute name="releaseDate" optional="YES" attributeType="String"/>
         <attribute name="releaseYear" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="screenshotImageIDs" optional="YES" attributeType="Transformable" valueTransformerName="NSSecureUnarchiveFromDataTransformer" customClassName="Array&lt;String&gt;"/>
         <attribute name="title" attributeType="String"/>
+        <attribute name="totalRating" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="userRating" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="youtubeURL" optional="YES" attributeType="String"/>
         <relationship name="genreType" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="GameGenre" inverseName="ofGame" inverseEntity="GameGenre"/>
         <relationship name="photo" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Photos" inverseName="games" inverseEntity="Photos"/>
@@ -78,14 +81,17 @@
         <attribute name="rating" optional="YES" attributeType="String"/>
         <attribute name="releaseDate" optional="YES" attributeType="String"/>
         <attribute name="releaseYear" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="screenshotImageIDs" optional="YES" attributeType="Transformable" valueTransformerName="NSSecureUnarchiveFromDataTransformer" customClassName="Array&lt;String&gt;"/>
         <attribute name="title" optional="YES" attributeType="String"/>
+        <attribute name="totalRating" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="userRating" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="youtubeURL" optional="YES" attributeType="String"/>
     </entity>
     <elements>
         <element name="GameGenre" positionX="125.5875854492188" positionY="23.30575561523438" width="128" height="73"/>
         <element name="Photos" positionX="331.5148925781251" positionY="482.8545684814453" width="128" height="103"/>
         <element name="Platform" positionX="-298.9137573242188" positionY="-74.11827087402344" width="128" height="88"/>
-        <element name="SavedGames" positionX="-29.5579833984375" positionY="-66.02909851074219" width="128" height="599"/>
-        <element name="WishList" positionX="276.4378662109375" positionY="53.2962646484375" width="128" height="403"/>
+        <element name="SavedGames" positionX="-29.5579833984375" positionY="-66.02909851074219" width="128" height="658"/>
+        <element name="WishList" positionX="276.4378662109375" positionY="53.2962646484375" width="128" height="448"/>
     </elements>
 </model>

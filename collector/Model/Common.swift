@@ -32,7 +32,26 @@ extension UIButton {
                 right: -imageTitlePadding
             )
         }
-    
+    func applyGradients(colors: [CGColor]) {
+//        self.backgroundColor = nil
+//        self.layoutIfNeeded()
+        let gradientLayer = CAGradientLayer()
+        gradientLayer.colors = colors
+        gradientLayer.startPoint = CGPoint(x: 0, y: 0)
+        gradientLayer.endPoint = CGPoint(x: 0.5, y: 0)
+        gradientLayer.frame = self.bounds
+//        gradientLayer.cornerRadius = self.frame.height/2
+
+//        gradientLayer.shadowColor = UIColor.darkGray.cgColor
+//        gradientLayer.shadowOffset = CGSize(width: 2.5, height: 2.5)
+//        gradientLayer.shadowRadius = 5.0
+//        gradientLayer.shadowOpacity = 0.3
+//        gradientLayer.masksToBounds = false
+
+        self.layer.insertSublayer(gradientLayer, at: 0)
+   
+    }
+
     
     func applyGradient(colors: [CGColor]) {
 //        self.backgroundColor = nil
@@ -137,6 +156,148 @@ extension UICollectionViewCell {
 }
 
 extension UIViewController {
+//    let platforms = ["3DO Interactive Multiplayer", "Amiga CD32", "Atari 2600", "Atari 5200", "Atari 7800", "Atari Jaguar", "Atari Lynx", "ColecoVision", "Fairchild Channel F", "Intellivision", "Magnavox Odyssey", "Microsoft Xbox", "Microsoft Xbox 360", "Microsoft Xbox One", "Microsoft Xbox Series S|X", "Neo Geo AES", "Neo Geo CD", "Neo Geo Pocket", "Neo Geo Pocket Color", "Nintendo Game & Watch", "Nintendo Entertainment System (NES)", "Super Nintendo Entertainment System (SNES)", "Nintendo Virtual Boy", "Nintendo 64", "Nintendo GameCube", "Nintendo Wii", "Nintendo Wii U", "Nintendo Switch", "Nintendo Game Boy", "Nintendo Game Boy Advance", "Nintendo DS", "Nintendo DSi", "Nintendo 3DS", "New Nintendo 3DS", "Nintendo Pokémon Mini", "Nokia N-Gage", "Nuon", "TurboGrafx-16/PC Engine", "PC Engine SuperGrafx","Philips CD-i", "Sega SG-1000", "Sega Master System", "Sega Genesis/Mega Drive", "Sega CD", "Sega 32X", "Sega Saturn", "Sega Dreamcast", "Sega Game Gear", "Sega Pico", "Sony PlayStation", "Sony PlayStation 2", "Sony PlayStation 3", "Sony PlayStation 4", "Sony PlayStation 5", "Sony PlayStation Portable (PSP)", "Sony PlayStation Vita", "Vectrex", "WonderSwan", "WonderSwan Color", "Zeebo"]
+
+    
+    
+    func formatPlatformIDToPlatformName(ID: Int) -> String {
+      
+            switch ID {
+            case 50     :   return "3DO Interactive Multiplayer"
+            case 114    :   return "Amiga CD32"
+            case 59     :   return "Atari 2600"
+            case 66                                   :   return "Atari 5200"
+            case 60                                   :   return "Atari 7800"
+            case 62                                 :   return "Atari Jaguar"
+            case 61                                   :   return "Atari Lynx"
+            case 68                                 :   return "ColecoVision"
+            case 127                          :   return "Fairchild Channel F"
+            case 67                                :   return "Intellivision"
+            case 88                             :   return "Magnavox Odyssey"
+            case 11                               :   return "Microsoft Xbox"
+            case 12                           :   return "Microsoft Xbox 360"
+            case 49                           :   return "Microsoft Xbox One"
+            case 169                    :   return "Microsoft Xbox Series S|X"
+            case 80                                  :   return "Neo Geo AES"
+            case 136                                   :   return "Neo Geo CD"
+            case 119                               :   return "Neo Geo Pocket"
+            case 120                         :   return "Neo Geo Pocket Color"
+            case 307                        :   return "Nintendo Game & Watch"
+            case 18          :   return "Nintendo Entertainment System (NES)"
+            case 19   :   return "Super Nintendo Entertainment System (SNES)"
+            case 87                         :   return "Nintendo Virtual Boy"
+            case 4                                  :   return "Nintendo 64"
+            case 21                            :   return "Nintendo GameCube"
+            case 5                                 :   return "Nintendo Wii"
+            case 41                               :   return "Nintendo Wii U"
+            case 130                              :   return "Nintendo Switch"
+            case 33                            :   return "Nintendo Game Boy"
+            case 22     :   return "Nintendo Game Boy Color"
+            case 24                    :   return "Nintendo Game Boy Advance"
+            case 20                                  :   return "Nintendo DS"
+            case 159                                 :   return "Nintendo DSi"
+            case 37                                 :   return "Nintendo 3DS"
+            case 137                             :   return "New Nintendo 3DS"
+            case 166                        :   return "Nintendo Pokémon Mini"
+            case 42                                 :   return "Nokia N-Gage"
+            case 122                                         :   return "Nuon"
+            case 86                      :   return "TurboGrafx-16/PC Engine"
+            case 128                         :   return "PC Engine SuperGrafx"
+            case 117                                 :   return "Philips CD-i"
+            case 84                                 :   return "Sega SG-1000"
+            case 64                           :   return "Sega Master System"
+            case 29                      :   return "Sega Genesis/Mega Drive"
+            case 78                                      :   return "Sega CD"
+            case 30                                     :   return "Sega 32X"
+            case 32                                  :   return "Sega Saturn"
+            case 23                               :   return "Sega Dreamcast"
+            case 35                               :   return "Sega Game Gear"
+            case 339                                    :   return "Sega Pico"
+            case 7                             :   return "Sony PlayStation"
+            case 8                           :   return "Sony PlayStation 2"
+            case 9                           :   return "Sony PlayStation 3"
+            case 48                           :   return "Sony PlayStation 4"
+            case 167                           :   return "Sony PlayStation 5"
+            case 38              :   return "Sony PlayStation Portable (PSP)"
+            case 46                        :   return "Sony PlayStation Vita"
+            case 70                                      :   return "Vectrex"
+            case 57                                   :   return "WonderSwan"
+            case 123                             :   return "WonderSwan Color"
+            case 240                                        :   return "Zeebo"
+            default                                             : print("Unkown Platform, platform ID is \(ID)")
+                                                                    return "Unknown Platform, platform ID is \(ID)"
+            }
+       
+    }
+    
+    func formatPrettyPlatformNameToID(platformName: String) -> Int {
+      
+            switch platformName {
+            case "3DO Interactive Multiplayer"                  :   return 50
+            case "Amiga CD32"                                   :   return 114
+            case "Atari 2600"                                   :   return 59
+            case "Atari 5200"                                   :   return 66
+            case "Atari 7800"                                   :   return 60
+            case "Atari Jaguar"                                 :   return 62
+            case "Atari Lynx"                                   :   return 61
+            case "ColecoVision"                                 :   return 68
+            case "Fairchild Channel F"                          :   return 127
+            case "Intellivision"                                :   return 67
+            case "Magnavox Odyssey"                             :   return 88
+            case "Microsoft Xbox"                               :   return 11
+            case "Microsoft Xbox 360"                           :   return 12
+            case "Microsoft Xbox One"                           :   return 49
+            case "Microsoft Xbox Series S|X"                    :   return 169
+            case "Neo Geo AES"                                  :   return 80
+            case "Neo Geo CD"                                   :   return 136
+            case "Neo Geo Pocket"                               :   return 119
+            case "Neo Geo Pocket Color"                         :   return 120
+            case "Nintendo Game & Watch"                        :   return 307
+            case "Nintendo Entertainment System (NES)"          :   return 18
+            case "Super Nintendo Entertainment System (SNES)"   :   return 19
+            case "Nintendo Virtual Boy"                         :   return 87
+            case "Nintendo 64"                                  :   return 4
+            case "Nintendo GameCube"                            :   return 21
+            case "Nintendo Wii"                                 :   return 5
+            case "Nintendo Wii U"                               :   return 41
+            case "Nintendo Switch"                              :   return 130
+            case "Nintendo Game Boy"                            :   return 33
+            case "Nintendo Game Boy Color"                      :   return 22
+            case "Nintendo Game Boy Advance"                    :   return 24
+            case "Nintendo DS"                                  :   return 20
+            case "Nintendo DSi"                                 :   return 159
+            case "Nintendo 3DS"                                 :   return 37
+            case "New Nintendo 3DS"                             :   return 137
+            case "Nintendo Pokémon Mini"                        :   return 166
+            case "Nokia N-Gage"                                 :   return 42
+            case "Nuon"                                         :   return 122
+            case "TurboGrafx-16/PC Engine"                      :   return 86
+            case "PC Engine SuperGrafx"                         :   return 128
+            case "Philips CD-i"                                 :   return 117
+            case "Sega SG-1000"                                 :   return 84
+            case "Sega Master System"                           :   return 64
+            case "Sega Genesis/Mega Drive"                      :   return 29
+            case "Sega CD"                                      :   return 78
+            case "Sega 32X"                                     :   return 30
+            case "Sega Saturn"                                  :   return 32
+            case "Sega Dreamcast"                               :   return 23
+            case "Sega Game Gear"                               :   return 35
+            case "Sega Pico"                                    :   return 339
+            case "Sony PlayStation"                             :   return 7
+            case "Sony PlayStation 2"                           :   return 8
+            case "Sony PlayStation 3"                           :   return 9
+            case "Sony PlayStation 4"                           :   return 48
+            case "Sony PlayStation 5"                           :   return 167
+            case "Sony PlayStation Portable (PSP)"              :   return 38
+            case "Sony PlayStation Vita"                        :   return 46
+            case "Vectrex"                                      :   return 70
+            case "WonderSwan"                                   :   return 57
+            case "WonderSwan Color"                             :   return 123
+            case "Zeebo"                                        :   return 240
+            default                                             :   return 18
+            }
+       
+    }
     
     func formatIGDBToPrettyTitle(platformName: String) -> String {
         
@@ -157,7 +318,7 @@ extension UIViewController {
         case "Xbox One":
             title = "Microsoft Xbox One"
           
-        case "Xbox Series":
+        case "Xbox Series X|S":
             title = "Microsoft Xbox Series S|X"
         
         case "Game & Watch":
@@ -168,6 +329,8 @@ extension UIViewController {
             
         case "Game Boy":
             title = "Nintendo Game Boy"
+        case "Game Boy Color":
+            title = "Nintendo Game Boy Color"
             
         case "Game Boy Advance":
             title = "Nintendo Game Boy Advance"
@@ -232,77 +395,31 @@ extension UIViewController {
         switch platformName {
         
 
-        case "Magnavox Odyssey":
-            title = "Odyssey"
-        
-        case "Microsoft Xbox":
-            title = "Xbox"
-        
-        case "Microsoft Xbox 360":
-            title = "Xbox 360"
-        
-        case "Microsoft Xbox One":
-            title = "Xbox One"
-          
-        case "Microsoft Xbox Series S|X":
-            title = "Xbox Series"
-        
-        case "Nintendo Game & Watch":
-            title = "Game & Watch"
-        
-        case "Nintendo Virtual Boy":
-            title = "Virtual Boy"
-            
-        case "Nintendo Game Boy":
-            title = "Game Boy"
-            
-        case "Nintendo Game Boy Advance":
-            title = "Game Boy Advance"
-            
-        case "Nintendo Pokémon Mini":
-            title = "Pokémon mini"
-            
-        case "Nintendo Wii":
-            title = "Wii"
-        
-        case "Nintendo Wii U":
-            title = "Wii U"
-
-        case "Sega SG-1000":
-            title = "SG-1000"
-            
-        case "Sega Genesis/Mega Drive":
-            title = "Sega Mega Drive/Genesis"
-            
-        case "Sega Dreamcast":
-            title = "Dreamcast"
-            
-        case "Nokia N-Gage":
-            title = "N-Gage"
-            
-        case "Sony PlayStation":
-            title = "PlayStation"
-            
-        case "Sony PlayStation 2":
-            title = "PlayStation 2"
-            
-        case "Sony PlayStation 3":
-            title = "PlayStation 3"
-            
-        case "Sony PlayStation 4":
-            title = "PlayStation 4"
-            
-        case "Sony PlayStation 5":
-            title = "PlayStation 5"
-            
-        case "Sony PlayStation Portable (PSP)":
-            title = "PlayStation Portable"
-            
-        case "Sony PlayStation Vita":
-            title = "PlayStation Vita"
-        
-        default:
-            title = platformName
+        case "Magnavox Odyssey"                 :   title = "Odyssey"
+        case "Microsoft Xbox"                   :   title = "Xbox"
+        case "Microsoft Xbox 360"               :   title = "Xbox 360"
+        case "Microsoft Xbox One"               :   title = "Xbox One"
+        case "Microsoft Xbox Series S|X"        :   title = "Xbox Series X|S"
+        case "Nintendo Game & Watch"            :   title = "Game & Watch"
+        case "Nintendo Virtual Boy"             :   title = "Virtual Boy"
+        case "Nintendo Game Boy"                :   title = "Game Boy"
+        case "Nintendo Game Boy Color"          :   title = "Game Boy Color"
+        case "Nintendo Game Boy Advance"        :   title = "Game Boy Advance"
+        case "Nintendo Pokémon Mini"            :   title = "Pokémon mini"
+        case "Nintendo Wii"                     :   title = "Wii"
+        case "Nintendo Wii U"                   :   title = "Wii U"
+        case "Sega SG-1000"                     :   title = "SG-1000"
+        case "Sega Genesis/Mega Drive"          :   title = "Sega Mega Drive/Genesis"
+        case "Sega Dreamcast"                   :   title = "Dreamcast"
+        case "Nokia N-Gage"                     :   title = "N-Gage"
+        case "Sony PlayStation"                 :   title = "PlayStation"
+        case "Sony PlayStation 2"               :   title = "PlayStation 2"
+        case "Sony PlayStation 3"               :   title = "PlayStation 3"
+        case "Sony PlayStation 4"               :   title = "PlayStation 4"
+        case "Sony PlayStation 5"               :   title = "PlayStation 5"
+        case "Sony PlayStation Portable (PSP)"  :   title = "PlayStation Portable"
+        case "Sony PlayStation Vita"            :   title = "PlayStation Vita"
+        default                                 :   title = platformName
             
         }
         
@@ -391,266 +508,188 @@ extension UIViewController {
         
         switch platformID {
         
-        case 240:
-            if owned {
-                imageName = "hdd-minus-inversed"
-            } else {
-                imageName = "hdd-plus-inversed"
-
-            }
+        case 240                :   if owned {
+                                        imageName = "hdd-minus-inversed"}
+                                    else {
+                                        imageName = "hdd-plus-inversed"}
         
-        case 57, 123:
-            if owned {
-                imageName = "wonderswan-minus-inversed"
-            } else {
-                imageName = "wonderswan-plus-inversed"
-
-            }
+        case 57, 123            :   if owned {
+                                        imageName = "wonderswan-minus-inversed"}
+                                    else {
+                                        imageName = "wonderswan-plus-inversed"}
         
-        case 70:
-            if owned {
-                imageName = "vectrex-minus-inversed"
-            } else {
-                imageName = "vectrex-plus-inversed"
-
-            }
+        case 70                 :   if owned {
+                                        imageName = "vectrex-minus-inversed"}
+                                    else {
+                                        imageName = "vectrex-plus-inversed"}
         
+        case 86, 128            :   if owned {
+                                        imageName = "turbografx-minus-inversed"}
+                                    else {
+                                        imageName = "turbografx-plus-inversed"}
         
-        case 86, 128:
-            if owned {
-                imageName = "turbografx-minus-inversed"
-            } else {
-                imageName = "turbografx-plus-inversed"
-
-            }
+        case 42                 :   if owned {
+                                        imageName = "ngage-minus-inversed"}
+                                    else {
+                                        imageName = "ngage-plus-inversed"}
+            
+        case 61                 :   if owned {
+                                        imageName = "atarilynx-minus-inversed"}
+                                    else {
+                                        imageName = "atarilynx-plus-inversed"}
+            
+        case 66                 :   if owned {
+                                        imageName = "atari5200-minus-inversed"}
+                                    else {
+                                        imageName = "atari5200-plus-inversed"}
         
-        case 42:
-            if owned {
-                imageName = "ngage-minus-inversed"
-            } else {
-                imageName = "ngage-plus-inversed"
+        case 59, 60             :   if owned {
+                                        imageName = "atari2600-minus-inversed"}
+                                    else {
+                                        imageName = "atari2600-plus-inversed"}
+            
+        case 307                :   if owned {
+                                        imageName = "gameandwatch-minus-inversed"}
+                                    else {
+                                        imageName = "gameandwatch-plus-inversed"}
+            
+        case 18                 :   if owned {
+                                        imageName = "nes-minus-inversed"}
+                                    else {
+                                        imageName = "nes-plus-button"}
+            
+        case 19                 :   if owned {
+                                        imageName = "snes-minus-inversed"}
+                                    else {
+                                        imageName = "snes-plus-inversed"}
+            
+        case 4                  :   if owned {
+                                        imageName = "n64-minus-inversed"}
+                                    else {
+                                        imageName = "n64-plus-inversed"}
+            
+        case 87                 :   if owned {
+                                        imageName = "nvb-minus-inversed"}
+                                    else {
+                                        imageName = "nvb-plus-inversed"}
+            
+        case 20, 159, 37, 137   :   if owned {
+                                        imageName = "nds-minus-inversed"}
+                                    else {
+                                        imageName = "nds-plus-inversed"}
+            
+        case 21                 :   if owned {
+                                        imageName = "gc-minus-inversed"}
+                                    else {
+                                        imageName = "gc-plus-inversed"}
+            
+        case 33, 22             :   if owned {
+                                        imageName = "gb-minus-inversed"}
+                                    else {
+                                        imageName = "gb-plus-inversed"}
+            
+        case 24                 :   if owned {
+                                        imageName = "gba-minus-inversed"}
+                                    else {
+                                        imageName = "gba-plus-inversed"}
+            
+        case 166                :   if owned {
+                                        imageName = "nintendopokemonmini-minus-inversed"}
+                                    else {
+                                        imageName = "nintendopokemonmini-plus-inversed"}
+            
+        case 130                :   if owned {
+                                        imageName = "switch-minus-inversed"}
+                                    else {
+                                        imageName = "switch-plus-inversed"}
+            
+        case 64                 :   if owned {
+                                        imageName = "sms-minus-inversed"}
+                                    else {
+                                        imageName = "sms-plus-inversed"}
+            
+        case 35                 :   if owned {
+                                        imageName = "gamegear-minus-inversed"}
+                                    else {
+                                        imageName = "gamegear-plus-inversed"}
+            
+        case 30                 :   if owned {
+                                        imageName = "32x-minus-inversed"}
+                                    else {
+                                        imageName = "32x-plus-inversed"}
+            
+        case 62                 :   if owned {
+                                        imageName = "atarijaguar-minus-inversed"}
+                                    else {
+                                        imageName = "atarijaguar-plus-inversed"}
+            
+        case 29                 :   if owned {
+                                        imageName = "genesis-minus-inversed"}
+                                    else {
+                                        imageName = "genesis-plus-inversed"}
 
-            }
-        case 61:
-            if owned {
-                imageName = "atarilynx-minus-inversed"
-            } else {
-                imageName = "atarilynx-plus-inversed"
-
-            }
-        case 66:
-            if owned {
-                imageName = "atari5200-minus-inversed"
-
-            } else {
-                imageName = "atari5200-plus-inversed"
-
-            }
+        case 80                 :   if owned {
+                                        imageName = "neogeo-minus-inversed"}
+                                    else {
+                                        imageName = "neogeo-plus-inversed"}
+        case 78, 7, 167, 12,
+             49, 48, 9, 32,
+             117, 114, 50, 11,
+             23, 136, 8, 169,
+             5, 122, 41         :   if owned {
+                                        imageName = "cd-minus-inversed"}
+                                    else {
+                                        imageName = "cd-plus-inversed"}
+            
+        case 84                 :   if owned {
+                                        imageName = "segasg1000-minus-inversed"}
+                                    else {
+                                        imageName = "segasg1000-plus-inversed"}
         
-        case 59, 60:
-            if owned {
-                imageName = "atari2600-minus-inversed"
-            } else {
-                imageName = "atari2600-plus-inversed"
-            }
+        case 339                :   if owned {
+                                        imageName = "segapico-minus-inversed"}
+                                    else {
+                                        imageName = "segapico-plus-inversed"}
             
-        case 307:
-            if owned {
-                imageName = "gameandwatch-minus-inversed"
-            } else {
-                imageName = "gameandwatch-plus-inversed"
-
-            }
-            
-        case 18:
-            if owned {
-                imageName = "nes-minus-inversed"
-            } else {
-                imageName = "nes-plus-button"
-            }
-            
-        case 19:
-            if owned {
-                imageName = "snes-minus-inversed"
-            } else {
-                imageName = "snes-plus-inversed"
-            }
-            
-        case 4:
-            if owned {
-                imageName = "n64-minus-inversed"
-            } else {
-                imageName = "n64-plus-inversed"
-            }
-            
-        case 87:
-            if owned {
-                imageName = "nvb-minus-inversed"
-            } else {
-                imageName = "nvb-plus-inversed"
-            }
-        
-        case 20, 159, 37, 137:
-            if owned {
-                imageName = "nds-minus-inversed"
-            } else {
-                imageName = "nds-plus-inversed"
-            }
-            
-        case 21:
-            if owned {
-                imageName = "gc-minus-inversed"
-            } else {
-                imageName = "gc-plus-inversed"
-            }
-            
-        case 33:
-            if owned {
-                imageName = "gb-minus-inversed"
-            } else {
-                imageName = "gb-plus-inversed"
-            }
-        case 24:
-            if owned {
-                imageName = "gba-minus-inversed"
-            } else {
-                imageName = "gba-plus-inversed"
-            }
-            
-        case 166:
-            if owned {
-                imageName = "nintendopokemonmini-minus-inversed"
-            } else {
-                imageName = "nintendopokemonmini-plus-inversed"
-            }
-            
-        case 130:
-            if owned {
-                imageName = "switch-minus-inversed"
-            } else {
-                imageName = "switch-plus-inversed"
-            }
-        case 64:
-            if owned {
-                imageName = "sms-minus-inversed"
-            } else {
-                imageName = "sms-plus-inversed"
-            }
-            
-        case 35:
-            if owned {
-                imageName = "gamegear-minus-inversed"
-            } else {
-                imageName = "gamegear-plus-inversed"
-            }
-        case 30:
-            if owned {
-                imageName = "32x-minus-inversed"
-            } else {
-                imageName = "32x-plus-inversed"
-            }
-            
-        case 62:
-            if owned {
-                imageName = "atarijaguar-minus-inversed"
-            } else {
-                imageName = "atarijaguar-plus-inversed"
-
+        case 38                 :   if owned {
+                                        imageName = "sonypsp-minus-inversed"}
+                                    else {
+                                        imageName = "sonypsp-plus-inversed"}
                 
-            }
+        case 46                 :   if owned {
+                                        imageName = "psvita-minus-inversed"}
+                                    else {
+                                        imageName = "psvita-plus-inversed"}
             
-        case 29:
-            if owned {
-                imageName = "genesis-minus-inversed"
-            } else {
-                imageName = "genesis-plus-inversed"
-            }
-
-        case 80:
-            if owned {
-                imageName = "neogeo-minus-inversed"
-            } else {
-                imageName = "neogeo-plus-inversed"
-            }
-        case 78, 7, 167, 12, 49, 48, 9, 32, 117, 114, 50, 11, 23, 136, 8, 169, 5, 122, 41:
-            if owned {
-                imageName = "cd-minus-inversed"
-            } else {
-                imageName = "cd-plus-inversed"
-            }
-        case 84:
-            if owned {
-                imageName = "segasg1000-minus-inversed"
-            } else {
-                
-                imageName = "segasg1000-plus-inversed"
-
-            }
-        
-        case 339:
-            if owned {
-                
-                imageName = "segapico-minus-inversed"
-            } else {
-                imageName = "segapico-plus-inversed"
-
-            }
+        case 68                 :   if owned {
+                                        imageName = "colecovision-minus-inversed"}
+                                    else {
+                                        imageName = "colecovision-plus-inversed"}
             
-        case 38:
-            if owned {
-                imageName = "sonypsp-minus-inversed"
-            } else {
-                imageName = "sonypsp-plus-inversed"
-
-            }
+        case 127                :   if owned {
+                                        imageName = "fairchild-minus-inversed"}
+                                    else {
+                                        imageName = "fairchild-plus-inversed"}
             
-        case 46:
-            if owned {
-                imageName = "psvita-minus-inversed"
-            } else {
-                imageName = "psvita-plus-inversed"
-
-            }
+        case 67                 :   if owned {
+                                        imageName = "intellivision-minus-inversed"}
+                                    else {
+                                        imageName = "intellivision-plus-inversed"}
             
-        case 68:
-            if owned {
-                imageName = "colecovision-minus-inversed"
-            } else {
-                imageName = "colecovision-plus-inversed"
-
-            }
-        case 127:
-            if owned {
-                imageName = "fairchild-minus-inversed"
-            } else {
-                imageName = "fairchild-plus-inversed"
-
-            }
-        case 67:
-            if owned {
-                imageName = "intellivision-minus-inversed"
-            } else {
-                imageName = "intellivision-plus-inversed"
-
-            }
-        case 88:
-            if owned {
-                imageName = "odyssey-minus-inversed"
-            } else {
-                imageName = "odyssey-plus-inversed"
-
-            }
-        case 119, 120:
-            if owned {
-                imageName = "neogeopocket-minus-inversed"
-            } else {
-                imageName = "neogeopocket-plus-inversed"
-
-            }
-        default:
-            print("Invalid Platform")
+        case 88                 :   if owned {
+                                        imageName = "odyssey-minus-inversed"}
+                                    else {
+                                        imageName = "odyssey-plus-inversed"}
+            
+        case 119, 120           :   if owned {
+                                        imageName = "neogeopocket-minus-inversed"}
+                                    else {
+                                        imageName = "neogeopocket-plus-inversed"}
+            
+        default                 :   print("Invalid Platform")
             
         }
+        
         return imageName
 
     }
@@ -661,7 +700,7 @@ extension UIViewController {
 //        
 //    }
     
-        func changePlatformNameToID(platformName: String) -> Int {
+    func changePlatformNameToID(platformName: String) -> Int {
         
         let network = Networking.shared
         let platforms = network.platforms
@@ -719,12 +758,12 @@ extension UIViewController {
 //        return 1
 //    }
     
-func setPlatformIcon(platformID: Int?, mode: UIUserInterfaceStyle?) -> String {
+func setPlatformIcon(platformID: Int, mode: UIUserInterfaceStyle?) -> String {
     
     var platformImageName: String = ""
     print("setPlatformIcon()")
 //    print("\(platformID)")
-    switch platformID! {
+    switch platformID {
         case 18:
             
             if mode == .light {
@@ -772,6 +811,9 @@ func setPlatformIcon(platformID: Int?, mode: UIUserInterfaceStyle?) -> String {
                 platformImageName = "GBLogoInverse"
                 
             }
+        case 22:
+            platformImageName = "GameBoyColorLogo"
+            
         case 24:
             if mode == .light {
                 //Light Mode
@@ -1126,7 +1168,52 @@ print("testArray = \(testArray)")
 }
 
 
+extension String {
+    
+    func removing(charactersOf string: String) -> String {
+        let characterSet = CharacterSet(charactersIn: string)
+        let components = self.components(separatedBy: characterSet)
+        return components.joined(separator: "")
+    }
+    
+    
+    func levenshteinDistanceScore(to string: String, ignoreCase: Bool = true, trimWhiteSpacesAndNewLines: Bool = true) -> Double {
 
+         var firstString = self
+         var secondString = string
+
+         if ignoreCase {
+             firstString = firstString.lowercased()
+             secondString = secondString.lowercased()
+         }
+         if trimWhiteSpacesAndNewLines {
+             firstString = firstString.trimmingCharacters(in: .whitespacesAndNewlines)
+             secondString = secondString.trimmingCharacters(in: .whitespacesAndNewlines)
+         }
+
+         let empty = [Int](repeating:0, count: secondString.count)
+         var last = [Int](0...secondString.count)
+
+         for (i, tLett) in firstString.enumerated() {
+             var cur = [i + 1] + empty
+             for (j, sLett) in secondString.enumerated() {
+                 cur[j + 1] = tLett == sLett ? last[j] : Swift.min(last[j], last[j + 1], cur[j])+1
+             }
+             last = cur
+         }
+
+         // maximum string length between the two
+         let lowestScore = max(firstString.count, secondString.count)
+
+         if let validDistance = last.last {
+             return  1 - (Double(validDistance) / Double(lowestScore))
+         }
+
+         return 0.0
+     }
+    
+    
+}
 
 
 
@@ -1324,6 +1411,76 @@ extension UITableViewCell {
             .flatMap { $0.subviews }
             .compactMap { $0 as? UILabel }.first
     }
+    
+    
+    func formatPrettyPlatformNameToID(platformName: String) -> Int {
+      
+            switch platformName {
+            case "3DO Interactive Multiplayer"                  :   return 50
+            case "Amiga CD32"                                   :   return 114
+            case "Atari 2600"                                   :   return 59
+            case "Atari 5200"                                   :   return 66
+            case "Atari 7800"                                   :   return 60
+            case "Atari Jaguar"                                 :   return 62
+            case "Atari Lynx"                                   :   return 61
+            case "ColecoVision"                                 :   return 68
+            case "Fairchild Channel F"                          :   return 127
+            case "Intellivision"                                :   return 67
+            case "Magnavox Odyssey"                             :   return 88
+            case "Microsoft Xbox"                               :   return 11
+            case "Microsoft Xbox 360"                           :   return 12
+            case "Microsoft Xbox One"                           :   return 49
+            case "Microsoft Xbox Series S|X"                    :   return 169
+            case "Neo Geo AES"                                  :   return 80
+            case "Neo Geo CD"                                   :   return 136
+            case "Neo Geo Pocket"                               :   return 119
+            case "Neo Geo Pocket Color"                         :   return 120
+            case "Nintendo Game & Watch"                        :   return 307
+            case "Nintendo Entertainment System (NES)"          :   return 18
+            case "Super Nintendo Entertainment System (SNES)"   :   return 19
+            case "Nintendo Virtual Boy"                         :   return 87
+            case "Nintendo 64"                                  :   return 4
+            case "Nintendo GameCube"                            :   return 21
+            case "Nintendo Wii"                                 :   return 5
+            case "Nintendo Wii U"                               :   return 41
+            case "Nintendo Switch"                              :   return 130
+            case "Nintendo Game Boy"                            :   return 33
+            case "Nintendo Game Boy Color"                      :   return 22
+            case "Nintendo Game Boy Advance"                    :   return 24
+            case "Nintendo DS"                                  :   return 20
+            case "Nintendo DSi"                                 :   return 159
+            case "Nintendo 3DS"                                 :   return 37
+            case "New Nintendo 3DS"                             :   return 137
+            case "Nintendo Pokémon Mini"                        :   return 166
+            case "Nokia N-Gage"                                 :   return 42
+            case "Nuon"                                         :   return 122
+            case "TurboGrafx-16/PC Engine"                      :   return 86
+            case "PC Engine SuperGrafx"                         :   return 128
+            case "Philips CD-i"                                 :   return 117
+            case "Sega SG-1000"                                 :   return 84
+            case "Sega Master System"                           :   return 64
+            case "Sega Genesis/Mega Drive"                      :   return 29
+            case "Sega CD"                                      :   return 78
+            case "Sega 32X"                                     :   return 30
+            case "Sega Saturn"                                  :   return 32
+            case "Sega Dreamcast"                               :   return 23
+            case "Sega Game Gear"                               :   return 35
+            case "Sega Pico"                                    :   return 339
+            case "Sony PlayStation"                             :   return 7
+            case "Sony PlayStation 2"                           :   return 8
+            case "Sony PlayStation 3"                           :   return 9
+            case "Sony PlayStation 4"                           :   return 48
+            case "Sony PlayStation 5"                           :   return 167
+            case "Sony PlayStation Portable (PSP)"              :   return 38
+            case "Sony PlayStation Vita"                        :   return 46
+            case "Vectrex"                                      :   return 70
+            case "WonderSwan"                                   :   return 57
+            case "WonderSwan Color"                             :   return 123
+            case "Zeebo"                                        :   return 240
+            default                                             :   return 18
+            }
+       
+    }
 }
 
 
@@ -1359,7 +1516,7 @@ extension UIImage {
     }
     
     
-    func getImageWithBlur() -> UIImage?{
+    func getImageWithBlur(blurAmount: Int) -> UIImage?{
         let context = CIContext(options: nil)
 
         guard let currentFilter = CIFilter(name: "CIGaussianBlur") else {
@@ -1367,7 +1524,7 @@ extension UIImage {
         }
         let beginImage = CIImage(image: self)
         currentFilter.setValue(beginImage, forKey: kCIInputImageKey)
-        currentFilter.setValue(6.5, forKey: "inputRadius")
+        currentFilter.setValue(blurAmount, forKey: "inputRadius")
         guard let output = currentFilter.outputImage, let cgimg = context.createCGImage(output, from: output.extent) else {
             return nil
         }
@@ -1992,7 +2149,7 @@ extension UITableViewCell {
                 imageName = "gc-plus-inversed"
             }
             
-        case 33:
+        case 33, 22:
             if owned {
                 imageName = "gb-minus-inversed"
             } else {

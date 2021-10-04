@@ -14,6 +14,7 @@ class NewReleasesCell: UICollectionViewCell {
     
     let container = UIView()
     let imageView = UIImageView()
+    let shadowView = UIImageView()
     let titleLabel = UILabel()
     let genreLabel = UILabel()
     let titleView = UIView()
@@ -27,6 +28,10 @@ class NewReleasesCell: UICollectionViewCell {
         }
     }
     
+    override func prepareForReuse() {
+        imageView.image = nil
+        shadowView.image = nil
+    }
     
     
 }
@@ -40,6 +45,7 @@ extension NewReleasesCell {
         container.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(container)
         contentView.addSubview(imageView)
+        contentView.addSubview(shadowView)
         
         imageView.translatesAutoresizingMaskIntoConstraints = false
         
@@ -57,6 +63,8 @@ extension NewReleasesCell {
             let url = URL(string: gameURL)!
             imageView.setImageAnimated(imageUrl: url, placeholderImage: nil) {
                 print("new release image loaded")
+                let blurredImage = self.imageView.image?.getImageWithBlur(blurAmount: 4)
+                self.shadowView.image = blurredImage
             }
         }
         
@@ -66,6 +74,8 @@ extension NewReleasesCell {
             let url = URL(string: gameURL)!
             imageView.setImageAnimated(imageUrl: url, placeholderImage: nil) {
                 print("new release image loaded")
+                let blurredImage = self.imageView.image?.getImageWithBlur(blurAmount: 4)
+                self.shadowView.image = blurredImage
 //                game?.boxartImage = self.imageView.image
             }
         }
@@ -89,8 +99,20 @@ extension NewReleasesCell {
                         container.layer.shadowColor = UIColor.gray.cgColor
                     }
         
+        
+        
+        shadowView.translatesAutoresizingMaskIntoConstraints = false
+        shadowView.contentMode = .scaleToFill
+        shadowView.isUserInteractionEnabled = true
+        shadowView.layer.cornerRadius = 10
+//        shadowView.backgroundColor = .red
+        
+        container.addSubview(shadowView)
+        
+        imageView.translatesAutoresizingMaskIntoConstraints = false
         imageView.contentMode = .scaleToFill
         imageView.clipsToBounds = true
+//        imageView.alpha = 0.25
         imageView.layer.cornerRadius = 4
         imageView.layer.shadowOffset = CGSize(width: 3.0, height: 3.0)
         imageView.layer.shadowOpacity = 0.7
@@ -104,7 +126,7 @@ extension NewReleasesCell {
               
                         imageView.layer.shadowColor = UIColor.gray.cgColor
                     }
-        container.addSubview(imageView)
+        shadowView.addSubview(imageView)
         
         
         
@@ -177,11 +199,16 @@ extension NewReleasesCell {
             container.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
             container.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
             
-            imageView.topAnchor.constraint(equalTo: container.topAnchor),
-            imageView.leadingAnchor.constraint(equalTo: container.leadingAnchor),
-            imageView.trailingAnchor.constraint(equalTo: container.trailingAnchor),
-            imageView.bottomAnchor.constraint(equalTo: container.bottomAnchor),
+            shadowView.topAnchor.constraint(equalTo: container.topAnchor),
+            shadowView.leadingAnchor.constraint(equalTo: container.leadingAnchor),
+            shadowView.trailingAnchor.constraint(equalTo: container.trailingAnchor),
+            shadowView.bottomAnchor.constraint(equalTo: container.bottomAnchor),
         
+            imageView.topAnchor.constraint(equalTo: shadowView.topAnchor),
+            imageView.leadingAnchor.constraint(equalTo: shadowView.leadingAnchor),
+            imageView.bottomAnchor.constraint(equalTo: shadowView.bottomAnchor, constant: -10),
+            imageView.trailingAnchor.constraint(equalTo: shadowView.trailingAnchor, constant: -10),
+            
             titleView.leadingAnchor.constraint(equalTo: imageView.leadingAnchor),
             titleView.trailingAnchor.constraint(equalTo: imageView.trailingAnchor),
             titleView.bottomAnchor.constraint(equalTo: imageView.bottomAnchor),
