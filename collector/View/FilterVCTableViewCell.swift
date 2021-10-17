@@ -46,17 +46,30 @@ extension FilterVCTableViewCell {
     
     func configureCell() {
         
-        filterChoiceLbl.text = filterChoice
         filterChoiceLbl.isHidden = true
         if let title = filterChoice {
             
+            if network.sourceTag == 0 {
+                filterChoiceLbl.text = filterChoice
+
+                filterChoiceImage.isHidden = true
+                filterChoiceLbl.isHidden = false
+                print("title:", title)
+
+
+            }
+            if network.sourceTag == 1 {
         let platformID = formatPrettyPlatformNameToID(platformName: title)
             let imageName = setPlatformIcon(platformID: platformID, mode: traitCollection.userInterfaceStyle)
             filterChoiceImage.image = UIImage(named: imageName)
-            
-            print("title:", title)
-            print("platformID:", platformID)
-            print("imageName:", imageName)
+                filterChoiceLbl.isHidden = true
+                filterChoiceImage.isHidden = false
+                
+                print("title:", title)
+                print("platformID:", platformID)
+                print("imageName:", imageName)
+            }
+
         }
         
     }

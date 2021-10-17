@@ -987,7 +987,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="none" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="BNu-vG-dEV">
-                                <rect key="frame" x="0.0" y="154.66666666666669" width="414" height="658.33333333333326"/>
+                                <rect key="frame" x="0.0" y="143.66666666666669" width="414" height="669.33333333333326"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                 <color key="separatorColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <prototypes>
@@ -1200,30 +1200,6 @@
                                 <color key="textColor" systemColor="systemGrayColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Sort Direction:" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumScaleFactor="0.69999998807907104" adjustsFontForContentSizeCategory="YES" translatesAutoresizingMaskIntoConstraints="NO" id="J3J-e8-mrZ">
-                                <rect key="frame" x="4" y="140.33333333333334" width="82.333333333333329" height="14.333333333333343"/>
-                                <fontDescription key="fontDescription" style="UICTFontTextStyleSubhead"/>
-                                <color key="textColor" systemColor="systemGrayColor"/>
-                                <nil key="highlightedColor"/>
-                            </label>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Ascending" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumScaleFactor="0.69999998807907104" adjustsFontForContentSizeCategory="YES" translatesAutoresizingMaskIntoConstraints="NO" id="wvs-hb-jMk">
-                                <rect key="frame" x="88.333333333333329" y="140.33333333333334" width="59.666666666666671" height="14.333333333333343"/>
-                                <fontDescription key="fontDescription" style="UICTFontTextStyleSubhead"/>
-                                <color key="textColor" systemColor="systemGrayColor"/>
-                                <nil key="highlightedColor"/>
-                            </label>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Sorting By:" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumScaleFactor="0.69999998807907104" adjustsFontForContentSizeCategory="YES" translatesAutoresizingMaskIntoConstraints="NO" id="dYk-g0-MC5">
-                                <rect key="frame" x="270.66666666666669" y="140.33333333333334" width="62.666666666666686" height="14.333333333333343"/>
-                                <fontDescription key="fontDescription" style="UICTFontTextStyleSubhead"/>
-                                <color key="textColor" systemColor="systemGrayColor"/>
-                                <nil key="highlightedColor"/>
-                            </label>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Release Date" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumScaleFactor="0.69999998807907104" adjustsFontForContentSizeCategory="YES" translatesAutoresizingMaskIntoConstraints="NO" id="dX7-yA-ZCv">
-                                <rect key="frame" x="335.33333333333331" y="140.33333333333334" width="74.333333333333314" height="14.333333333333343"/>
-                                <fontDescription key="fontDescription" style="UICTFontTextStyleSubhead"/>
-                                <color key="textColor" systemColor="systemGrayColor"/>
-                                <nil key="highlightedColor"/>
-                            </label>
                             <stackView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="252" horizontalCompressionResistancePriority="751" distribution="fillProportionally" spacing="1" translatesAutoresizingMaskIntoConstraints="NO" id="45m-rG-ulV">
                                 <rect key="frame" x="86.333333333333329" y="120.33333333333333" width="210.66666666666669" height="20.333333333333329"/>
                                 <subviews>
@@ -1338,31 +1314,21 @@
                         <viewLayoutGuide key="safeArea" id="OOa-h6-Qu8"/>
                         <color key="backgroundColor" systemColor="tertiarySystemBackgroundColor"/>
                         <constraints>
-                            <constraint firstItem="dX7-yA-ZCv" firstAttribute="leading" secondItem="dYk-g0-MC5" secondAttribute="trailing" constant="2" id="05h-YY-S9K"/>
                             <constraint firstItem="d8P-iE-vXZ" firstAttribute="top" secondItem="OOa-h6-Qu8" secondAttribute="top" id="0iY-iw-YKD"/>
                             <constraint firstAttribute="bottomMargin" secondItem="BNu-vG-dEV" secondAttribute="bottom" id="1oc-54-wXD"/>
-                            <constraint firstItem="wvs-hb-jMk" firstAttribute="leading" secondItem="J3J-e8-mrZ" secondAttribute="trailing" constant="2" id="2qm-QF-3nB"/>
                             <constraint firstItem="lZr-rx-e5R" firstAttribute="trailing" secondItem="OOa-h6-Qu8" secondAttribute="trailing" id="4N2-FE-ukT"/>
                             <constraint firstItem="BNu-vG-dEV" firstAttribute="trailing" secondItem="OOa-h6-Qu8" secondAttribute="trailing" id="6Cv-oO-U1N"/>
                             <constraint firstItem="bhh-bt-WK0" firstAttribute="top" secondItem="Bkw-58-kqE" secondAttribute="bottom" constant="3" id="DOi-b0-0dq"/>
-                            <constraint firstItem="J3J-e8-mrZ" firstAttribute="leading" secondItem="OOa-h6-Qu8" secondAttribute="leading" constant="4" id="DT3-x2-KcD"/>
-                            <constraint firstItem="wvs-hb-jMk" firstAttribute="top" secondItem="J3J-e8-mrZ" secondAttribute="top" id="E2z-hM-cId"/>
                             <constraint firstItem="d8P-iE-vXZ" firstAttribute="leading" secondItem="Bkw-58-kqE" secondAttribute="trailing" constant="3" id="ECJ-eN-oOd"/>
                             <constraint firstItem="45m-rG-ulV" firstAttribute="leading" secondItem="bhh-bt-WK0" secondAttribute="trailing" constant="5.3300000000000001" id="HeE-sL-Nzd"/>
                             <constraint firstItem="Olg-q1-8f5" firstAttribute="leading" secondItem="d8P-iE-vXZ" secondAttribute="leading" id="Iwo-ZG-5d8"/>
-                            <constraint firstItem="dX7-yA-ZCv" firstAttribute="top" secondItem="dYk-g0-MC5" secondAttribute="top" id="K12-OH-9tJ"/>
-                            <constraint firstItem="wvs-hb-jMk" firstAttribute="top" secondItem="bhh-bt-WK0" secondAttribute="bottom" constant="2.6666666666666856" id="KJ4-jk-hav"/>
+                            <constraint firstItem="BNu-vG-dEV" firstAttribute="top" secondItem="45m-rG-ulV" secondAttribute="bottom" constant="3" id="Q5w-bc-Hhs"/>
                             <constraint firstItem="lZr-rx-e5R" firstAttribute="leading" secondItem="OOa-h6-Qu8" secondAttribute="leading" id="USS-3q-iOf"/>
                             <constraint firstItem="BNu-vG-dEV" firstAttribute="leading" secondItem="OOa-h6-Qu8" secondAttribute="leading" id="UdS-QN-cGK"/>
                             <constraint firstAttribute="trailing" secondItem="d8P-iE-vXZ" secondAttribute="trailing" id="WMK-Es-WP1"/>
                             <constraint firstItem="Bkw-58-kqE" firstAttribute="leading" secondItem="OOa-h6-Qu8" secondAttribute="leading" constant="4" id="Yv9-rh-jcz"/>
-                            <constraint firstItem="dYk-g0-MC5" firstAttribute="centerY" secondItem="wvs-hb-jMk" secondAttribute="centerY" id="Yzy-Tl-w7J"/>
-                            <constraint firstItem="dX7-yA-ZCv" firstAttribute="bottom" secondItem="dYk-g0-MC5" secondAttribute="bottom" id="ZsQ-TT-NDO"/>
-                            <constraint firstItem="BNu-vG-dEV" firstAttribute="top" secondItem="J3J-e8-mrZ" secondAttribute="bottom" id="a0t-2Z-1Vo"/>
                             <constraint firstItem="Bkw-58-kqE" firstAttribute="top" secondItem="OOa-h6-Qu8" secondAttribute="top" id="dUI-xd-qKL"/>
-                            <constraint firstItem="OOa-h6-Qu8" firstAttribute="trailing" secondItem="dX7-yA-ZCv" secondAttribute="trailing" constant="4.3300000000000001" id="dj2-p3-tVH"/>
                             <constraint firstItem="lZr-rx-e5R" firstAttribute="top" secondItem="OOa-h6-Qu8" secondAttribute="top" id="eLL-8O-nX5"/>
-                            <constraint firstItem="BNu-vG-dEV" firstAttribute="leading" secondItem="OOa-h6-Qu8" secondAttribute="leading" id="jFm-b4-ePI"/>
                             <constraint firstItem="bhh-bt-WK0" firstAttribute="leading" secondItem="OOa-h6-Qu8" secondAttribute="leading" constant="4" id="lTi-3u-ZCj"/>
                             <constraint firstItem="lZr-rx-e5R" firstAttribute="bottom" secondItem="OOa-h6-Qu8" secondAttribute="bottom" id="lh6-4o-8SC"/>
                             <constraint firstItem="d8P-iE-vXZ" firstAttribute="bottom" secondItem="Olg-q1-8f5" secondAttribute="top" id="n4r-v6-DY7"/>
@@ -1382,8 +1348,6 @@
                         <outlet property="noGamesInLibraryView" destination="lZr-rx-e5R" id="Ega-xb-aWO"/>
                         <outlet property="platformFilterImg" destination="Hyr-07-NaG" id="fLy-oS-bKa"/>
                         <outlet property="releaseDateFilterImg" destination="Qxk-xc-euT" id="nhH-Su-b7M"/>
-                        <outlet property="sortDirectionLbl" destination="wvs-hb-jMk" id="Zm2-Yo-KLA"/>
-                        <outlet property="sortingByLbl" destination="dX7-yA-ZCv" id="eit-QV-su0"/>
                         <outlet property="tableView" destination="BNu-vG-dEV" id="TlI-je-fAc"/>
                         <outlet property="totalGameCountLbl" destination="qyB-Vi-LwM" id="FPP-rQ-gEC"/>
                         <segue destination="a5K-7j-sf5" kind="show" identifier="pageVC" id="nyW-o8-wqe"/>

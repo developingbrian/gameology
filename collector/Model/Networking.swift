@@ -9,6 +9,7 @@
 import Foundation
 import UIKit
 import SwiftSoup
+import CoreData
 
 //var gameData : GameDB?
 let apiKey = "\(Constants.gameDBAPIKey)"
@@ -22,6 +23,7 @@ protocol NetworkingDelegate: AnyObject {
 
 class Networking {
     
+    var persistenceManager = PersistenceManager.shared
     var initialFetchComplete = false
     var gameFetchDidFail = false
     var genreFetchDidFail = false
@@ -2160,10 +2162,16 @@ class Networking {
                     
                     var array = [GameObject]()
                         
-                    func addGameToArray(gameFromRegion: [ReleaseDate], gameData: IGDBGame) {
-                        let game = self?.createGameWithPlatformDateFiltered(releaseDate: gameFromRegion[0], platformID: platformID!, gameData: gameData)
+                    func addGameToArray(gameFromRegion: [ReleaseDate], gameData: IGDBGame, platform: Int) {
+                    
+                        
+                        let game = self?.createGameWithPlatformDateFiltered(releaseDates: gameFromRegion, platformID: platform, gameData: gameData)
 //                            print(game)
                             if let game = game {
+                                
+                                
+                                
+                                
                             array.append(contentsOf: game)
                             }
                         
@@ -2194,29 +2202,29 @@ class Networking {
                         for gameData in decodedGameData {
                             
                             if let date = gameData.releaseDate {
-                                
+                                if let platform = platformID {
                                 //we are only interested in certain reigions with the order of priority being North American, then European, and finally world wide releases.  If the game exists in multiple regions, go with the top priority.
                                 
                                 let naReleases = date.filter { $0.region == 2 && $0.platform == platformID }
                                 let euReleases = date.filter { $0.region == 1 && $0.platform == platformID }
                                 let wwReleases = date.filter { $0.region == 8 && $0.platform == platformID }
-
-                                if naReleases.count > 0 {
-                                    print("na release", gameData.name, "count", naReleases.count)
-                                    addGameToArray(gameFromRegion: naReleases, gameData: gameData)
-
-                                } else if euReleases.count > 0 {
-                                    print("eu release", gameData.name, "count", euReleases.count)
-                                    addGameToArray(gameFromRegion: euReleases, gameData: gameData)
-
-                                } else if wwReleases.count > 0 {
-                                    print("ww release", gameData.name, "count", wwReleases.count)
-                                    addGameToArray(gameFromRegion: wwReleases, gameData: gameData)
-
-                                }
+                                    addGameToArray(gameFromRegion: date, gameData: gameData, platform: platform)
+//                                if naReleases.count > 0 {
+//                                    print("na release", gameData.name, "count", naReleases.count)
+//                                    addGameToArray(gameFromRegion: naReleases, gameData: gameData, platform: platform)
+//
+//                                } else if euReleases.count > 0 {
+//                                    print("eu release", gameData.name, "count", euReleases.count)
+//                                    addGameToArray(gameFromRegion: euReleases, gameData: gameData, platform: platform)
+//
+//                                } else if wwReleases.count > 0 {
+//                                    print("ww release", gameData.name, "count", wwReleases.count)
+//                                    addGameToArray(gameFromRegion: wwReleases, gameData: gameData, platform: platform)
+//
+//                                }
                                 
 
-
+                                }
                             }
 
                             self?.tempArray = array
@@ -2296,569 +2304,1033 @@ class Networking {
     }
     
     
-    func createGameWithPlatformDateFiltered(releaseDate: ReleaseDate, platformID: Int, gameData: IGDBGame) -> [GameObject] {
+    
+    func removeLeadingArticle(fromString: String) -> String{
+        let articles = ["the", "a", "an"]
+        
+        for article in articles {
+            if fromString.hasPrefix(article) {
+//                return string.substring(from: string.index(string.startIndex, offsetBy: article.characters.count))
+                let articleLength = article.count
+
+               return String(((fromString[(fromString.index(fromString.startIndex, offsetBy: articleLength + 1))])))
+            } else {
+               return fromString
+            }
+            
+        }
+        
+        return fromString
+        
+
+    }
+    
+    func refreshSavedContentFrom(updatedGameData: GameObject, savedGameToUpdate: NSManagedObject) {
+        
+        if let savedGame = savedGameToUpdate as? SavedGames {
+            
+            if savedGame.title != updatedGameData.title {
+                savedGame.title = updatedGameData.title
+            }
+            
+            if savedGame.overview != updatedGameData.overview {
+                savedGame.overview = updatedGameData.overview
+            }
+            
+            if savedGame.genre != updatedGameData.genreDescriptions {
+                savedGame.genre = updatedGameData.genreDescriptions
+            }
+            
+            if savedGame.genres != updatedGameData.genres {
+                savedGame.genres = updatedGameData.genres
+            }
+            
+            if savedGame.maxPlayers != updatedGameData.maxPlayers {
+                savedGame.maxPlayers = updatedGameData.maxPlayers
+            }
+            
+            if savedGame.rating != updatedGameData.rating {
+                savedGame.rating = updatedGameData.rating
+            }
+            
+            if savedGame.releaseDate != updatedGameData.releaseDate {
+                savedGame.releaseDate = updatedGameData.releaseDate
+            }
+            
+            if savedGame.developerName != updatedGameData.developer {
+                savedGame.developerName = updatedGameData.developer
+                
+            }
+            
+            if savedGame.youtubeURL != updatedGameData.youtubePath {
+                savedGame.youtubeURL = updatedGameData.youtubePath
+            }
+            
+            var screenShotArray : [String] = []
+            if let screenshots = updatedGameData.screenshots {
+            for screenshot in screenshots {
+                if let imageID = screenshot.imageID {
+                screenShotArray.append(imageID)
+                }
+            }
+            }
+            
+            
+            if savedGame.screenshotImageIDs != screenShotArray {
+                
+                savedGame.screenshotImageIDs = screenShotArray
+            }
+            
+            if savedGame.boxartImageURL != updatedGameData.boxartFrontImage {
+                savedGame.boxartImageURL = updatedGameData.boxartFrontImage
+                
+            }
+            
+            
+            if let userRating = updatedGameData.userRating {
+            if savedGame.userRating != Int32(userRating) {
+                savedGame.userRating = Int32(userRating)
+            }
+            }
+            
+            
+            if let totalRating = updatedGameData.totalRating {
+            if savedGame.totalRating != Int32(totalRating) {
+                savedGame.totalRating = Int32(totalRating)
+            }
+            }
+            
+        }
+        
+        if let wishlistGame = savedGameToUpdate as? WishList {
+            
+            if wishlistGame.title != updatedGameData.title {
+                wishlistGame.title = updatedGameData.title
+            }
+            
+            if wishlistGame.overview != updatedGameData.overview {
+                wishlistGame.overview = updatedGameData.overview
+            }
+            
+            if wishlistGame.genre != updatedGameData.genreDescriptions {
+                wishlistGame.genre = updatedGameData.genreDescriptions
+            }
+            
+            if wishlistGame.genres != updatedGameData.genres {
+                wishlistGame.genres = updatedGameData.genres
+            }
+            
+            if wishlistGame.maxPlayers != updatedGameData.maxPlayers {
+                wishlistGame.maxPlayers = updatedGameData.maxPlayers
+            }
+            
+            if wishlistGame.rating != updatedGameData.rating {
+                wishlistGame.rating = updatedGameData.rating
+            }
+            
+            if wishlistGame.releaseDate != updatedGameData.releaseDate {
+                wishlistGame.releaseDate = updatedGameData.releaseDate
+            }
+            
+            if wishlistGame.developerName != updatedGameData.developer {
+                wishlistGame.developerName = updatedGameData.developer
+                
+            }
+            
+            if wishlistGame.youtubeURL != updatedGameData.youtubePath {
+                wishlistGame.youtubeURL = updatedGameData.youtubePath
+            }
+            
+            var screenShotArray : [String] = []
+            if let screenshots = updatedGameData.screenshots {
+            for screenshot in screenshots {
+                if let imageID = screenshot.imageID {
+                screenShotArray.append(imageID)
+                }
+            }
+            }
+            
+            
+            if wishlistGame.screenshotImageIDs != screenShotArray {
+                
+                wishlistGame.screenshotImageIDs = screenShotArray
+            }
+            
+            if wishlistGame.boxartImageURL != updatedGameData.boxartFrontImage {
+                wishlistGame.boxartImageURL = updatedGameData.boxartFrontImage
+                
+            }
+            
+            
+            if let userRating = updatedGameData.userRating {
+            if wishlistGame.userRating != Int32(userRating) {
+                wishlistGame.userRating = Int32(userRating)
+            }
+            }
+            
+            
+            if let totalRating = updatedGameData.totalRating {
+            if wishlistGame.totalRating != Int32(totalRating) {
+                wishlistGame.totalRating = Int32(totalRating)
+            }
+            }
+            
+            
+        }
+        
+        persistenceManager.save()
+    }
+    
+    func filterRegions(releaseDate: ReleaseDate, maxYear: Int,gameData: IGDBGame, platformID: Int) -> [GameObject] {
         var game = GameObject()
         var array : [GameObject] = []
+        let savedGames = persistenceManager.fetch(SavedGames.self)
+        let wishlistGames = persistenceManager.fetch(WishList.self)
+        
+        print("About to filter by platforms release year, title is", gameData.name)
+        
+        if let releaseYear = releaseDate.y {
+            let region = releaseDate.region
+            print("release year", releaseYear)
+            print("max year", maxYear)
+            print("region", region)
 
+
+            if region == 2 && releaseYear < maxYear {
+            game = (self.createGameObject(data: gameData, platformID: platformID))
+                for savedGame in savedGames {
+                    if savedGame.gameID == Int32(game.id!){
+                        refreshSavedContentFrom(updatedGameData: game, savedGameToUpdate: savedGame)
+                    }
+                }
+                
+                for wishlistGame in wishlistGames {
+                    if wishlistGame.gameID == Int32(game.id!) {
+                        refreshSavedContentFrom(updatedGameData: game, savedGameToUpdate: wishlistGame)
+                }
+                }
+                
+            array.append(game)
+
+        } else if region == 1 && releaseYear < maxYear {
+                game = (self.createGameObject(data: gameData, platformID: platformID))
+            
+            for savedGame in savedGames {
+                if savedGame.gameID == Int32(game.id!){
+                    refreshSavedContentFrom(updatedGameData: game, savedGameToUpdate: savedGame)
+
+            }
+            }
+            
+            for wishlistGame in wishlistGames {
+                if wishlistGame.gameID == Int32(game.id!) {
+                    refreshSavedContentFrom(updatedGameData: game, savedGameToUpdate: wishlistGame)            }
+            }
+            
+                array.append(game)
+
+            } else if region == 8 && releaseYear < maxYear {
+                game = (self.createGameObject(data: gameData, platformID: platformID))
+                
+                
+                for savedGame in savedGames {
+                    if savedGame.gameID == Int32(game.id!){
+                        refreshSavedContentFrom(updatedGameData: game, savedGameToUpdate: savedGame)
+
+                }
+                }
+                
+                for wishlistGame in wishlistGames {
+                    if wishlistGame.gameID == Int32(game.id!) {
+                        refreshSavedContentFrom(updatedGameData: game, savedGameToUpdate: wishlistGame)
+                        
+                    }
+                }
+                
+                
+                array.append(game)
+                
+            }
+        }
+        
+        return array
+
+    }
+    
+    func createGameWithPlatformDateFiltered(releaseDates: [ReleaseDate], platformID: Int, gameData: IGDBGame) -> [GameObject] {
+        var array : [GameObject] = []
+        print(gameData.name!)
             print("release platform ==", platformID)
-
+            print(releaseDates)
+        for releaseDate in releaseDates {
+            
+            if releaseDate.platform == platformID {
+                let region = releaseDate.region
             switch platformID {
            
             case 50     :
             //"3DO Interactive Multiplayer"
-                if let releaseYear = releaseDate.y {
-                if releaseYear < 1997 {
-                    game = (self.createGameObject(data: gameData, platformID: platformID))
-                    array.append(game)
-                }
-                }
+                
+               array = filterRegions(releaseDate: releaseDate, maxYear: 1997, gameData: gameData, platformID: platformID)
+                if array.count > 0 {
+                return array
+                }//                if let releaseYear = releaseDate.y {
+//                if releaseYear < 1997 {
+//                    game = (self.createGameObject(data: gameData, platformID: platformID))
+//                    array.append(game)
+//                }
+//                }
             case 114    :   //return "Amiga CD32"
-                if let releaseYear = releaseDate.y {
-                if releaseYear < 1997 {
-                    game = (self.createGameObject(data: gameData, platformID: platformID))
-                    array.append(game)
-
-                }
-                }
+                array = filterRegions(releaseDate: releaseDate, maxYear: 1997, gameData: gameData, platformID: platformID)
+                if array.count > 0 {
+                return array
+                }//                if let releaseYear = releaseDate.y {
+//                if releaseYear < 1997 {
+//                    game = (self.createGameObject(data: gameData, platformID: platformID))
+//                    array.append(game)
+//
+//                }
+//                }
             case 59     :   //return "Atari 2600"
-                if let releaseYear = releaseDate.y {
-                if releaseYear < 1993 {
-                    game = (self.createGameObject(data: gameData, platformID: platformID))
-                    array.append(game)
-
-                }
-                }
+                array = filterRegions(releaseDate: releaseDate, maxYear: 1993, gameData: gameData, platformID: platformID)
+                if array.count > 0 {
+                return array
+                }//                if let releaseYear = releaseDate.y {
+//                if releaseYear < 1993 {
+//                    game = (self.createGameObject(data: gameData, platformID: platformID))
+//                    array.append(game)
+//
+//                }
+//                }
             case 66                                   :   //return "Atari 5200"
-                if let releaseYear = releaseDate.y {
-                if releaseYear < 1987 {
-                    game = self.createGameObject(data: gameData, platformID: platformID)
-                    array.append(game)
-
-                }
-                }
-            case 60                                   :   //return "Atari 7800"
-                if let releaseYear = releaseDate.y {
-                if releaseYear < 1992 {
-                    game = (self.createGameObject(data: gameData, platformID: platformID))
-                    array.append(game)
-
-
-
-                }
-                }
+                
+                array = filterRegions(releaseDate: releaseDate, maxYear: 1987, gameData: gameData, platformID: platformID)
+                if array.count > 0 {
+                return array
+                }//                if let releaseYear = releaseDate.y {
+//                if releaseYear < 1987 {
+//                    game = self.createGameObject(data: gameData, platformID: platformID)
+//                    array.append(game)
+//
+//                }
+//                }
+            case 60:   //return "Atari 7800"
+                array = filterRegions(releaseDate: releaseDate, maxYear: 1992, gameData: gameData, platformID: platformID)
+                if array.count > 0 {
+                return array
+                }//                if let releaseYear = releaseDate.y {
+//                if releaseYear < 1992 {
+//                    game = (self.createGameObject(data: gameData, platformID: platformID))
+//                    array.append(game)
+//
+//
+//
+//                }
+//                }
             case 62                                 :   //return "Atari Jaguar"
-                if let releaseYear = releaseDate.y {
-                if releaseYear < 1999 {
-                    game = (self.createGameObject(data: gameData, platformID: platformID))
-                    array.append(game)
-
-
-
-                }
-                }
+                array = filterRegions(releaseDate: releaseDate, maxYear: 1999, gameData: gameData, platformID: platformID)
+                if array.count > 0 {
+                return array
+                }//                if let releaseYear = releaseDate.y {
+//                if releaseYear < 1999 {
+//                    game = (self.createGameObject(data: gameData, platformID: platformID))
+//                    array.append(game)
+//
+//
+//
+//                }
+//                }
             case 61                                   :   //return "Atari Lynx"
-                if let releaseYear = releaseDate.y {
-                if releaseYear < 2000 {
-                    game = (self.createGameObject(data: gameData, platformID: platformID))
-                    array.append(game)
-
-
-
-                }
-                }
+                array = filterRegions(releaseDate: releaseDate, maxYear: 1997, gameData: gameData, platformID: platformID)
+                if array.count > 0 {
+                return array
+                }//                if let releaseYear = releaseDate.y {
+//                if releaseYear < 2000 {
+//                    game = (self.createGameObject(data: gameData, platformID: platformID))
+//                    array.append(game)
+//
+//
+//
+//                }
+//                }
             case 68                                 :   //return "ColecoVision"
-                if let releaseYear = releaseDate.y {
-                if releaseYear < 1987 {
-                    game = (self.createGameObject(data: gameData, platformID: platformID))
-                    array.append(game)
-
-
-                }
-                }
+                array = filterRegions(releaseDate: releaseDate, maxYear: 1987, gameData: gameData, platformID: platformID)
+                if array.count > 0 {
+                return array
+                }//                if let releaseYear = releaseDate.y {
+//                if releaseYear < 1987 {
+//                    game = (self.createGameObject(data: gameData, platformID: platformID))
+//                    array.append(game)
+//
+//
+//                }
+//                }
             case 127                          :   //return "Fairchild Channel F"
-                if let releaseYear = releaseDate.y {
-                if releaseYear < 1982 {
-                    game = (self.createGameObject(data: gameData, platformID: platformID))
-                    array.append(game)
-
-
-                }
-                }
+                array = filterRegions(releaseDate: releaseDate, maxYear: 1982, gameData: gameData, platformID: platformID)
+                if array.count > 0 {
+                return array
+                }//                if let releaseYear = releaseDate.y {
+//                if releaseYear < 1982 {
+//                    game = (self.createGameObject(data: gameData, platformID: platformID))
+//                    array.append(game)
+//
+//
+//                }
+//                }
             case 67                                :   //return "Intellivision"
-                if let releaseYear = releaseDate.y {
-                if releaseYear < 1990 {
-                    game = (self.createGameObject(data: gameData, platformID: platformID))
-                    array.append(game)
-
-
-
-                }
-                }
+                array = filterRegions(releaseDate: releaseDate, maxYear: 1990, gameData: gameData, platformID: platformID)
+                if array.count > 0 {
+                return array
+                }//                if let releaseYear = releaseDate.y {
+//                if releaseYear < 1990 {
+//                    game = (self.createGameObject(data: gameData, platformID: platformID))
+//                    array.append(game)
+//
+//
+//
+//                }
+//                }
             case 88                             :   //return "Magnavox Odyssey"
-                if let releaseYear = releaseDate.y {
-                if releaseYear < 1980 {
-                    game = (self.createGameObject(data: gameData, platformID: platformID))
-                    array.append(game)
-
-
-                }
-                }
+                array = filterRegions(releaseDate: releaseDate, maxYear: 1980, gameData: gameData, platformID: platformID)
+                if array.count > 0 {
+                return array
+                }//                if let releaseYear = releaseDate.y {
+//                if releaseYear < 1980 {
+//                    game = (self.createGameObject(data: gameData, platformID: platformID))
+//                    array.append(game)
+//
+//
+//                }
+//                }
             case 11                               :   //return "Microsoft Xbox"
-                if let releaseYear = releaseDate.y {
-                if releaseYear < 2009 {
-                    game = (self.createGameObject(data: gameData, platformID: platformID))
-
-                    array.append(game)
-
-                }
-                }
+                array = filterRegions(releaseDate: releaseDate, maxYear: 2009, gameData: gameData, platformID: platformID)
+                if array.count > 0 {
+                return array
+                }//                if let releaseYear = releaseDate.y {
+//                if releaseYear < 2009 {
+//                    game = (self.createGameObject(data: gameData, platformID: platformID))
+//
+//                    array.append(game)
+//
+//                }
+//                }
             case 12                           :   //return "Microsoft Xbox 360"
-                if let releaseYear = releaseDate.y {
-                if releaseYear < 2019 {
-                    game = (self.createGameObject(data: gameData, platformID: platformID))
-
-                    array.append(game)
-
-                }
-                }
+                array = filterRegions(releaseDate: releaseDate, maxYear: 2019, gameData: gameData, platformID: platformID)
+                if array.count > 0 {
+                return array
+                }//                if let releaseYear = releaseDate.y {
+//                if releaseYear < 2019 {
+//                    game = (self.createGameObject(data: gameData, platformID: platformID))
+//
+//                    array.append(game)
+//
+//                }
+//                }
             case 49                           :   //return "Microsoft Xbox One"
      
-                game = (self.createGameObject(data: gameData, platformID: platformID))
-                array.append(game)
-
-
+//                game = (self.createGameObject(data: gameData, platformID: platformID))
+//                array.append(game)
+                array = filterRegions(releaseDate: releaseDate, maxYear: 2050, gameData: gameData, platformID: platformID)
+                if array.count > 0 {
+                return array
+                }
 
             case 169                    :   //return "Microsoft Xbox Series S|X"
             
-                game = (self.createGameObject(data: gameData, platformID: platformID))
-                array.append(game)
-
-
+//                game = (self.createGameObject(data: gameData, platformID: platformID))
+//                array.append(game)
+                array = filterRegions(releaseDate: releaseDate, maxYear: 2050, gameData: gameData, platformID: platformID)
+                if array.count > 0 {
+                return array
+                }
 
             case 80                                  :   //return "Neo Geo AES"
-                if let releaseYear = releaseDate.y {
-                if releaseYear < 2005 {
-                    game = (self.createGameObject(data: gameData, platformID: platformID))
-
-                    array.append(game)
-
-                }
-                }
+                array = filterRegions(releaseDate: releaseDate, maxYear: 2005, gameData: gameData, platformID: platformID)
+                if array.count > 0 {
+                return array
+                }//                if let releaseYear = releaseDate.y {
+//                if releaseYear < 2005 {
+//                    game = (self.createGameObject(data: gameData, platformID: platformID))
+//
+//                    array.append(game)
+//
+//                }
+//                }
             case 136                                   :   //return "Neo Geo CD"
-                if let releaseYear = releaseDate.y {
-                if releaseYear < 2000 {
-                    game = (self.createGameObject(data: gameData, platformID: platformID))
-
-                    array.append(game)
-
-                }
-                }
+                array = filterRegions(releaseDate: releaseDate, maxYear: 1997, gameData: gameData, platformID: platformID)
+                if array.count > 0 {
+                return array
+                }//                if let releaseYear = releaseDate.y {
+//                if releaseYear < 2000 {
+//                    game = (self.createGameObject(data: gameData, platformID: platformID))
+//
+//                    array.append(game)
+//
+//                }
+//                }
             case 119                               :   //return "Neo Geo Pocket"
-                if let releaseYear = releaseDate.y {
-                if releaseYear < 2001 {
-                    game = (self.createGameObject(data: gameData, platformID: platformID))
-
-                    array.append(game)
-
-                }
-                }
+                array = filterRegions(releaseDate: releaseDate, maxYear: 2001, gameData: gameData, platformID: platformID)
+                if array.count > 0 {
+                return array
+                }//                if let releaseYear = releaseDate.y {
+//                if releaseYear < 2001 {
+//                    game = (self.createGameObject(data: gameData, platformID: platformID))
+//
+//                    array.append(game)
+//
+//                }
+//                }
             case 120                         :   //return "Neo Geo Pocket Color"
-                if let releaseYear = releaseDate.y {
-                if releaseYear < 2002 {
-                    game = (self.createGameObject(data: gameData, platformID: platformID))
-                    array.append(game)
-
-
-                }
-                }
+                array = filterRegions(releaseDate: releaseDate, maxYear: 2002, gameData: gameData, platformID: platformID)
+                if array.count > 0 {
+                return array
+                }//                if let releaseYear = releaseDate.y {
+//                if releaseYear < 2002 {
+//                    game = (self.createGameObject(data: gameData, platformID: platformID))
+//                    array.append(game)
+//
+//
+//                }
+//                }
             case 307                        :   //return "Nintendo Game & Watch"
-                if let releaseYear = releaseDate.y {
-                if releaseYear < 1992 {
-                    game = (self.createGameObject(data: gameData, platformID: platformID))
-                    array.append(game)
-
-
-                }
-                }
+                array = filterRegions(releaseDate: releaseDate, maxYear: 1997, gameData: gameData, platformID: platformID)
+                if array.count > 0 {
+                return array
+                }//                if let releaseYear = releaseDate.y {
+//                if releaseYear < 1992 {
+//                    game = (self.createGameObject(data: gameData, platformID: platformID))
+//                    array.append(game)
+//
+//
+//                }
+//                }
             case 18          :   //return "Nintendo Entertainment System (NES)"
-                if let releaseYear = releaseDate.y {
-                if releaseYear < 1998 {
-                    game = (self.createGameObject(data: gameData, platformID: platformID))
-                    array.append(game)
-
-
-                }
-                }
+                array = filterRegions(releaseDate: releaseDate, maxYear: 1998, gameData: gameData, platformID: platformID)
+                if array.count > 0 {
+                return array
+                }//                if let releaseYear = releaseDate.y {
+//                if releaseYear < 1998 {
+//                    game = (self.createGameObject(data: gameData, platformID: platformID))
+//                    array.append(game)
+//
+//
+//                }
+//                }
             case 19   :   //return "Super Nintendo Entertainment System (SNES)"
-                if let releaseYear = releaseDate.y {
-                if releaseYear < 2001 {
-                    game = (self.createGameObject(data: gameData, platformID: platformID))
-                    array.append(game)
-
-
-                }
-                }
+                array = filterRegions(releaseDate: releaseDate, maxYear: 1997, gameData: gameData, platformID: platformID)
+                if array.count > 0 {
+                return array
+                }//                if let releaseYear = releaseDate.y {
+//                if releaseYear < 2001 {
+//                    game = (self.createGameObject(data: gameData, platformID: platformID))
+//                    array.append(game)
+//
+//
+//                }
+//                }
             case 87                         :   //return "Nintendo Virtual Boy"
-                if let releaseYear = releaseDate.y {
-                if releaseYear < 1997 {
-                    game = (self.createGameObject(data: gameData, platformID: platformID))
-
-                    array.append(game)
-
-                }
-                }
+            
+                array = filterRegions(releaseDate: releaseDate, maxYear: 1997, gameData: gameData, platformID: platformID)
+                if array.count > 0 {
+                return array
+                }//                if let releaseYear = releaseDate.y {
+//                if releaseYear < 1997 {
+//                    game = (self.createGameObject(data: gameData, platformID: platformID))
+//
+//                    array.append(game)
+//
+//                }
+//                }
             case 4                                  :   //return "Nintendo 64"
-                if let releaseYear = releaseDate.y {
-                if releaseYear < 2003 {
-                    game = (self.createGameObject(data: gameData, platformID: platformID))
-                    array.append(game)
-
-
-                }
-                }
+                array = filterRegions(releaseDate: releaseDate, maxYear: 2003, gameData: gameData, platformID: platformID)
+                if array.count > 0 {
+                return array
+                }//                if let releaseYear = releaseDate.y {
+//                if releaseYear < 2003 {
+//                    game = (self.createGameObject(data: gameData, platformID: platformID))
+//                    array.append(game)
+//
+//
+//                }
+//                }
             case 21                            :   //return "Nintendo GameCube"
-                if let releaseYear = releaseDate.y {
-                if releaseYear < 2008 {
-                    game = (self.createGameObject(data: gameData, platformID: platformID))
-                    array.append(game)
-
-
-                }
-                }
+                array = filterRegions(releaseDate: releaseDate, maxYear: 1997, gameData: gameData, platformID: platformID)
+                if array.count > 0 {
+                return array
+                }//                if let releaseYear = releaseDate.y {
+//                if releaseYear < 2008 {
+//                    game = (self.createGameObject(data: gameData, platformID: platformID))
+//                    array.append(game)
+//
+//
+//                }
+//                }
             case 5                                 :   //return "Nintendo Wii"
-                if let releaseYear = releaseDate.y {
-                if releaseYear < 2021 {
-                    game = (self.createGameObject(data: gameData, platformID: platformID))
-                    array.append(game)
-
-
-                }
-                }
+                array = filterRegions(releaseDate: releaseDate, maxYear: 2021, gameData: gameData, platformID: platformID)
+                if array.count > 0 {
+                return array
+                }//                if let releaseYear = releaseDate.y {
+//                if releaseYear < 2021 {
+//                    game = (self.createGameObject(data: gameData, platformID: platformID))
+//                    array.append(game)
+//
+//
+//                }
+//                }
             case 41                               :   //return "Nintendo Wii U"
-                if let releaseYear = releaseDate.y {
-                if releaseYear < 2021 {
-                    game = (self.createGameObject(data: gameData, platformID: platformID))
-
-                    array.append(game)
-
-                }
-                }
+                array = filterRegions(releaseDate: releaseDate, maxYear: 2021, gameData: gameData, platformID: platformID)
+                if array.count > 0 {
+                return array
+                }//                if let releaseYear = releaseDate.y {
+//                if releaseYear < 2021 {
+//                    game = (self.createGameObject(data: gameData, platformID: platformID))
+//
+//                    array.append(game)
+//
+//                }
+//                }
             case 130                              :
             //return "Nintendo Switch"
               
-                game = (self.createGameObject(data: gameData, platformID: platformID))
-                array.append(game)
-
+//                game = (self.createGameObject(data: gameData, platformID: platformID))
+//                array.append(game)
+                array = filterRegions(releaseDate: releaseDate, maxYear: 2050, gameData: gameData, platformID: platformID)
+                if array.count > 0 {
+                return array
+                }
 
                 
             case 33                            :
                 
             //return "Nintendo Game Boy"
-                if let releaseYear = releaseDate.y {
-                if releaseYear < 2021 {
-                    game = (self.createGameObject(data: gameData, platformID: platformID))
-                    array.append(game)
-
-                }
-                }
+                array = filterRegions(releaseDate: releaseDate, maxYear: 2021, gameData: gameData, platformID: platformID)
+                if array.count > 0 {
+                return array
+                }//                if let releaseYear = releaseDate.y {
+//                if releaseYear < 2021 {
+//                    game = (self.createGameObject(data: gameData, platformID: platformID))
+//                    array.append(game)
+//
+//                }
+//                }
                     
             case 22     :   //return "Nintendo Game Boy Color"
-                if let releaseYear = releaseDate.y {
-                if releaseYear < 2003 {
-                    game = (self.createGameObject(data: gameData, platformID: platformID))
-                    array.append(game)
-
-
-
-                }
-                }
+                array = filterRegions(releaseDate: releaseDate, maxYear: 2003, gameData: gameData, platformID: platformID)
+                if array.count > 0 {
+                return array
+                }//                if let releaseYear = releaseDate.y {
+//                if releaseYear < 2003 {
+//                    game = (self.createGameObject(data: gameData, platformID: platformID))
+//                    array.append(game)
+//
+//
+//
+//                }
+//                }
             case 24                    :   //return "Nintendo Game Boy Advance"
-                if let releaseYear = releaseDate.y {
-                if releaseYear < 2009 {
-                    game = (self.createGameObject(data: gameData, platformID: platformID))
-                    array.append(game)
-
-
-
-                }
-                }
+                array = filterRegions(releaseDate: releaseDate, maxYear: 1997, gameData: gameData, platformID: platformID)
+                if array.count > 0 {
+                return array
+                }//                if let releaseYear = releaseDate.y {
+//                if releaseYear < 2009 {
+//                    game = (self.createGameObject(data: gameData, platformID: platformID))
+//                    array.append(game)
+//
+//
+//
+//                }
+//                }
             case 20                                  :   //return "Nintendo DS"
-                if let releaseYear = releaseDate.y {
-                if releaseYear < 2015 {
-                    game = (self.createGameObject(data: gameData, platformID: platformID))
-                    array.append(game)
-
-
-                }
-                }
+                array = filterRegions(releaseDate: releaseDate, maxYear: 2015, gameData: gameData, platformID: platformID)
+                if array.count > 0 {
+                return array
+                }//                if let releaseYear = releaseDate.y {
+//                if releaseYear < 2015 {
+//                    game = (self.createGameObject(data: gameData, platformID: platformID))
+//                    array.append(game)
+//
+//
+//                }
+//                }
             case 159                                 :   //return "Nintendo DSi"
-                if let releaseYear = releaseDate.y {
-                if releaseYear < 2017 {
-                    game = (self.createGameObject(data: gameData, platformID: platformID))
-                    array.append(game)
-
-
-                }
-                }
+                array = filterRegions(releaseDate: releaseDate, maxYear: 2017, gameData: gameData, platformID: platformID)
+                if array.count > 0 {
+                return array
+                }//                if let releaseYear = releaseDate.y {
+//                if releaseYear < 2017 {
+//                    game = (self.createGameObject(data: gameData, platformID: platformID))
+//                    array.append(game)
+//
+//
+//                }
+//                }
             case 37                                 :   //return "Nintendo 3DS"
-                if let releaseYear = releaseDate.y {
-                if releaseYear < 2021 {
-                    game = (self.createGameObject(data: gameData, platformID: platformID))
-                    array.append(game)
-
-
-                }
-                }
+                array = filterRegions(releaseDate: releaseDate, maxYear: 2021, gameData: gameData, platformID: platformID)
+                if array.count > 0 {
+                return array
+                }//                if let releaseYear = releaseDate.y {
+//                if releaseYear < 2021 {
+//                    game = (self.createGameObject(data: gameData, platformID: platformID))
+//                    array.append(game)
+//
+//
+//                }
+//                }
             case 137                             :   //return "New Nintendo 3DS"
-                if let releaseYear = releaseDate.y {
-                if releaseYear < 2021 {
-                    game = (self.createGameObject(data: gameData, platformID: platformID))
-                    array.append(game)
-
-
-                }
-                }
+                array = filterRegions(releaseDate: releaseDate, maxYear: 2021, gameData: gameData, platformID: platformID)
+                if array.count > 0 {
+                return array
+                }//                if let releaseYear = releaseDate.y {
+//                if releaseYear < 2021 {
+//                    game = (self.createGameObject(data: gameData, platformID: platformID))
+//                    array.append(game)
+//
+//
+//                }
+//                }
             case 166                        :   //return "Nintendo Pokémon Mini"
-                if let releaseYear = releaseDate.y {
-                if releaseYear < 2003 {
-                    game = (self.createGameObject(data: gameData, platformID: platformID))
-                    array.append(game)
-
-
-                }
-                }
+                array = filterRegions(releaseDate: releaseDate, maxYear: 2003, gameData: gameData, platformID: platformID)
+                if array.count > 0 {
+                return array
+                }//                if let releaseYear = releaseDate.y {
+//                if releaseYear < 2003 {
+//                    game = (self.createGameObject(data: gameData, platformID: platformID))
+//                    array.append(game)
+//
+//
+//                }
+//                }
             case 42                                 :   //return "Nokia N-Gage"
-                if let releaseYear = releaseDate.y {
-                if releaseYear < 2007 {
-                    game = (self.createGameObject(data: gameData, platformID: platformID))
-                    array.append(game)
-
-
-                }
-                }
+                array = filterRegions(releaseDate: releaseDate, maxYear: 2007, gameData: gameData, platformID: platformID)
+                if array.count > 0 {
+                return array
+                }//                if let releaseYear = releaseDate.y {
+//                if releaseYear < 2007 {
+//                    game = (self.createGameObject(data: gameData, platformID: platformID))
+//                    array.append(game)
+//
+//
+//                }
+//                }
             case 122                                         :   //return "Nuon"
-                if let releaseYear = releaseDate.y {
-                if releaseYear < 2005 {
-                    game = (self.createGameObject(data: gameData, platformID: platformID))
-                    array.append(game)
-
-
-                }
-                }
+                array = filterRegions(releaseDate: releaseDate, maxYear: 2005, gameData: gameData, platformID: platformID)
+                if array.count > 0 {
+                return array
+                }//                if let releaseYear = releaseDate.y {
+//                if releaseYear < 2005 {
+//                    game = (self.createGameObject(data: gameData, platformID: platformID))
+//                    array.append(game)
+//
+//
+//                }
+//                }
             case 86                      :   //return "TurboGrafx-16/PC Engine"
-                if let releaseYear = releaseDate.y {
-                if releaseYear < 2000 {
-                    game = (self.createGameObject(data: gameData, platformID: platformID))
-                    array.append(game)
-
-
-                }
-                }
+                array = filterRegions(releaseDate: releaseDate, maxYear: 2000, gameData: gameData, platformID: platformID)
+                if array.count > 0 {
+                return array
+                }//                if let releaseYear = releaseDate.y {
+//                if releaseYear < 2000 {
+//                    game = (self.createGameObject(data: gameData, platformID: platformID))
+//                    array.append(game)
+//
+//
+//                }
+//                }
             case 128                         :   //return "PC Engine SuperGrafx"
-                if let releaseYear = releaseDate.y {
-                if releaseYear < 1995 {
-                    game = (self.createGameObject(data: gameData, platformID: platformID))
-                    array.append(game)
-
-
-                }
-                }
+                array = filterRegions(releaseDate: releaseDate, maxYear: 1995, gameData: gameData, platformID: platformID)
+                if array.count > 0 {
+                return array
+                }//                if let releaseYear = releaseDate.y {
+//                if releaseYear < 1995 {
+//                    game = (self.createGameObject(data: gameData, platformID: platformID))
+//                    array.append(game)
+//
+//
+//                }
+//                }
             case 117                                 :   //return "Philips CD-i"
-                if let releaseYear = releaseDate.y {
-                if releaseYear < 2000 {
-                    game = (self.createGameObject(data: gameData, platformID: platformID))
-                    array.append(game)
-
-
-                }
-                }
+                array = filterRegions(releaseDate: releaseDate, maxYear: 2000, gameData: gameData, platformID: platformID)
+                if array.count > 0 {
+                return array
+                }//                if let releaseYear = releaseDate.y {
+//                if releaseYear < 2000 {
+//                    game = (self.createGameObject(data: gameData, platformID: platformID))
+//                    array.append(game)
+//
+//
+//                }
+//                }
             case 84                                 :   //return "Sega SG-1000"
-                if let releaseYear = releaseDate.y {
-                if releaseYear < 1988 {
-                    game = (self.createGameObject(data: gameData, platformID: platformID))
-                    array.append(game)
-
-
-                }
-                }
+                array = filterRegions(releaseDate: releaseDate, maxYear: 1988, gameData: gameData, platformID: platformID)
+                if array.count > 0 {
+                return array
+                }//                if let releaseYear = releaseDate.y {
+//                if releaseYear < 1988 {
+//                    game = (self.createGameObject(data: gameData, platformID: platformID))
+//                    array.append(game)
+//
+//
+//                }
+//                }
             case 64                           :   //return "Sega Master System"
-                if let releaseYear = releaseDate.y {
-                if releaseYear < 1999 {
-                    game = (self.createGameObject(data: gameData, platformID: platformID))
-                    array.append(game)
-
-
-                }
-                }
+                array = filterRegions(releaseDate: releaseDate, maxYear: 1999, gameData: gameData, platformID: platformID)
+                if array.count > 0 {
+                return array
+                }//                if let releaseYear = releaseDate.y {
+//                if releaseYear < 1999 {
+//                    game = (self.createGameObject(data: gameData, platformID: platformID))
+//                    array.append(game)
+//
+//
+//                }
+//                }
             case 29                      :   //return "Sega Genesis/Mega Drive"
-                if let releaseYear = releaseDate.y {
-                if releaseYear < 1999 {
-                    game = (self.createGameObject(data: gameData, platformID: platformID))
-                    array.append(game)
-
-
-                }
-                }
+                array = filterRegions(releaseDate: releaseDate, maxYear: 1999, gameData: gameData, platformID: platformID)
+                if array.count > 0 {
+                return array
+                }//                if let releaseYear = releaseDate.y {
+//                if releaseYear < 1999 {
+//                    game = (self.createGameObject(data: gameData, platformID: platformID))
+//                    array.append(game)
+//
+//
+//                }
+//                }
             case 78                                      :   //return "Sega CD"
-                if let releaseYear = releaseDate.y {
-                if releaseYear < 1996 {
-                    game = (self.createGameObject(data: gameData, platformID: platformID))
-                    array.append(game)
-
-
+                print("region before filter", region)
+                array = filterRegions(releaseDate: releaseDate, maxYear: 1997, gameData: gameData, platformID: platformID)
+                 
+                if array.count > 0 {
+                return array
                 }
-                }
+//                if let releaseYear = releaseDate.y {
+//                    if releaseDate.region == 2 && releaseYear < 1997 {
+//                    game = (self.createGameObject(data: gameData, platformID: platformID))
+//                    array.append(game)
+//                        print("added US Region game", game.title)
+//                    return array
+//
+//                    } else if releaseDate.region == 1 && releaseYear < 1997 {
+//                        game = (self.createGameObject(data: gameData, platformID: platformID))
+//                        array.append(game)
+//                        print("added EU Region game", game.title)
+//                        return array
+//
+//                    } else  if releaseDate.region == 8 && releaseYear < 1997  {
+//                        game = (self.createGameObject(data: gameData, platformID: platformID))
+//                        array.append(game)
+//                        print("added WW Region game", game.title)
+//
+//                        return array
+//                    }
+//                }
+
+                
             case 30                                     :   //return "Sega 32X"
-                if let releaseYear = releaseDate.y {
-                if releaseYear < 1997 {
-                    game = (self.createGameObject(data: gameData, platformID: platformID))
-                    array.append(game)
-
-
-                }
-                }
+                array = filterRegions(releaseDate: releaseDate, maxYear: 1997, gameData: gameData, platformID: platformID)
+                if array.count > 0 {
+                return array
+                }//                if let releaseYear = releaseDate.y {
+//                if region == 2 && releaseYear < 1997 {
+//                    game = (self.createGameObject(data: gameData, platformID: platformID))
+//                    array.append(game)
+//
+//                }else if region == 1 && releaseYear < 1997 {
+//                        game = (self.createGameObject(data: gameData, platformID: platformID))
+//                        array.append(game)
+//
+//                    } else if region == 8 && releaseYear < 1997 {
+//                        game = (self.createGameObject(data: gameData, platformID: platformID))
+//                        array.append(game)
+//
+//                    }
+//                }
             case 32                                  :   //return "Sega Saturn"
-                if let releaseYear = releaseDate.y {
-                if releaseYear < 1999 {
-                    game = (self.createGameObject(data: gameData, platformID: platformID))
-                    array.append(game)
-
-
-                }
-                }
+                array = filterRegions(releaseDate: releaseDate, maxYear: 1999, gameData: gameData, platformID: platformID)
+                if array.count > 0 {
+                return array
+                }//                if let releaseYear = releaseDate.y {
+//                if releaseYear < 1999 {
+//                    game = (self.createGameObject(data: gameData, platformID: platformID))
+//                    array.append(game)
+//
+//
+//                }
+//                }
             case 23                               :   //return "Sega Dreamcast"
-                if let releaseYear = releaseDate.y {
-                if releaseYear < 2005 {
-                    game = (self.createGameObject(data: gameData, platformID: platformID))
-                    array.append(game)
-
-
-                }
-                }
+                array = filterRegions(releaseDate: releaseDate, maxYear: 2005, gameData: gameData, platformID: platformID)
+                if array.count > 0 {
+                return array
+                }//                if let releaseYear = releaseDate.y {
+//                if releaseYear < 2005 {
+//                    game = (self.createGameObject(data: gameData, platformID: platformID))
+//                    array.append(game)
+//
+//
+//                }
+//                }
             case 35                               :   //return "Sega Game Gear"
-                if let releaseYear = releaseDate.y {
-                if releaseYear < 1998 {
-                    game = (self.createGameObject(data: gameData, platformID: platformID))
-                    array.append(game)
-
-
-                }
-                }
+                array = filterRegions(releaseDate: releaseDate, maxYear: 1998, gameData: gameData, platformID: platformID)
+                if array.count > 0 {
+                return array
+                }//                if let releaseYear = releaseDate.y {
+//                if releaseYear < 1998 {
+//                    game = (self.createGameObject(data: gameData, platformID: platformID))
+//                    array.append(game)
+//
+//
+//                }
+//                }
             case 339                                    :   //return "Sega Pico"
-                if let releaseYear = releaseDate.y {
-                if releaseYear < 1995 {
-                    game = (self.createGameObject(data: gameData, platformID: platformID))
-                    array.append(game)
-
-
-                }
-                }
+                array = filterRegions(releaseDate: releaseDate, maxYear: 1999, gameData: gameData, platformID: platformID)
+                if array.count > 0 {
+                return array
+                }//                if let releaseYear = releaseDate.y {
+//                if releaseYear < 1999 {
+//                    game = (self.createGameObject(data: gameData, platformID: platformID))
+//                    array.append(game)
+//
+//
+//                }
+//                }
             case 7                             :   //return "Sony PlayStation"
-                if let releaseYear = releaseDate.y {
-                if releaseYear < 2006 {
-                    game = (self.createGameObject(data: gameData, platformID: platformID))
-                    array.append(game)
-
-
-                }
-                }
+                array = filterRegions(releaseDate: releaseDate, maxYear: 2006, gameData: gameData, platformID: platformID)
+                if array.count > 0 {
+                return array
+                }//                if let releaseYear = releaseDate.y {
+//                if releaseYear < 2006 {
+//                    game = (self.createGameObject(data: gameData, platformID: platformID))
+//                    array.append(game)
+//
+//
+//                }
+//                }
             case 8                           :   //return "Sony PlayStation 2"
-                if let releaseYear = releaseDate.y {
-                if releaseYear < 2014 {
-                    game = (self.createGameObject(data: gameData, platformID: platformID))
-                    array.append(game)
-
-
-                }
-                }
+                array = filterRegions(releaseDate: releaseDate, maxYear: 2014, gameData: gameData, platformID: platformID)
+                if array.count > 0 {
+                return array
+                }//                if let releaseYear = releaseDate.y {
+//                if releaseYear < 2014 {
+//                    game = (self.createGameObject(data: gameData, platformID: platformID))
+//                    array.append(game)
+//
+//
+//                }
+//                }
             case 9                           :   //return "Sony PlayStation 3"
-                if let releaseYear = releaseDate.y {
-                if releaseYear < 2021 {
-                    game = (self.createGameObject(data: gameData, platformID: platformID))
-                    array.append(game)
-
-
-                }
-                }
+                array = filterRegions(releaseDate: releaseDate, maxYear: 2021, gameData: gameData, platformID: platformID)
+                if array.count > 0 {
+                return array
+                }//                if let releaseYear = releaseDate.y {
+//                if releaseYear < 2021 {
+//                    game = (self.createGameObject(data: gameData, platformID: platformID))
+//                    array.append(game)
+//
+//
+//                }
+//                }
             case 48                           :   //return "Sony PlayStation 4"
           
-                game = (self.createGameObject(data: gameData, platformID: platformID))
-                array.append(game)
-
+//                game = (self.createGameObject(data: gameData, platformID: platformID))
+//                array.append(game)
+                array = filterRegions(releaseDate: releaseDate, maxYear: 2050, gameData: gameData, platformID: platformID)
+                if array.count > 0 {
+                return array
+                }
 
               
             case 167                           :   //return "Sony PlayStation 5"
             
-                game = (self.createGameObject(data: gameData, platformID: platformID))
-                array.append(game)
-
-
+//                game = (self.createGameObject(data: gameData, platformID: platformID))
+//                array.append(game)
+                array = filterRegions(releaseDate: releaseDate, maxYear: 2050, gameData: gameData, platformID: platformID)
+                if array.count > 0 {
+                return array
+                }
                 
             case 38              :   //return "Sony PlayStation Portable (PSP)"
-                if let releaseYear = releaseDate.y {
-                if releaseYear < 2017 {
-                    game = (self.createGameObject(data: gameData, platformID: platformID))
-                    array.append(game)
-
-
-                }
-                }
+                array = filterRegions(releaseDate: releaseDate, maxYear: 2017, gameData: gameData, platformID: platformID)
+                if array.count > 0 {
+                return array
+                }//                if let releaseYear = releaseDate.y {
+//                if releaseYear < 2017 {
+//                    game = (self.createGameObject(data: gameData, platformID: platformID))
+//                    array.append(game)
+//
+//
+//                }
+//                }
             case 46                        :   //return "Sony PlayStation Vita"
-                if let releaseYear = releaseDate.y {
-                if releaseYear < 2022 {
-                    game = (self.createGameObject(data: gameData, platformID: platformID))
-                    array.append(game)
-
-
-                }
-                }
+                array = filterRegions(releaseDate: releaseDate, maxYear: 2022, gameData: gameData, platformID: platformID)
+                if array.count > 0 {
+                return array
+                }//                if let releaseYear = releaseDate.y {
+//                if releaseYear < 2022 {
+//                    game = (self.createGameObject(data: gameData, platformID: platformID))
+//                    array.append(game)
+//
+//
+//                }
+//                }
             case 70                                      :   //return "Vectrex"
-                if let releaseYear = releaseDate.y {
-                if releaseYear < 1984 {
-                    game = (self.createGameObject(data: gameData, platformID: platformID))
-                    array.append(game)
-
-
-                }
-                }
+                array = filterRegions(releaseDate: releaseDate, maxYear: 1984, gameData: gameData, platformID: platformID)
+                if array.count > 0 {
+                return array
+                }//                if let releaseYear = releaseDate.y {
+//                if releaseYear < 1984 {
+//                    game = (self.createGameObject(data: gameData, platformID: platformID))
+//                    array.append(game)
+//
+//
+//                }
+//                }
             case 57                                   :   //return "WonderSwan"
-                if let releaseYear = releaseDate.y {
-                if releaseYear < 2002 {
-                    game = (self.createGameObject(data: gameData, platformID: platformID))
-                    array.append(game)
-
-
-                }
-                }
+                array = filterRegions(releaseDate: releaseDate, maxYear: 2002, gameData: gameData, platformID: platformID)
+                if array.count > 0 {
+                return array
+                }//                if let releaseYear = releaseDate.y {
+//                if releaseYear < 2002 {
+//                    game = (self.createGameObject(data: gameData, platformID: platformID))
+//                    array.append(game)
+//
+//
+//                }
+//                }
             case 123                             :   //return "WonderSwan Color"
-                if let releaseYear = releaseDate.y {
-                if releaseYear < 2005 {
-                    game = (self.createGameObject(data: gameData, platformID: platformID))
-                    array.append(game)
-
-
-                }
-                }
+                array = filterRegions(releaseDate: releaseDate, maxYear: 2005, gameData: gameData, platformID: platformID)
+                if array.count > 0 {
+                return array
+                }//                if let releaseYear = releaseDate.y {
+//                if releaseYear < 2005 {
+//                    game = (self.createGameObject(data: gameData, platformID: platformID))
+//                    array.append(game)
+//
+//
+//                }
+//                }
             case 240                                        :   //return "Zeebo"
-                if let releaseYear = releaseDate.y {
-                if releaseYear < 2011 {
-                    game = (self.createGameObject(data: gameData, platformID: platformID))
-                    array.append(game)
-
-
-                }
-                }
+                array = filterRegions(releaseDate: releaseDate, maxYear: 2011, gameData: gameData, platformID: platformID)
+                if array.count > 0 {
+                return array
+                }//                if let releaseYear = releaseDate.y {
+//                if releaseYear < 2011 {
+//                    game = (self.createGameObject(data: gameData, platformID: platformID))
+//                    array.append(game)
+//
+//
+//                }
+//                }
             default                                             : print("Unkown Platform, platform ID is \(platformID)")
             }
             
-        print("game is", game.title)
-            print("platform is", platformID)
-            
-
+//        print("game is", game.title)
+//            print("platform is", platformID)
+            }
+        }
             return array
             
             
-      
+        
         
         
     }
@@ -2867,7 +3339,13 @@ class Networking {
         
         let gameData = data
         var game = GameObject()
-        let region = gameData.releaseDate?[0].region
+//        var region = 0
+//        for releaseDate in gameData.releaseDate! {
+//            if releaseDate.platform == platformID {
+//                region = 0
+//            }
+//        }
+//         region = gameData.releaseDate?[0].region
         let regionFilter = gameData.releaseDate?.contains {$0.region == 2}
         let jpFilter = gameData.releaseDate?.contains {$0.region == 5}
         let asiaFilter = gameData.releaseDate?.contains {$0.region == 7}

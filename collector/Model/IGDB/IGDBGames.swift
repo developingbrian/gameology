@@ -6,7 +6,14 @@
 import Foundation
 import UIKit
 
-struct GameObject {
+struct GameObject: Equatable {
+    static func == (lhs: GameObject, rhs: GameObject) -> Bool {
+        if lhs.id == rhs.id {
+            return true
+        }
+        return false
+    }
+    
     
     var title : String?
     var id : Int?
@@ -36,6 +43,9 @@ struct GameObject {
     var boxPhotos : [NSData]?
     var totalRating : Int?
     var userRating : Int?
+    var indexSection : Int?
+    var namePrefix : String?
+
 }
 
 // MARK: - IGDBGame

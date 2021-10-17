@@ -396,6 +396,8 @@ extension ViewController {
         
     }
     
+
+    
     func getSavedGames() {
         let savedGames = persistenceManager.fetch(SavedGames.self)
         self.savedGames = savedGames

@@ -608,7 +608,7 @@ extension BarCodeVC: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
          let cell = barcodeTableView.dequeueReusableCell(withIdentifier: "barcodeCell", for: indexPath) as? BarcodeTableViewCell
         let game = network.scannedGameResults[indexPath.row]
-        let platformName = formatPlatformIDToPlatformName(ID: game.platformID!)
+        let platformName = formatPlatformIDToPrettyPlatformName(ID: game.platformID!)
         cell?.gameNameLabel.text = game.title
         cell?.platformLabel.text = platformName
         if let imageFileName = game.boxartFrontImage {

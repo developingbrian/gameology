@@ -412,6 +412,12 @@ extension TitleCell {
         platformImage.image = UIImage(named: platformImageName)
         
         if let totalRating = game?.totalRating {
+            if totalRating == 0 {
+                ratingLabel.text = "-"
+                progress.trackColor = UIColor.lightGray
+                progress.layer.opacity = 0.3
+            } else {
+            
             print("totalRating",totalRating)
             let circleRating = (Double(totalRating) * 3.6)
             ratingLabel.text = "\(totalRating)"
@@ -421,9 +427,15 @@ extension TitleCell {
             } else {
                 progress.animate(fromAngle: 0, toAngle: circleRating, duration: 0, completion: nil)
             }
-            
+            }
         } else if let userRating = game?.userRating {
-            
+            if userRating == 0 {
+                ratingLabel.text = "-"
+                progress.trackColor = UIColor.lightGray
+                progress.layer.opacity = 0.3
+                
+                
+            } else {
             let circleRating = (Double(userRating) * 3.6)
             ratingLabel.text = "\(userRating)"
             if initialDisplay == true {
@@ -433,6 +445,7 @@ extension TitleCell {
                 progress.animate(fromAngle: 0, toAngle: circleRating, duration: 0, completion: nil)
 
             }
+    }
         } else {
             ratingLabel.text = "-"
             progress.trackColor = UIColor.lightGray

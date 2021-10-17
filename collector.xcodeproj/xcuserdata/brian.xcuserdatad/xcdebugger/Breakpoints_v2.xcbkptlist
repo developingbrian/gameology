@@ -282,8 +282,8 @@
             filePath = "collector/Model/Networking.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "2234"
-            endingLineNumber = "2234"
+            startingLineNumber = "2242"
+            endingLineNumber = "2242"
             landmarkName = "fetchIGDBGamesData(filterBy:platformID:searchByName:sortByField:sortAscending:offset:resultsPerPage:completed:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -298,25 +298,9 @@
             filePath = "collector/Model/Networking.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "2300"
-            endingLineNumber = "2300"
-            landmarkName = "createGameWithPlatformDateFiltered(releaseDate:platformID:gameData:)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "686D51CD-90EB-47D3-914B-93EA368A6B60"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "collector/Model/Networking.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "2305"
-            endingLineNumber = "2305"
-            landmarkName = "createGameWithPlatformDateFiltered(releaseDate:platformID:gameData:)"
+            startingLineNumber = "2561"
+            endingLineNumber = "2561"
+            landmarkName = "createGameWithPlatformDateFiltered(releaseDates:platformID:gameData:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -330,9 +314,9 @@
             filePath = "collector/Model/Networking.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "2858"
-            endingLineNumber = "2858"
-            landmarkName = "createGameWithPlatformDateFiltered(releaseDate:platformID:gameData:)"
+            startingLineNumber = "3330"
+            endingLineNumber = "3330"
+            landmarkName = "createGameWithPlatformDateFiltered(releaseDates:platformID:gameData:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -346,9 +330,9 @@
             filePath = "collector/Model/Networking.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "2854"
-            endingLineNumber = "2854"
-            landmarkName = "createGameWithPlatformDateFiltered(releaseDate:platformID:gameData:)"
+            startingLineNumber = "3326"
+            endingLineNumber = "3326"
+            landmarkName = "createGameWithPlatformDateFiltered(releaseDates:platformID:gameData:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -362,8 +346,8 @@
             filePath = "collector/Controller/ViewController.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "593"
-            endingLineNumber = "593"
+            startingLineNumber = "1475"
+            endingLineNumber = "1475"
             landmarkName = "addGameToLibraryPressed(_:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -378,9 +362,9 @@
             filePath = "collector/Model/Networking.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "2859"
-            endingLineNumber = "2859"
-            landmarkName = "createGameWithPlatformDateFiltered(releaseDate:platformID:gameData:)"
+            startingLineNumber = "3331"
+            endingLineNumber = "3331"
+            landmarkName = "createGameWithPlatformDateFiltered(releaseDates:platformID:gameData:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -394,8 +378,8 @@
             filePath = "collector/Controller/ViewController.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "608"
-            endingLineNumber = "608"
+            startingLineNumber = "1490"
+            endingLineNumber = "1490"
             landmarkName = "addGameToLibraryPressed(_:)"
             landmarkType = "7">
          </BreakpointContent>

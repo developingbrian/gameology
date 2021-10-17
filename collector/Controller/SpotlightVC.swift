@@ -906,17 +906,24 @@ class SpotlightVC: UIViewController {
             print("success fetching genre data")
             
         self.network.fetchIGDBPlatformData { error in
-            
+//            UserDefaults.standard.setValue(nil, forKey: "lastFetchedPlatform")
             if error == nil {
-            
-            self.network.fetchIGDBGamesData(filterBy: "platforms = ", platformID: 18, searchByName: nil, sortByField: "name", sortAscending: true, offset: self.network.currentOffset, resultsPerPage: 500, completed: { error in
+                 var lastFetchedPlatform = UserDefaults.standard.value(forKey: "lastFetchedPlatform")
+                if lastFetchedPlatform == nil {
+                    UserDefaults.standard.setValue(18, forKey: "lastFetchedPlatform")
+                    lastFetchedPlatform = 18
+                }
+//                let currentPlatform = UserDefaults.standard.integer(forKey:"lastFetchedPlatform")
+                print("user defaults current platform ", lastFetchedPlatform)
+                self.network.lastRequestedPlatformID = lastFetchedPlatform as! Int
+                
+                self.network.fetchIGDBGamesData(filterBy: "platforms = ", platformID: lastFetchedPlatform as! Int, searchByName: nil, sortByField: "name", sortAscending: true, offset: self.network.currentOffset, resultsPerPage: 500, completed: { error in
                 
                 print("error is", error)
                 
                 if error == nil {
                     
                     if self.network.initialFetchComplete == true {
-                        
                         
                         print("all data downloaded")
                         self.network.currentOffset += 500

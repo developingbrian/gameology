@@ -687,12 +687,11 @@ final class PersistenceManager {
     }
     
     
-    func fetchFilteredByReleaseDate<T: NSManagedObject>(_ objectType: T.Type, platformID: Int?, sortBy: String?, dateRange: [Int]?) -> [T]{
+    func fetchFilteredByReleaseDate<T: NSManagedObject>(_ objectType: T.Type, platformID: Int?, dateRange: [Int]?) -> [T]{
         
         let entityName = String(describing: objectType)
         let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: entityName)
         let filterPredicate : NSPredicate?
-        let sortAscending : NSSortDescriptor?
         let startYear = Int32((dateRange?.first)!)
         let endYear = Int32((dateRange?.last)!)
         
@@ -703,10 +702,9 @@ final class PersistenceManager {
                     filterPredicate = NSPredicate(format: "(releaseYear >= %i) AND (releaseYear <= %i)", startYear, endYear)
                 
                 
-                sortAscending = NSSortDescriptor(key: sortBy, ascending: true)
                 fetchRequest.predicate = filterPredicate
-                fetchRequest.sortDescriptors = [sortAscending!]
-              
+                let sortAscending = NSSortDescriptor(key: "title", ascending: true)
+                fetchRequest.sortDescriptors = [sortAscending]
                 
                 
             }
@@ -745,11 +743,11 @@ final class PersistenceManager {
     }
     
     
-    func fetchGame<T: NSManagedObject>(_ objectType: T.Type, byGameTitle: String?, sortBy: String? , sortByAscending: Bool, platformID: Int?, selectedGenres: [String]?, selectedPlatforms: [Int]?, selectedDateRange: [Int]? ) -> [T]{
+    func fetchGame<T: NSManagedObject>(_ objectType: T.Type, byGameTitle: String?, platformID: Int?, selectedGenres: [String]?, selectedPlatforms: [Int]?, selectedDateRange: [Int]? ) -> [T]{
         let entityName = String(describing: objectType)
         let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: entityName)
         var filterPredicate : NSPredicate?
-        var sortAscending : NSSortDescriptor?
+//        var sortAscending : NSSortDescriptor?
         var platforms : [Int] = []
         var genres : [String] = []
         var dates : [Int] = []
@@ -773,12 +771,12 @@ final class PersistenceManager {
             endYear = dates.last!
         }
 
-        if let sortKey = sortBy {
-            
-            sortAscending = NSSortDescriptor(key: sortKey, ascending: sortByAscending)
-        } else {
-            sortAscending = NSSortDescriptor(key: "title", ascending: sortByAscending)
-        }
+//        if let sortKey = sortBy {
+//
+//            sortAscending = NSSortDescriptor(key: sortKey, ascending: sortByAscending)
+//        } else {
+//            sortAscending = NSSortDescriptor(key: "title", ascending: sortByAscending)
+//        }
 
         if let gameTitle = byGameTitle {
             title = gameTitle
@@ -905,7 +903,7 @@ final class PersistenceManager {
 //        print("filterPredicate", filterPredicate)
                 
                 fetchRequest.predicate = filterPredicate
-                fetchRequest.sortDescriptors = [sortAscending!]
+//                fetchRequest.sortDescriptors = [sortAscending!]
                 
 
    

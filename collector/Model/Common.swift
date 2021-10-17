@@ -160,7 +160,7 @@ extension UIViewController {
 
     
     
-    func formatPlatformIDToPlatformName(ID: Int) -> String {
+    func formatPlatformIDToPrettyPlatformName(ID: Int) -> String {
       
             switch ID {
             case 50     :   return "3DO Interactive Multiplayer"
@@ -1618,6 +1618,13 @@ extension UIImage {
         )
     }
     
+}
+
+extension UITableView {
+func reloadData(completion:@escaping ()->()) {
+    UIView.animate(withDuration: 0, animations: { self.reloadData() })
+        { _ in completion() }
+}
 }
 
 extension UITableViewCell {

@@ -30,7 +30,7 @@ class ViewController: UIViewController, ViewControllerTableViewCellDelegate, Net
     let network = Networking.shared
     var wishList : [WishList] = [WishList]()
     var failureReason : failures?
-
+    var topSection = 0
     let failLabel = UILabel()
     let failRefreshBtn = UIButton()
     
@@ -41,8 +41,14 @@ class ViewController: UIViewController, ViewControllerTableViewCellDelegate, Net
     static var savedGameIndex: IndexPath = [0,0]
     static var savedGame = GameObject()
     static var selectedGameIndex : IndexPath = IndexPath(row: 0, section: 0)
+    var customButton = UIButton.init(frame: CGRect.init(x: 0, y: 0, width: 10, height: 5))
+    var sortBtn = UIButton()
 
+    var sortDirection : ComparisonResult = .orderedAscending
     var numericGames : [GameObject] = []
+    let blueTint = #colorLiteral(red: 0.168627451, green: 0.5843137255, blue: 0.8078431373, alpha: 1)
+    var tableTimer : Timer?
+    let blueText = UIColor(red: 86/255, green: 164/255, blue: 210/255, alpha: 1)
     var aGames : [GameObject] = []
     var bGames : [GameObject] = []
     var cGames : [GameObject] = []
@@ -74,34 +80,215 @@ class ViewController: UIViewController, ViewControllerTableViewCellDelegate, Net
     
     var gameArray : [GameObject] = [] {
         didSet {
-              numericGames = gameArray.filter { $0.title?.first.flatMap { Int(String($0)) } != nil }
-              aGames = gameArray.filter { ($0.title?.hasPrefix("A"))! || ($0.title?.hasPrefix("a"))!  }
-              bGames = gameArray.filter { ($0.title?.hasPrefix("B"))! || ($0.title?.hasPrefix("b"))!  }
-              cGames = gameArray.filter { ($0.title?.hasPrefix("C"))! || ($0.title?.hasPrefix("c"))!  }
-              dGames = gameArray.filter { ($0.title?.hasPrefix("D"))! || ($0.title?.hasPrefix("d"))!  }
-              eGames = gameArray.filter { ($0.title?.hasPrefix("E"))! || ($0.title?.hasPrefix("e"))!  }
-              fGames = gameArray.filter { ($0.title?.hasPrefix("F"))! || ($0.title?.hasPrefix("f"))!  }
-              gGames = gameArray.filter { ($0.title?.hasPrefix("G"))! || ($0.title?.hasPrefix("g"))!  }
-              hGames = gameArray.filter { ($0.title?.hasPrefix("H"))! || ($0.title?.hasPrefix("h"))!  }
-              iGames = gameArray.filter { ($0.title?.hasPrefix("I"))! || ($0.title?.hasPrefix("i"))!  }
-              jGames = gameArray.filter { ($0.title?.hasPrefix("J"))! || ($0.title?.hasPrefix("j"))!  }
-              kGames = gameArray.filter { ($0.title?.hasPrefix("K"))! || ($0.title?.hasPrefix("k"))!  }
-              lGames = gameArray.filter { ($0.title?.hasPrefix("L"))! || ($0.title?.hasPrefix("l"))!  }
-              mGames = gameArray.filter { ($0.title?.hasPrefix("M"))! || ($0.title?.hasPrefix("m"))!  }
-              nGames = gameArray.filter { ($0.title?.hasPrefix("N"))! || ($0.title?.hasPrefix("n"))!  }
-              oGames = gameArray.filter { ($0.title?.hasPrefix("O"))! || ($0.title?.hasPrefix("o"))!  }
-              pGames = gameArray.filter { ($0.title?.hasPrefix("P"))! || ($0.title?.hasPrefix("p"))!  }
-              qGames = gameArray.filter { ($0.title?.hasPrefix("Q"))! || ($0.title?.hasPrefix("q"))!  }
-              rGames = gameArray.filter { ($0.title?.hasPrefix("R"))! || ($0.title?.hasPrefix("r"))!  }
-              sGames = gameArray.filter { ($0.title?.hasPrefix("S"))! || ($0.title?.hasPrefix("s"))!  }
-              tGames = gameArray.filter { ($0.title?.hasPrefix("T"))! || ($0.title?.hasPrefix("t"))!  }
-              uGames = gameArray.filter { ($0.title?.hasPrefix("U"))! || ($0.title?.hasPrefix("u"))!  }
-              vGames = gameArray.filter { ($0.title?.hasPrefix("V"))! || ($0.title?.hasPrefix("v"))!  }
-              wGames = gameArray.filter { ($0.title?.hasPrefix("W"))! || ($0.title?.hasPrefix("w"))!  }
-              xGames = gameArray.filter { ($0.title?.hasPrefix("X"))! || ($0.title?.hasPrefix("x"))!  }
-              yGames = gameArray.filter { ($0.title?.hasPrefix("Y"))! || ($0.title?.hasPrefix("y"))!  }
-              zGames = gameArray.filter { ($0.title?.hasPrefix("Z"))! || ($0.title?.hasPrefix("z"))!  }
+//            self.gameArray.sort() {
+//                firstGame, secondGame in
+//
+//
+//                let title1 = removeLeadingArticle(fromString: firstGame.title!)
+//                let title2 = removeLeadingArticle(fromString: secondGame.title!)
+//                return title1.localizedCaseInsensitiveCompare(title2) == ComparisonResult.orderedAscending
+//
+//                }
             
+            numericGames.removeAll()
+            aGames.removeAll()
+            bGames.removeAll()
+            cGames.removeAll()
+            dGames.removeAll()
+            eGames.removeAll()
+            fGames.removeAll()
+            gGames.removeAll()
+            hGames.removeAll()
+            iGames.removeAll()
+            jGames.removeAll()
+            kGames.removeAll()
+            lGames.removeAll()
+            mGames.removeAll()
+            nGames.removeAll()
+            oGames.removeAll()
+            pGames.removeAll()
+            qGames.removeAll()
+            rGames.removeAll()
+            sGames.removeAll()
+            tGames.removeAll()
+            uGames.removeAll()
+            vGames.removeAll()
+            wGames.removeAll()
+            xGames.removeAll()
+            yGames.removeAll()
+            zGames.removeAll()
+
+            
+            
+            for game in gameArray {
+                
+                
+                let titleCleaned = removeLeadingArticle(fromString: game.title!)
+            
+                print("titleCleaned is", titleCleaned)
+                
+                if titleCleaned.first.flatMap({ Int(String($0)) }) != nil {
+                    numericGames.append(game)
+                }
+
+                
+                if titleCleaned.hasPrefix("A") || titleCleaned.hasPrefix("a") {
+                    
+                    aGames.append(game)
+                }
+                
+                if titleCleaned.hasPrefix("B") || titleCleaned.hasPrefix("b") {
+                    bGames.append(game)
+                }
+                
+                if titleCleaned.hasPrefix("C") || titleCleaned.hasPrefix("c") {
+                    cGames.append(game)
+                }
+                
+                if titleCleaned.hasPrefix("D") || titleCleaned.hasPrefix("d") {
+                    dGames.append(game)
+                }
+                
+                if titleCleaned.hasPrefix("E") || titleCleaned.hasPrefix("e") {
+                    eGames.append(game)
+                }
+                
+                if titleCleaned.hasPrefix("F") || titleCleaned.hasPrefix("f") {
+                    fGames.append(game)
+                }
+                
+                if titleCleaned.hasPrefix("G") || titleCleaned.hasPrefix("g") {
+                    gGames.append(game)
+                }
+                
+                if titleCleaned.hasPrefix("H") || titleCleaned.hasPrefix("h") {
+                    hGames.append(game)
+                }
+                
+                if titleCleaned.hasPrefix("I") || titleCleaned.hasPrefix("i") {
+                    iGames.append(game)
+                }
+                
+                if titleCleaned.hasPrefix("J") || titleCleaned.hasPrefix("j") {
+                    jGames.append(game)
+                }
+                
+                if titleCleaned.hasPrefix("K") || titleCleaned.hasPrefix("k") {
+                    kGames.append(game)
+                }
+                
+                if titleCleaned.hasPrefix("L") || titleCleaned.hasPrefix("l") {
+                    lGames.append(game)
+                }
+                
+                if titleCleaned.hasPrefix("M") || titleCleaned.hasPrefix("m") {
+                    
+                    mGames.append(game)
+                }
+                
+                if titleCleaned.hasPrefix("N") || titleCleaned.hasPrefix("n") {
+                    nGames.append(game)
+                }
+                
+                if titleCleaned.hasPrefix("O") || titleCleaned.hasPrefix("o") {
+                    oGames.append(game)
+                }
+                
+                if titleCleaned.hasPrefix("P") || titleCleaned.hasPrefix("p") {
+                    pGames.append(game)
+                }
+                
+                if titleCleaned.hasPrefix("Q") || titleCleaned.hasPrefix("q") {
+                    qGames.append(game)
+                }
+                
+                if titleCleaned.hasPrefix("R") || titleCleaned.hasPrefix("r") {
+                    rGames.append(game)
+                }
+                
+                if titleCleaned.hasPrefix("S") || titleCleaned.hasPrefix("s") {
+                    sGames.append(game)
+                }
+                
+                if titleCleaned.hasPrefix("T") || titleCleaned.hasPrefix("t") {
+                    tGames.append(game)
+                }
+                
+                if titleCleaned.hasPrefix("U") || titleCleaned.hasPrefix("u") {
+                    uGames.append(game)
+                }
+                
+                if titleCleaned.hasPrefix("V") || titleCleaned.hasPrefix("v") {
+                    vGames.append(game)
+                }
+                
+                if titleCleaned.hasPrefix("W") || titleCleaned.hasPrefix("w") {
+                    wGames.append(game)
+                }
+                
+                if titleCleaned.hasPrefix("X") || titleCleaned.hasPrefix("x") {
+                    xGames.append(game)
+                }
+                
+                if titleCleaned.hasPrefix("Y") || titleCleaned.hasPrefix("y") {
+                    yGames.append(game)
+                }
+                
+                if titleCleaned.hasPrefix("Z") || titleCleaned.hasPrefix("z") {
+                    zGames.append(game)
+                }
+                
+                
+            
+                
+            }
+            
+            sortGameArrays()
+//            for i in 0..<aGames.count { aGames[i].namePrefix = "A" }
+
+            
+            //            self.gameArray.sort() {
+            //                firstGame, secondGame in
+            //
+            //
+            //                let title1 = removeLeadingArticle(fromString: firstGame.title!)
+            //                let title2 = removeLeadingArticle(fromString: secondGame.title!)
+            //                return title1.localizedCaseInsensitiveCompare(title2) == ComparisonResult.orderedAscending
+            //
+            //                }
+            
+//              numericGames = gameArray.filter { $0.title?.first.flatMap { Int(String($0)) } != nil }
+//              aGames = gameArray.filter { ($0.title?.hasPrefix("A"))! || ($0.title?.hasPrefix("a"))!  }
+//              bGames = gameArray.filter { ($0.title?.hasPrefix("B"))! || ($0.title?.hasPrefix("b"))!  }
+//              cGames = gameArray.filter { ($0.title?.hasPrefix("C"))! || ($0.title?.hasPrefix("c"))!  }
+//              dGames = gameArray.filter { ($0.title?.hasPrefix("D"))! || ($0.title?.hasPrefix("d"))!  }
+//              eGames = gameArray.filter { ($0.title?.hasPrefix("E"))! || ($0.title?.hasPrefix("e"))!  }
+//              fGames = gameArray.filter { ($0.title?.hasPrefix("F"))! || ($0.title?.hasPrefix("f"))!  }
+//              gGames = gameArray.filter { ($0.title?.hasPrefix("G"))! || ($0.title?.hasPrefix("g"))!  }
+//              hGames = gameArray.filter { ($0.title?.hasPrefix("H"))! || ($0.title?.hasPrefix("h"))!  }
+//              iGames = gameArray.filter { ($0.title?.hasPrefix("I"))! || ($0.title?.hasPrefix("i"))!  }
+//              jGames = gameArray.filter { ($0.title?.hasPrefix("J"))! || ($0.title?.hasPrefix("j"))!  }
+//              kGames = gameArray.filter { ($0.title?.hasPrefix("K"))! || ($0.title?.hasPrefix("k"))!  }
+//              lGames = gameArray.filter { ($0.title?.hasPrefix("L"))! || ($0.title?.hasPrefix("l"))!  }
+//              mGames = gameArray.filter { ($0.title?.hasPrefix("M"))! || ($0.title?.hasPrefix("m"))!  }
+//              nGames = gameArray.filter { ($0.title?.hasPrefix("N"))! || ($0.title?.hasPrefix("n"))!  }
+//              oGames = gameArray.filter { ($0.title?.hasPrefix("O"))! || ($0.title?.hasPrefix("o"))!  }
+//              pGames = gameArray.filter { ($0.title?.hasPrefix("P"))! || ($0.title?.hasPrefix("p"))!  }
+//              qGames = gameArray.filter { ($0.title?.hasPrefix("Q"))! || ($0.title?.hasPrefix("q"))!  }
+//              rGames = gameArray.filter { ($0.title?.hasPrefix("R"))! || ($0.title?.hasPrefix("r"))!  }
+//              sGames = gameArray.filter { ($0.title?.hasPrefix("S"))! || ($0.title?.hasPrefix("s"))!  }
+//              tGames = gameArray.filter { ($0.title?.hasPrefix("T"))! || ($0.title?.hasPrefix("t"))!  }
+
+            
+//
+//
+//              uGames = gameArray.filter { ($0.title?.hasPrefix("U"))! || ($0.title?.hasPrefix("u"))!  }
+//              vGames = gameArray.filter { ($0.title?.hasPrefix("V"))! || ($0.title?.hasPrefix("v"))!  }
+//              wGames = gameArray.filter { ($0.title?.hasPrefix("W"))! || ($0.title?.hasPrefix("w"))!  }
+//              xGames = gameArray.filter { ($0.title?.hasPrefix("X"))! || ($0.title?.hasPrefix("x"))!  }
+//              yGames = gameArray.filter { ($0.title?.hasPrefix("Y"))! || ($0.title?.hasPrefix("y"))!  }
+//              zGames = gameArray.filter { ($0.title?.hasPrefix("Z"))! || ($0.title?.hasPrefix("z"))!  }
+//
       
             
             gameArrayCountLabel.text = String(gameArray.count)
@@ -150,6 +337,7 @@ class ViewController: UIViewController, ViewControllerTableViewCellDelegate, Net
             }
         }
     }
+ 
     var segueObject : GameObject?
     var boxartImage : UIImage?
     let dropDown = DropDown()
@@ -219,7 +407,10 @@ class ViewController: UIViewController, ViewControllerTableViewCellDelegate, Net
         tableView.dataSource = self
         tableView.autoresizingMask = .flexibleWidth
         let lightBlue = UIColorFromRGB(0x2B95CE)
+        let lighterBlue = UIColorFromRGB(0x2ECAD5)
         tableView.sectionIndexColor = lightBlue
+//        tableView.estimatedRowHeight = 178
+        let testBlue = UIColor(red: 43, green: 149, blue: 206, alpha: 1)
         network.delegate = self
         prepareData()
 
@@ -237,9 +428,35 @@ class ViewController: UIViewController, ViewControllerTableViewCellDelegate, Net
 //        scanButton.semanticContentAttribute = .forceRightToLeft
         scanButton.sizeToFit()
         scanButton.addTarget(self, action: #selector(scanButtonPressed), for: .touchUpInside)
-
-        self.navigationItem.rightBarButtonItem = UIBarButtonItem(customView: scanButton)
+//        let test2 = UIColorFromRGB(0x2B95CE)
         
+        self.navigationItem.rightBarButtonItem = UIBarButtonItem(customView: scanButton)
+//        let config = UIImage.SymbolConfiguration(scale: .large)
+//        let sortImage = UIImage(named: "atoz")
+//        customButton.imageView?.contentMode = .scaleToFill
+        sortBtn.frame = CGRect(x: 10, y: 20, width: 50, height: 50)
+        sortBtn.setTitle("Sort", for: .normal)
+        sortBtn.titleLabel?.font = UIFont.boldSystemFont(ofSize: 15)
+        sortBtn.setTitleColor(blueTint, for: .normal)
+//        sortBtn.contentVerticalAlignment = .center
+
+//        sortBtn.setTitleColor(scanButton.actualTintColor, for: .normal)
+        sortBtn.titleEdgeInsets = UIEdgeInsets(top: 5, left: 0, bottom: 5, right: 0)
+        self.sortBtn.setImage(UIImage(named:"atoz3")?.sd_resizedImage(with: CGSize(width: 20, height: 20), scaleMode: .aspectFit), for: .normal)
+        sortBtn.sizeToFit()
+//        sortBtn.tintColor = colorLiteral
+//        sortBtn.setTitleColor(colorLiteral, for: .normal)
+        sortBtn.addTarget(self, action: #selector(sortButtonPressed), for: .touchUpInside)
+//        customButton.setImage(UIImage.init(named:"atoz")?.withRenderingMode(.alwaysTemplate), for: .normal)
+//        customButton.tintColor = colorLiteral
+//        customButton.setTitle("Sort", for: .normal)
+//        customButton.setTitleColor(colorLiteral, for: .normal)
+//
+//        customButton.addTarget(self, action: #selector(sortButtonPressed), for: .touchUpInside)
+        self.navigationItem.leftBarButtonItem = UIBarButtonItem(customView: sortBtn)
+        
+        
+//        self.navigationItem.setLeftBarButton(UIBarButtonItem.init(title: "Sort",image: UIImage(named: "atoz"), style: .plain, target: self, action: #selector(sortButtonPressed)), animated: true)
         
         requestMoreGames()
         
@@ -250,6 +467,636 @@ class ViewController: UIViewController, ViewControllerTableViewCellDelegate, Net
         
         
     }
+    
+    @objc func sortButtonPressed() {
+//        UIView.animate(withDuration: 0.5) {
+//            self.sortBtn.alpha = 0.5
+//        } completion: { complete in
+//            UIView.animate(withDuration: 0.5) {
+//                self.sortBtn.alpha = 1
+//            }
+    
+//        }
+        let visibleCells = tableView.visibleCells
+        var middleCellIndex = Double((visibleCells.count / 2))
+        middleCellIndex.round(.down)
+        let index = Int(middleCellIndex)
+        let middleCell = visibleCells[index] as? ViewControllerTableViewCell
+        
+//        let indexPathAtCenter = self.tableView.indexPathForRow(at: CGPoint(x: self.tableView.bounds.size.width/2, y: self.tableView.bounds.size.height / 2))
+//        print("indexPAthAtCenter", indexPathAtCenter)
+//        let centerCell = self.tableView.cellForRow(at: indexPathAtCenter!) as! ViewControllerTableViewCell
+        let centerGame = (middleCell?.game)!
+        let centerGameID = middleCell?.game?.id
+        let centerSection = (middleCell?.game?.indexSection)!
+        let centerPrefix = middleCell?.game?.namePrefix
+        let centerName = middleCell?.game?.title
+        
+        print("center", centerName, centerPrefix, centerSection, centerGameID)
+
+        if sortDirection == .orderedAscending {
+            
+            sortDirection = .orderedDescending
+            self.sortBtn.setImage(UIImage(named:"ztoa3")?.sd_resizedImage(with: CGSize(width: 20, height: 20), scaleMode: .aspectFit), for: .normal)
+//            UIView.animate(withDuration: 0.75) {
+//                self.sortBtn.alpha = 0.5
+//            } completion: { complete in
+//                self.sortBtn.setImage(UIImage(named:"ztoa3")?.sd_resizedImage(with: CGSize(width: 20, height: 20), scaleMode: .aspectFit), for: .normal)
+//                UIView.animate(withDuration: 0.75) {
+//                    self.sortBtn.alpha = 1
+//                }
+//            }
+                    } else {
+            sortDirection = .orderedAscending
+                        self.sortBtn.setImage(UIImage(named:"atoz3")?.sd_resizedImage(with: CGSize(width: 20, height: 20), scaleMode: .aspectFit), for: .normal)
+//                        UIView.animate(withDuration: 0.75) {
+//                            self.sortBtn.alpha = 0.5
+//                        } completion: { complete in
+//                            self.sortBtn.setImage(UIImage(named:"atoz3")?.sd_resizedImage(with: CGSize(width: 20, height: 20), scaleMode: .aspectFit), for: .normal)
+//                            UIView.animate(withDuration: 0.75) {
+//                                self.sortBtn.alpha = 1
+//                            }
+//                        }
+        }
+        self.gameArray = network.gameArray
+//        let games = tableView.dataSource
+//
+//        for (index, value) in gameArray.enumerated() {
+//
+//            if value.id == centerGameID {
+//
+//            }
+//
+//        }
+        tableView.reloadData {
+            print("reloadData should be done,waiting 2 seconds then moving")
+//            let deadline = DispatchTime.now() + 0.5
+//            DispatchQueue.main.asyncAfter(deadline: deadline) {
+//                print("now moving")
+//                self.tableView.setContentOffset(CGPoint(x: 0, y: self.tableView.contentInset.top), animated: true)
+//
+//            }
+        }
+        
+        switch centerPrefix {
+        
+        case "A":
+            let indexTest = aGames.firstIndex(of: centerGame)
+            let sect = aGames[indexTest!]
+            let section = getSectionFrom(prefix: sect.namePrefix!)
+            tableView.scrollToRow(at: IndexPath(item: indexTest!, section: section), at: .middle, animated: false)
+        case "B":
+            let indexTest = bGames.firstIndex(of: centerGame)
+            let sect = bGames[indexTest!]
+            let section = getSectionFrom(prefix: sect.namePrefix!)
+            tableView.scrollToRow(at: IndexPath(item: indexTest!, section: section), at: .middle, animated: false)
+        case "C":
+            let indexTest = cGames.firstIndex(of: centerGame)
+            let sect = cGames[indexTest!]
+            let section = getSectionFrom(prefix: sect.namePrefix!)
+            tableView.scrollToRow(at: IndexPath(item: indexTest!, section: section), at: .middle, animated: false)
+            
+        case "D":
+            let indexTest = dGames.firstIndex(of: centerGame)
+            let sect = dGames[indexTest!]
+            let section = getSectionFrom(prefix: sect.namePrefix!)
+            tableView.scrollToRow(at: IndexPath(item: indexTest!, section: section), at: .middle, animated: false)
+        case "E":
+            let indexTest = eGames.firstIndex(of: centerGame)
+            let sect = eGames[indexTest!]
+            let section = getSectionFrom(prefix: sect.namePrefix!)
+            tableView.scrollToRow(at: IndexPath(item: indexTest!, section: section), at: .middle, animated: false)
+        case "F":
+            let indexTest = fGames.firstIndex(of: centerGame)
+            let sect = fGames[indexTest!]
+            let section = getSectionFrom(prefix: sect.namePrefix!)
+            tableView.scrollToRow(at: IndexPath(item: indexTest!, section: section), at: .middle, animated: false)
+            
+        case "G":
+            let indexTest = gGames.firstIndex(of: centerGame)
+            let sect = gGames[indexTest!]
+            let section = getSectionFrom(prefix: sect.namePrefix!)
+            tableView.scrollToRow(at: IndexPath(item: indexTest!, section: section), at: .middle, animated: false)
+        case "H":
+            let indexTest = hGames.firstIndex(of: centerGame)
+            let sect = hGames[indexTest!]
+            let section = getSectionFrom(prefix: sect.namePrefix!)
+            tableView.scrollToRow(at: IndexPath(item: indexTest!, section: section), at: .middle, animated: false)
+        case "I":
+            let indexTest = iGames.firstIndex(of: centerGame)
+            let sect = iGames[indexTest!]
+            let section = getSectionFrom(prefix: sect.namePrefix!)
+            tableView.scrollToRow(at: IndexPath(item: indexTest!, section: section), at: .middle, animated: false)
+            
+        case "J":
+            let indexTest = jGames.firstIndex(of: centerGame)
+            let sect = jGames[indexTest!]
+            let section = getSectionFrom(prefix: sect.namePrefix!)
+            tableView.scrollToRow(at: IndexPath(item: indexTest!, section: section), at: .middle, animated: false)
+
+        case "K":
+            let indexTest = kGames.firstIndex(of: centerGame)
+            let sect = kGames[indexTest!]
+            let section = getSectionFrom(prefix: sect.namePrefix!)
+            tableView.scrollToRow(at: IndexPath(item: indexTest!, section: section), at: .middle, animated: false)
+        case "L":
+            let indexTest = lGames.firstIndex(of: centerGame)
+            let sect = lGames[indexTest!]
+            let section = getSectionFrom(prefix: sect.namePrefix!)
+            tableView.scrollToRow(at: IndexPath(item: indexTest!, section: section), at: .middle, animated: false)
+            
+        case "M":
+            let indexTest = mGames.firstIndex(of: centerGame)
+            let sect = mGames[indexTest!]
+            let section = getSectionFrom(prefix: sect.namePrefix!)
+            tableView.scrollToRow(at: IndexPath(item: indexTest!, section: section), at: .middle, animated: false)
+        case "N":
+            let indexTest = nGames.firstIndex(of: centerGame)
+            let sect = nGames[indexTest!]
+            let section = getSectionFrom(prefix: sect.namePrefix!)
+            tableView.scrollToRow(at: IndexPath(item: indexTest!, section: section), at: .middle, animated: false)
+        case "O":
+            let indexTest = oGames.firstIndex(of: centerGame)
+            let sect = oGames[indexTest!]
+            let section = getSectionFrom(prefix: sect.namePrefix!)
+            tableView.scrollToRow(at: IndexPath(item: indexTest!, section: section), at: .middle, animated: false)
+            
+        case "P":
+            let indexTest = pGames.firstIndex(of: centerGame)
+            let sect = pGames[indexTest!]
+            let section = getSectionFrom(prefix: sect.namePrefix!)
+            tableView.scrollToRow(at: IndexPath(item: indexTest!, section: section), at: .middle, animated: false)
+        case "Q":
+            let indexTest = qGames.firstIndex(of: centerGame)
+            let sect = qGames[indexTest!]
+            let section = getSectionFrom(prefix: sect.namePrefix!)
+            tableView.scrollToRow(at: IndexPath(item: indexTest!, section: section), at: .middle, animated: false)
+        case "R":
+            let indexTest = rGames.firstIndex(of: centerGame)
+            let sect = rGames[indexTest!]
+            let section = getSectionFrom(prefix: sect.namePrefix!)
+            tableView.scrollToRow(at: IndexPath(item: indexTest!, section: section), at: .middle, animated: false)
+            
+        case "S":
+            let indexTest = sGames.firstIndex(of: centerGame)
+            let sect = sGames[indexTest!]
+            let section = getSectionFrom(prefix: sect.namePrefix!)
+            tableView.scrollToRow(at: IndexPath(item: indexTest!, section: section), at: .middle, animated: false)
+        case "T":
+            let indexTest = tGames.firstIndex(of: centerGame)
+            let sect = tGames[indexTest!]
+            let section = getSectionFrom(prefix: sect.namePrefix!)
+            tableView.scrollToRow(at: IndexPath(item: indexTest!, section: section), at: .middle, animated: false)
+        case "U":
+            let indexTest = uGames.firstIndex(of: centerGame)
+            let sect = uGames[indexTest!]
+            let section = getSectionFrom(prefix: sect.namePrefix!)
+            tableView.scrollToRow(at: IndexPath(item: indexTest!, section: section), at: .middle, animated: false)
+            
+        case "V":
+            let indexTest = vGames.firstIndex(of: centerGame)
+            let sect = vGames[indexTest!]
+            let section = getSectionFrom(prefix: sect.namePrefix!)
+            tableView.scrollToRow(at: IndexPath(item: indexTest!, section: section), at: .middle, animated: false)
+        case "W":
+            let indexTest = wGames.firstIndex(of: centerGame)
+            let sect = wGames[indexTest!]
+            let section = getSectionFrom(prefix: sect.namePrefix!)
+            tableView.scrollToRow(at: IndexPath(item: indexTest!, section: section), at: .middle, animated: false)
+        case "X":
+            let indexTest = xGames.firstIndex(of: centerGame)
+            let sect = xGames[indexTest!]
+            let section = getSectionFrom(prefix: sect.namePrefix!)
+            tableView.scrollToRow(at: IndexPath(item: indexTest!, section: section), at: .middle, animated: false)
+            
+        case "Y":
+            let indexTest = yGames.firstIndex(of: centerGame)
+            let sect = yGames[indexTest!]
+            let section = getSectionFrom(prefix: sect.namePrefix!)
+            tableView.scrollToRow(at: IndexPath(item: indexTest!, section: section), at: .middle, animated: false)
+        case "Z":
+            let indexTest = zGames.firstIndex(of: centerGame)
+            let sect = zGames[indexTest!]
+            let section = getSectionFrom(prefix: sect.namePrefix!)
+            tableView.scrollToRow(at: IndexPath(item: indexTest!, section: section), at: .middle, animated: false)
+        case "0":
+            let indexTest = numericGames.firstIndex(of: centerGame)
+            let sect = numericGames[indexTest!]
+            let section = getSectionFrom(prefix: sect.namePrefix!)
+            tableView.scrollToRow(at: IndexPath(item: indexTest!, section: section), at: .middle, animated: false)
+        
+        default:
+            print("invalid prefix")
+        }
+
+        
+        
+//        tableTimer = Timer(timeInterval: 0.2, target: self, selector: #selector(automaticScroll), userInfo: nil, repeats: true)
+//
+//        if tableView.contentOffset == CGPoint.zero {
+//
+//            stopScroll()
+//
+//        }
+//                let animation = AnimationFactory.makeMoveUpWithFade(rowHeight: cell.frame.height / 2, duration: 0.2, delayFactor: 0.05)
+//                let animator = Animator(animation: animation)
+//        animator.animate(cell: tableView.cell, at: IndexPath(row: 0, section: 0), in: tableView)
+//            UIView.animate(withDuration: 4, delay: 0, options: .curveEaseInOut) {
+////                self.tableView.setContentOffset(CGPoint(x: 0, y: 0), animated: false)
+//
+//            } completion: { complete in
+//                print("tableView scroll complete", complete)
+//            }
+//        
+//        let numSections = tableView.section
+//        let numRowsInLastSection = tableView.numberOfRows(inSection: numSections)
+//        self.tableView.scrollToRow(at: IndexPath., at: <#T##UITableView.ScrollPosition#>, animated: <#T##Bool#>)
+//        self.tableView.scrollToRow(at: IndexPath(row: 0, section: getTopSection()), at: .top, animated: true)
+//        tableView.layoutIfNeeded()
+        
+        
+
+
+        }
+
+    
+    func removeLeadingArticle(fromString: String) -> String{
+        let articles = ["a ", "an ", "the ", "The ", "A ", "An "]
+        var returnString : String?
+        
+        for article in articles {
+            if fromString.lowercased().hasPrefix(article.lowercased()) {
+//                return string.substring(from: string.index(string.startIndex, offsetBy: article.characters.count))
+                let articleLength = article.count
+                print("articleLength", articleLength)
+                let returnString = String(fromString[fromString.index(fromString.startIndex, offsetBy: articleLength)...])
+                print("correctedString", returnString)
+               return returnString
+                
+            }
+            
+        }
+        
+        return fromString
+        
+
+    }
+    
+    
+    func getSectionFrom(prefix: String) -> Int {
+        if sortDirection == .orderedAscending {
+            switch prefix {
+            
+            case "0":   return 0
+                case "A": return 1
+                case "B": return 2
+            case "C": return 3
+            case "D": return 4
+            case "E": return 5
+            case "F": return 6
+            case "G": return 7
+            case "H": return 8
+            case "I": return 9
+            case "J": return 10
+            case "K": return 11
+            case "L": return 12
+            case "M": return 13
+            case "N": return 14
+            case "O": return 15
+            case "P": return 16
+            case "Q": return 17
+            case "R": return 18
+            case "S": return 19
+            case "T": return 20
+            case "U": return 21
+            case "V": return 22
+            case "W": return 23
+            case "X": return 24
+            case "Y": return 25
+            case "Z": return 26
+            
+
+                
+            default: return 0
+            }
+        } else {
+    
+            switch prefix {
+    case "0":   return 26
+        case "A": return 25
+        case "B": return 24
+    case "C": return 23
+    case "D": return 22
+    case "E": return 21
+    case "F": return 20
+    case "G": return 19
+    case "H": return 18
+    case "I": return 17
+    case "J": return 16
+    case "K": return 15
+    case "L": return 14
+    case "M": return 13
+    case "N": return 12
+    case "O": return 11
+    case "P": return 10
+    case "Q": return 9
+    case "R": return 8
+    case "S": return 7
+    case "T": return 6
+    case "U": return 5
+    case "V": return 4
+    case "W": return 3
+    case "X": return 2
+    case "Y": return 1
+    case "Z": return 0
+    
+
+        
+    default: return 0
+    }
+        }
+        
+        
+    }
+    
+    func sortGameArrays() {
+        self.numericGames.sort() {
+            firstGame, secondGame in
+
+
+            let title1 = removeLeadingArticle(fromString: firstGame.title!)
+            let title2 = removeLeadingArticle(fromString: secondGame.title!)
+            return title1.localizedCaseInsensitiveCompare(title2) == sortDirection
+
+            }
+        
+        self.aGames.sort() {
+            firstGame, secondGame in
+        
+        
+                let title1 = removeLeadingArticle(fromString: firstGame.title!)
+                let title2 = removeLeadingArticle(fromString: secondGame.title!)
+                return title1.localizedCaseInsensitiveCompare(title2) == sortDirection
+        
+            }
+        
+        self.bGames.sort() {
+            firstGame, secondGame in
+
+
+            let title1 = removeLeadingArticle(fromString: firstGame.title!)
+            let title2 = removeLeadingArticle(fromString: secondGame.title!)
+            return title1.localizedCaseInsensitiveCompare(title2) == sortDirection
+
+            }
+        
+        self.cGames.sort() {
+            firstGame, secondGame in
+
+
+            let title1 = removeLeadingArticle(fromString: firstGame.title!)
+            let title2 = removeLeadingArticle(fromString: secondGame.title!)
+            return title1.localizedCaseInsensitiveCompare(title2) == sortDirection
+
+            }
+        
+        self.dGames.sort() {
+            firstGame, secondGame in
+
+
+            let title1 = removeLeadingArticle(fromString: firstGame.title!)
+            let title2 = removeLeadingArticle(fromString: secondGame.title!)
+            return title1.localizedCaseInsensitiveCompare(title2) == sortDirection
+
+            }
+        
+        self.eGames.sort() {
+            firstGame, secondGame in
+
+
+            let title1 = removeLeadingArticle(fromString: firstGame.title!)
+            let title2 = removeLeadingArticle(fromString: secondGame.title!)
+            return title1.localizedCaseInsensitiveCompare(title2) == sortDirection
+
+            }
+        
+        self.fGames.sort() {
+            firstGame, secondGame in
+
+
+            let title1 = removeLeadingArticle(fromString: firstGame.title!)
+            let title2 = removeLeadingArticle(fromString: secondGame.title!)
+            return title1.localizedCaseInsensitiveCompare(title2) == sortDirection
+
+            }
+        
+        self.gGames.sort() {
+            firstGame, secondGame in
+
+
+            let title1 = removeLeadingArticle(fromString: firstGame.title!)
+            let title2 = removeLeadingArticle(fromString: secondGame.title!)
+            return title1.localizedCaseInsensitiveCompare(title2) == sortDirection
+
+            }
+        
+        self.hGames.sort() {
+            firstGame, secondGame in
+
+
+            let title1 = removeLeadingArticle(fromString: firstGame.title!)
+            let title2 = removeLeadingArticle(fromString: secondGame.title!)
+            return title1.localizedCaseInsensitiveCompare(title2) == sortDirection
+
+            }
+        
+        self.iGames.sort() {
+            firstGame, secondGame in
+
+
+            let title1 = removeLeadingArticle(fromString: firstGame.title!)
+            let title2 = removeLeadingArticle(fromString: secondGame.title!)
+            return title1.localizedCaseInsensitiveCompare(title2) == sortDirection
+
+            }
+        
+        self.jGames.sort() {
+            firstGame, secondGame in
+
+
+            let title1 = removeLeadingArticle(fromString: firstGame.title!)
+            let title2 = removeLeadingArticle(fromString: secondGame.title!)
+            return title1.localizedCaseInsensitiveCompare(title2) == sortDirection
+
+            }
+        
+        
+        self.kGames.sort() {
+            firstGame, secondGame in
+
+
+            let title1 = removeLeadingArticle(fromString: firstGame.title!)
+            let title2 = removeLeadingArticle(fromString: secondGame.title!)
+            return title1.localizedCaseInsensitiveCompare(title2) == sortDirection
+
+            }
+        
+        
+        self.lGames.sort() {
+            firstGame, secondGame in
+
+
+            let title1 = removeLeadingArticle(fromString: firstGame.title!)
+            let title2 = removeLeadingArticle(fromString: secondGame.title!)
+            return title1.localizedCaseInsensitiveCompare(title2) == sortDirection
+
+            }
+        
+        self.mGames.sort() {
+            firstGame, secondGame in
+
+
+            let title1 = removeLeadingArticle(fromString: firstGame.title!)
+            let title2 = removeLeadingArticle(fromString: secondGame.title!)
+            return title1.localizedCaseInsensitiveCompare(title2) == sortDirection
+
+            }
+        
+        self.nGames.sort() {
+            firstGame, secondGame in
+
+
+            let title1 = removeLeadingArticle(fromString: firstGame.title!)
+            let title2 = removeLeadingArticle(fromString: secondGame.title!)
+            return title1.localizedCaseInsensitiveCompare(title2) == sortDirection
+
+            }
+        
+        self.oGames.sort() {
+            firstGame, secondGame in
+
+
+            let title1 = removeLeadingArticle(fromString: firstGame.title!)
+            let title2 = removeLeadingArticle(fromString: secondGame.title!)
+            return title1.localizedCaseInsensitiveCompare(title2) == sortDirection
+
+            }
+        
+        self.pGames.sort() {
+            firstGame, secondGame in
+
+
+            let title1 = removeLeadingArticle(fromString: firstGame.title!)
+            let title2 = removeLeadingArticle(fromString: secondGame.title!)
+            return title1.localizedCaseInsensitiveCompare(title2) == sortDirection
+
+            }
+        
+        self.qGames.sort() {
+            firstGame, secondGame in
+
+
+            let title1 = removeLeadingArticle(fromString: firstGame.title!)
+            let title2 = removeLeadingArticle(fromString: secondGame.title!)
+            return title1.localizedCaseInsensitiveCompare(title2) == sortDirection
+
+            }
+        
+        self.rGames.sort() {
+            firstGame, secondGame in
+
+
+            let title1 = removeLeadingArticle(fromString: firstGame.title!)
+            let title2 = removeLeadingArticle(fromString: secondGame.title!)
+            return title1.localizedCaseInsensitiveCompare(title2) == sortDirection
+
+            }
+        
+        self.sGames.sort() {
+            firstGame, secondGame in
+
+
+            let title1 = removeLeadingArticle(fromString: firstGame.title!)
+            let title2 = removeLeadingArticle(fromString: secondGame.title!)
+            return title1.localizedCaseInsensitiveCompare(title2) == sortDirection
+
+            }
+        
+        self.tGames.sort() {
+            firstGame, secondGame in
+
+
+            let title1 = removeLeadingArticle(fromString: firstGame.title!)
+            let title2 = removeLeadingArticle(fromString: secondGame.title!)
+            return title1.localizedCaseInsensitiveCompare(title2) == sortDirection
+
+            }
+        
+        
+        self.uGames.sort() {
+            firstGame, secondGame in
+
+
+            let title1 = removeLeadingArticle(fromString: firstGame.title!)
+            let title2 = removeLeadingArticle(fromString: secondGame.title!)
+            return title1.localizedCaseInsensitiveCompare(title2) == sortDirection
+
+            }
+        
+        self.vGames.sort() {
+            firstGame, secondGame in
+
+
+            let title1 = removeLeadingArticle(fromString: firstGame.title!)
+            let title2 = removeLeadingArticle(fromString: secondGame.title!)
+            return title1.localizedCaseInsensitiveCompare(title2) == sortDirection
+
+            }
+        
+        self.wGames.sort() {
+            firstGame, secondGame in
+
+
+            let title1 = removeLeadingArticle(fromString: firstGame.title!)
+            let title2 = removeLeadingArticle(fromString: secondGame.title!)
+            return title1.localizedCaseInsensitiveCompare(title2) == sortDirection
+
+            }
+        self.xGames.sort() {
+            firstGame, secondGame in
+
+
+            let title1 = removeLeadingArticle(fromString: firstGame.title!)
+            let title2 = removeLeadingArticle(fromString: secondGame.title!)
+            return title1.localizedCaseInsensitiveCompare(title2) == sortDirection
+
+            }
+        
+        self.yGames.sort() {
+            firstGame, secondGame in
+
+
+            let title1 = removeLeadingArticle(fromString: firstGame.title!)
+            let title2 = removeLeadingArticle(fromString: secondGame.title!)
+            return title1.localizedCaseInsensitiveCompare(title2) == sortDirection
+
+            }
+        
+        self.zGames.sort() {
+            firstGame, secondGame in
+
+
+            let title1 = removeLeadingArticle(fromString: firstGame.title!)
+            let title2 = removeLeadingArticle(fromString: secondGame.title!)
+            return title1.localizedCaseInsensitiveCompare(title2) == sortDirection
+
+            }
+    }
+    
+//    enum SortDirection {
+//        case asecending
+//        case descending
+//    }
     
     func requestMoreGames() {
         
@@ -327,6 +1174,41 @@ class ViewController: UIViewController, ViewControllerTableViewCellDelegate, Net
                 
     }
 }
+        } else {
+            
+            self.gameArrayCountLabel.text = String(self.gameArray.count)
+
+           let currentCount = Float(self.gameArray.count)
+            let totalCount = Float(self.gameArray.count)
+            let progress = currentCount / totalCount
+//                    self.progressIndicator.progress = progress
+            UIView.animate(withDuration: 3) {
+                self.progressIndicator.alpha = 0
+                self.progressCompleteLbl.alpha = 0
+            } completion: { complete in
+                UIView.animate(withDuration: 3) {
+                    
+                    self.gameArrayCountLabel.alpha = 1
+                    self.totalGamesDisplayedLbl.alpha = 1
+
+                } completion: { complete in
+                    
+                }
+
+                
+              
+            }
+
+        
+            
+            print("******************************")
+            print("*      END OF RESULTS        *")
+            print("*Fetched Games: \(self.network.currentDataCount)         *")
+            print("*Displayed Games:\(self.gameArray.count)        *")
+            print("******************************")
+            
+            
+            
         }
     }
     
@@ -1011,14 +1893,39 @@ class ViewController: UIViewController, ViewControllerTableViewCellDelegate, Net
     }
     
     
+    @objc func automaticScroll(tableView: UITableView) {
+        
+        tableView.setContentOffset(CGPoint(x: tableView.contentOffset.x, y: tableView.contentOffset.y - 50), animated: true)
+        
+    }
+
+    @objc func stopScroll() {
+        
+        tableTimer?.invalidate()
+        
+    }
+
+    
+    
   
 
 }
+
+
+
 
 extension ViewController: UITableViewDelegate, UITableViewDataSource {
     
     func numberOfSections(in tableView: UITableView) -> Int {
         return sectionTitles.count
+    }
+    
+    func tableView(_ tableView: UITableView, estimatedHeightForRowAt indexPath: IndexPath) -> CGFloat {
+        return 178
+    }
+    
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return 178
     }
     
     func tableView(_ tableView: UITableView, willDisplayHeaderView view: UIView, forSection section: Int) {
@@ -1038,6 +1945,9 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
         
+        
+        switch sortDirection {
+        case .orderedAscending :
         switch section {
             case 0   :     if numericGames.count > 0 { return "0-9"}
             case 1   :     if aGames.count > 0 { return sectionTitles[section] }
@@ -1070,11 +1980,54 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
             default  :     return nil
         }
         
+        case .orderedDescending:
+            switch section {
+           
+            case 0   :     if zGames.count > 0 { return sectionTitles.reversed()[section] }
+        case 1   :     if yGames.count > 0 { return sectionTitles.reversed()[section] }
+        case 2   :     if xGames.count > 0 { return sectionTitles.reversed()[section] }
+        case 3   :     if wGames.count > 0 { return sectionTitles.reversed()[section] }
+        case 4   :     if vGames.count > 0 { return sectionTitles.reversed()[section] }
+        case 5   :     if uGames.count > 0 { return sectionTitles.reversed()[section] }
+        case 6   :     if tGames.count > 0 { return sectionTitles.reversed()[section] }
+        case 7   :     if sGames.count > 0 { return sectionTitles.reversed()[section] }
+        case 8   :     if rGames.count > 0 { return sectionTitles.reversed()[section] }
+        case 9   :     if qGames.count > 0 { return sectionTitles.reversed()[section] }
+        case 10  :     if pGames.count > 0 { return sectionTitles.reversed()[section] }
+        case 11  :     if oGames.count > 0 { return sectionTitles.reversed()[section] }
+        case 12  :     if nGames.count > 0 { return sectionTitles.reversed()[section] }
+        case 13  :     if mGames.count > 0 { return sectionTitles.reversed()[section] }
+        case 14  :     if lGames.count > 0 { return sectionTitles.reversed()[section] }
+        case 15  :     if kGames.count > 0 { return sectionTitles.reversed()[section] }
+        case 16  :     if jGames.count > 0 { return sectionTitles.reversed()[section] }
+        case 17  :     if iGames.count > 0 { return sectionTitles.reversed()[section] }
+        case 18  :     if hGames.count > 0 { return sectionTitles.reversed()[section] }
+        case 19  :     if gGames.count > 0 { return sectionTitles.reversed()[section] }
+        case 20  :     if fGames.count > 0 { return sectionTitles.reversed()[section] }
+        case 21  :     if eGames.count > 0 { return sectionTitles.reversed()[section] }
+        case 22  :     if dGames.count > 0 { return sectionTitles.reversed()[section] }
+        case 23  :     if cGames.count > 0 { return sectionTitles.reversed()[section] }
+        case 24  :     if bGames.count > 0 { return sectionTitles.reversed()[section] }
+        case 25  :     if aGames.count > 0 { return sectionTitles.reversed()[section] }
+        case 26  :     if numericGames.count > 0 { return "9-0"}
+
+        default  :     return nil
+            
+            }
+        default :      return nil
+        }
+        
+        
         return nil
     }
     
     func sectionIndexTitles(for tableView: UITableView) -> [String]? {
+        if sortDirection == .orderedAscending {
         return sectionTitles
+        }
+        else {
+            return sectionTitles.reversed()
+        }
     }
     
     func tableView(_ tableView: UITableView, sectionForSectionIndexTitle title: String, at index: Int) -> Int {
@@ -1086,41 +2039,140 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
 
 
 
-
+        if sortDirection == .orderedAscending {
         switch section {
-            case 0   :     return numericGames.count
-            case 1   :     return aGames.count
-            case 2   :     return bGames.count
-            case 3   :     return cGames.count
-            case 4   :     return dGames.count
-            case 5   :     return eGames.count
-            case 6   :     return fGames.count
-            case 7   :     return gGames.count
-            case 8   :     return hGames.count
-            case 9   :     return iGames.count
-            case 10  :     return jGames.count
-            case 11  :     return kGames.count
-            case 12  :     return lGames.count
-            case 13  :     return mGames.count
-            case 14  :     return nGames.count
-            case 15  :     return oGames.count
-            case 16  :     return pGames.count
-            case 17  :     return qGames.count
-            case 18  :     return rGames.count
-            case 19  :     return sGames.count
-            case 20  :     return tGames.count
-            case 21  :     return uGames.count
-            case 22  :     return vGames.count
-            case 23  :     return wGames.count
-            case 24  :     return xGames.count
-            case 25  :     return yGames.count
-            case 26  :     return zGames.count
+        case 0   :      for i in 0..<numericGames.count { numericGames[i].indexSection = section; numericGames[i].namePrefix = "0" }
+                        return numericGames.count
+        case 1   :      for i in 0..<aGames.count { aGames[i].indexSection = section; aGames[i].namePrefix = "A"}
+                            return aGames.count
+        case 2   :      for i in 0..<bGames.count { bGames[i].indexSection = section; bGames[i].namePrefix = "B" }
+                return bGames.count
+        case 3   :      for i in 0..<cGames.count { cGames[i].indexSection = section; cGames[i].namePrefix = "C" }
+                return cGames.count
+        case 4   :      for i in 0..<dGames.count { dGames[i].indexSection = section; dGames[i].namePrefix = "D" }
+                return dGames.count
+        case 5   :      for i in 0..<eGames.count { eGames[i].indexSection = section; eGames[i].namePrefix = "E" }
+                return eGames.count
+        case 6   :      for i in 0..<fGames.count { fGames[i].indexSection = section; fGames[i].namePrefix = "F" }
+                return fGames.count
+        case 7   :       for i in 0..<gGames.count { gGames[i].indexSection = section; gGames[i].namePrefix = "G" }
+                return gGames.count
+        case 8   :      for i in 0..<hGames.count { hGames[i].indexSection = section; hGames[i].namePrefix = "H" }
+                return hGames.count
+        case 9   :      for i in 0..<iGames.count { iGames[i].indexSection = section; iGames[i].namePrefix = "I" }
+                return iGames.count
+        case 10  :      for i in 0..<jGames.count { jGames[i].indexSection = section; jGames[i].namePrefix = "J" }
+                return jGames.count
+        case 11  :      for i in 0..<kGames.count { kGames[i].indexSection = section; kGames[i].namePrefix = "K" }
+                return kGames.count
+        case 12  :      for i in 0..<lGames.count { lGames[i].indexSection = section; lGames[i].namePrefix = "L" }
+                return lGames.count
+        case 13  :      for i in 0..<mGames.count { mGames[i].indexSection = section; mGames[i].namePrefix = "M" }
+                return mGames.count
+        case 14  :      for i in 0..<nGames.count { nGames[i].indexSection = section; nGames[i].namePrefix = "N" }
+                return nGames.count
+        case 15  :      for i in 0..<oGames.count { oGames[i].indexSection = section; oGames[i].namePrefix = "O" }
+                return oGames.count
+        case 16  :      for i in 0..<pGames.count { pGames[i].indexSection = section; pGames[i].namePrefix = "P" }
+                return pGames.count
+        case 17  :      for i in 0..<qGames.count { qGames[i].indexSection = section; qGames[i].namePrefix = "Q" }
+                return qGames.count
+        case 18  :  for i in 0..<rGames.count { rGames[i].indexSection = section; rGames[i].namePrefix = "R" }
+                return rGames.count
+        case 19  :      for i in 0..<sGames.count { sGames[i].indexSection = section; sGames[i].namePrefix = "S" }
+                return sGames.count
+        case 20  :      for i in 0..<tGames.count { tGames[i].indexSection = section; tGames[i].namePrefix = "T" }
+                return tGames.count
+        case 21  :      for i in 0..<uGames.count { uGames[i].indexSection = section; uGames[i].namePrefix = "U" }
+                return uGames.count
+        case 22  :   for i in 0..<vGames.count { vGames[i].indexSection = section; vGames[i].namePrefix = "V" }
+                return vGames.count
+        case 23  :      for i in 0..<wGames.count { wGames[i].indexSection = section; wGames[i].namePrefix = "W" }
+                return wGames.count
+        case 24  :      for i in 0..<xGames.count { xGames[i].indexSection = section; xGames[i].namePrefix = "X" }
+                return xGames.count
+        case 25  :      for i in 0..<yGames.count { yGames[i].indexSection = section; yGames[i].namePrefix = "Y" }
+                        return yGames.count
+        case 26  :      for i in 0..<zGames.count { zGames[i].indexSection = section; zGames[i].namePrefix = "Z" }
+                return zGames.count
 
             default  :     return 0
+        }
+        } else {
+            switch section {
+            case 0   :      for i in 0..<zGames.count { zGames[i].indexSection = section; zGames[i].namePrefix = "Z" }
+                    return zGames.count
+            case 1   :      for i in 0..<yGames.count { yGames[i].indexSection = section; yGames[i].namePrefix = "Y" }
+                    return yGames.count
+            case 2   :      for i in 0..<xGames.count { xGames[i].indexSection = section; xGames[i].namePrefix = "X" }
+                    return xGames.count
+            case 3   :      for i in 0..<wGames.count { wGames[i].indexSection = section; wGames[i].namePrefix = "W" }
+                    return wGames.count
+            case 4   :      for i in 0..<vGames.count { vGames[i].indexSection = section; vGames[i].namePrefix = "V" }
+                    return vGames.count
+            case 5   :      for i in 0..<uGames.count { uGames[i].indexSection = section; uGames[i].namePrefix = "U" }
+                    return uGames.count
+                case 6   :
+                    for i in 0..<tGames.count { tGames[i].indexSection = section; tGames[i].namePrefix = "T" }
+                    return tGames.count
+            case 7   :      for i in 0..<sGames.count { sGames[i].indexSection = section; sGames[i].namePrefix = "S" }
+                    return sGames.count
+            case 8   :      for i in 0..<rGames.count { rGames[i].indexSection = section; rGames[i].namePrefix = "R" }
+                    return rGames.count
+            case 9   :      for i in 0..<qGames.count { qGames[i].indexSection = section; qGames[i].namePrefix = "Q" }
+                    return qGames.count
+            case 10  :      for i in 0..<pGames.count { pGames[i].indexSection = section; pGames[i].namePrefix = "P" }
+                    return pGames.count
+            case 11  :  for i in 0..<oGames.count { oGames[i].indexSection = section; oGames[i].namePrefix = "O" }
+                    return oGames.count
+            case 12  :      for i in 0..<nGames.count { nGames[i].indexSection = section; nGames[i].namePrefix = "N" }
+                    return nGames.count
+                case 13  :
+                    for i in 0..<mGames.count { mGames[i].indexSection = section; mGames[i].namePrefix = "M" }
+                        return mGames.count
+            case 14  :       for i in 0..<lGames.count { lGames[i].indexSection = section; lGames[i].namePrefix = "L" }
+                    return lGames.count
+            case 15  :       for i in 0..<kGames.count { kGames[i].indexSection = section; kGames[i].namePrefix = "K" }
+                    return kGames.count
+            case 16  :       for i in 0..<jGames.count { jGames[i].indexSection = section; jGames[i].namePrefix = "J" }
+                    return jGames.count
+            case 17  :       for i in 0..<iGames.count { iGames[i].indexSection = section; iGames[i].namePrefix = "I"}
+                    return iGames.count
+            case 18  :       for i in 0..<hGames.count { hGames[i].indexSection = section; hGames[i].namePrefix = "H" }
+                    return hGames.count
+            case 19  :       for i in 0..<gGames.count { gGames[i].indexSection = section; gGames[i].namePrefix = "G" }
+                    return gGames.count
+            case 20  :       for i in 0..<fGames.count { fGames[i].indexSection = section; fGames[i].namePrefix = "F" }
+                    return fGames.count
+            case 21  :       for i in 0..<eGames.count { eGames[i].indexSection = section; eGames[i].namePrefix = "E" }
+                    return eGames.count
+            case 22  :       for i in 0..<dGames.count { dGames[i].indexSection = section; dGames[i].namePrefix = "D" }
+                    return dGames.count
+            case 23  :       for i in 0..<cGames.count { cGames[i].indexSection = section; cGames[i].namePrefix = "C" }
+                    return cGames.count
+            case 24  :   for i in 0..<bGames.count { bGames[i].indexSection = section; bGames[i].namePrefix = "B" }
+                    return bGames.count
+            case 25  :       for i in 0..<aGames.count { aGames[i].indexSection = section; aGames[i].namePrefix = "A" }
+                        return aGames.count
+            case 26  :       for i in 0..<numericGames.count { numericGames[i].indexSection = section; numericGames[i].namePrefix = "0" }
+                    return numericGames.count
+
+                default  :     return 0
+            }
         }
 
         
     }
+    
+    
+//    func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+//
+//        let animation = AnimationFactory.makeMoveUpWithFade(rowHeight: cell.frame.height / 2, duration: 0.2, delayFactor: 0.05)
+//        let animator = Animator(animation: animation)
+//        animator.animate(cell: cell, at: indexPath, in: tableView)
+//
+//
+//    }
     
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -1131,7 +2183,7 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
             
         cell.delegate = self
 
-
+        if sortDirection == .orderedAscending {
         switch indexPath.section {
             case 0   :     cell.game = numericGames[indexPath.row]
             case 1   :     cell.game = aGames[indexPath.row]
@@ -1163,6 +2215,43 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
 
             default  :     cell.game = gameArray[indexPath.row]
         }
+        } else {
+            
+            switch indexPath.section {
+                case 0   :     cell.game = zGames[indexPath.row]
+                case 1   :     cell.game = yGames[indexPath.row]
+                case 2   :     cell.game = xGames[indexPath.row]
+                case 3   :     cell.game = wGames[indexPath.row]
+                case 4   :     cell.game = vGames[indexPath.row]
+                case 5   :     cell.game = uGames[indexPath.row]
+                case 6   :     cell.game = tGames[indexPath.row]
+                case 7   :     cell.game = sGames[indexPath.row]
+                case 8   :     cell.game = rGames[indexPath.row]
+                case 9   :     cell.game = qGames[indexPath.row]
+                case 10  :     cell.game = pGames[indexPath.row]
+                case 11  :     cell.game = oGames[indexPath.row]
+                case 12  :     cell.game = nGames[indexPath.row]
+                case 13  :     cell.game = mGames[indexPath.row]
+                case 14  :     cell.game = lGames[indexPath.row]
+                case 15  :     cell.game = kGames[indexPath.row]
+                case 16  :     cell.game = jGames[indexPath.row]
+                case 17  :     cell.game = iGames[indexPath.row]
+                case 18  :     cell.game = hGames[indexPath.row]
+                case 19  :     cell.game = gGames[indexPath.row]
+                case 20  :     cell.game = fGames[indexPath.row]
+                case 21  :     cell.game = eGames[indexPath.row]
+                case 22  :     cell.game = dGames[indexPath.row]
+                case 23  :     cell.game = cGames[indexPath.row]
+                case 24  :     cell.game = bGames[indexPath.row]
+                case 25  :     cell.game = aGames[indexPath.row]
+                case 26  :     cell.game = numericGames[indexPath.row]
+
+                default  :     cell.game = gameArray[indexPath.row]
+            }
+            
+            
+            
+        }
 
         cell.indexPath = indexPath
             
@@ -1186,37 +2275,76 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
 //        print("test \(cell.frontImageName)")
         
         
+        if sortDirection == .orderedAscending {
         switch indexPath.section {
-            case 0   :    segueObject = numericGames[indexPath.row]
-            case 1   :    segueObject = aGames[indexPath.row]
-            case 2   :    segueObject = bGames[indexPath.row]
-            case 3   :    segueObject = cGames[indexPath.row]
-            case 4   :    segueObject = dGames[indexPath.row]
-            case 5   :    segueObject = eGames[indexPath.row]
-            case 6   :    segueObject = fGames[indexPath.row]
-            case 7   :    segueObject = gGames[indexPath.row]
-            case 8   :    segueObject = hGames[indexPath.row]
-            case 9   :    segueObject = iGames[indexPath.row]
-            case 10  :    segueObject = jGames[indexPath.row]
-            case 11  :    segueObject = kGames[indexPath.row]
-            case 12  :    segueObject = lGames[indexPath.row]
-            case 13  :    segueObject = mGames[indexPath.row]
-            case 14  :    segueObject = nGames[indexPath.row]
-            case 15  :    segueObject = oGames[indexPath.row]
-            case 16  :    segueObject = pGames[indexPath.row]
-            case 17  :    segueObject = qGames[indexPath.row]
-            case 18  :    segueObject = rGames[indexPath.row]
-            case 19  :    segueObject = sGames[indexPath.row]
-            case 20  :    segueObject = tGames[indexPath.row]
-            case 21  :    segueObject = uGames[indexPath.row]
-            case 22  :    segueObject = vGames[indexPath.row]
-            case 23  :    segueObject = wGames[indexPath.row]
-            case 24  :    segueObject = xGames[indexPath.row]
-            case 25  :    segueObject = yGames[indexPath.row]
-            case 26  :    segueObject = zGames[indexPath.row]
+            case 0   :     cell.game = numericGames[indexPath.row]
+            case 1   :     cell.game = aGames[indexPath.row]
+            case 2   :     cell.game = bGames[indexPath.row]
+            case 3   :     cell.game = cGames[indexPath.row]
+            case 4   :     cell.game = dGames[indexPath.row]
+            case 5   :     cell.game = eGames[indexPath.row]
+            case 6   :     cell.game = fGames[indexPath.row]
+            case 7   :     cell.game = gGames[indexPath.row]
+            case 8   :     cell.game = hGames[indexPath.row]
+            case 9   :     cell.game = iGames[indexPath.row]
+            case 10  :     cell.game = jGames[indexPath.row]
+            case 11  :     cell.game = kGames[indexPath.row]
+            case 12  :     cell.game = lGames[indexPath.row]
+            case 13  :     cell.game = mGames[indexPath.row]
+            case 14  :     cell.game = nGames[indexPath.row]
+            case 15  :     cell.game = oGames[indexPath.row]
+            case 16  :     cell.game = pGames[indexPath.row]
+            case 17  :     cell.game = qGames[indexPath.row]
+            case 18  :     cell.game = rGames[indexPath.row]
+            case 19  :     cell.game = sGames[indexPath.row]
+            case 20  :     cell.game = tGames[indexPath.row]
+            case 21  :     cell.game = uGames[indexPath.row]
+            case 22  :     cell.game = vGames[indexPath.row]
+            case 23  :     cell.game = wGames[indexPath.row]
+            case 24  :     cell.game = xGames[indexPath.row]
+            case 25  :     cell.game = yGames[indexPath.row]
+            case 26  :     cell.game = zGames[indexPath.row]
 
-            default  :    segueObject = gameArray[indexPath.row]
+            default  :     cell.game = gameArray[indexPath.row]
         }
+        } else {
+            
+            switch indexPath.section {
+                case 0   :     cell.game = zGames[indexPath.row]
+                case 1   :     cell.game = yGames[indexPath.row]
+                case 2   :     cell.game = xGames[indexPath.row]
+                case 3   :     cell.game = wGames[indexPath.row]
+                case 4   :     cell.game = vGames[indexPath.row]
+                case 5   :     cell.game = uGames[indexPath.row]
+                case 6   :     cell.game = tGames[indexPath.row]
+                case 7   :     cell.game = sGames[indexPath.row]
+                case 8   :     cell.game = rGames[indexPath.row]
+                case 9   :     cell.game = qGames[indexPath.row]
+                case 10  :     cell.game = pGames[indexPath.row]
+                case 11  :     cell.game = oGames[indexPath.row]
+                case 12  :     cell.game = nGames[indexPath.row]
+                case 13  :     cell.game = mGames[indexPath.row]
+                case 14  :     cell.game = lGames[indexPath.row]
+                case 15  :     cell.game = kGames[indexPath.row]
+                case 16  :     cell.game = jGames[indexPath.row]
+                case 17  :     cell.game = iGames[indexPath.row]
+                case 18  :     cell.game = hGames[indexPath.row]
+                case 19  :     cell.game = gGames[indexPath.row]
+                case 20  :     cell.game = fGames[indexPath.row]
+                case 21  :     cell.game = eGames[indexPath.row]
+                case 22  :     cell.game = dGames[indexPath.row]
+                case 23  :     cell.game = cGames[indexPath.row]
+                case 24  :     cell.game = bGames[indexPath.row]
+                case 25  :     cell.game = aGames[indexPath.row]
+                case 26  :     cell.game = numericGames[indexPath.row]
+
+                default  :     cell.game = gameArray[indexPath.row]
+            }
+            
+            
+            
+        }
+        segueObject = cell.game
         
 //        segueObject = gameArray[indexPath.row]
         if let image = cell.tableViewCoverImage.image {
@@ -1230,7 +2358,7 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
-        
+        print("trailingSwipeActions")
         let cell = tableView.cellForRow(at: indexPath) as? ViewControllerTableViewCell
         
         var title = ""
@@ -1407,6 +2535,8 @@ extension ViewController: DropdownPickerViewDelegate {
     
     func configureDropDownMenu() {
         dropDown.anchorView = dropDownView
+        let title = formatPlatformIDToPrettyPlatformName(ID: network.lastRequestedPlatformID)
+        dropDownView.setTitle(title, for: .normal)
         dropDownView.layer.cornerRadius = 12
         dropDownView.layer.shadowOffset = CGSize(width: 3.0, height: 3.0)
         dropDownView.layer.shadowOpacity = 0.7
@@ -1502,6 +2632,125 @@ extension ViewController: DropdownPickerViewDelegate {
         
     }
     
+    func getTopSection() -> Int {
+    var section = 0
+    if sortDirection == .orderedAscending {
+    if numericGames.count > 0 {
+        section = 0
+    } else if aGames.count > 0 {
+        section = 1
+    } else if bGames.count > 0 {
+        section = 2
+    } else if cGames.count > 0 {
+        section = 3
+    } else if dGames.count > 0 {
+        section = 4
+    } else if eGames.count > 0 {
+        section = 5
+    } else if fGames.count > 0 {
+        section = 6
+    } else if gGames.count > 0 {
+        section = 7
+    } else if hGames.count > 0 {
+        section = 8
+    } else if iGames.count > 0 {
+        section = 9
+    } else if jGames.count > 0 {
+        section = 10
+    } else if kGames.count > 0 {
+        section = 11
+    } else if lGames.count > 0 {
+        section = 12
+    } else if mGames.count > 0 {
+        section = 13
+    } else if nGames.count > 0 {
+        section = 14
+    } else if oGames.count > 0 {
+        section = 15
+    } else if pGames.count > 0 {
+        section = 16
+    } else if qGames.count > 0 {
+        section = 17
+    } else if rGames.count > 0 {
+        section = 18
+    } else if sGames.count > 0 {
+        section = 19
+    } else if tGames.count > 0 {
+        section = 20
+    } else if uGames.count > 0 {
+        section = 21
+    } else if vGames.count > 0 {
+        section = 22
+    } else if wGames.count > 0 {
+        section = 23
+    } else if xGames.count > 0 {
+        section = 24
+    } else if yGames.count > 0 {
+        section = 25
+    } else if zGames.count > 0 {
+        section = 26
+    }
+    } else {
+        if zGames.count > 0 {
+            section = 0
+        } else if yGames.count > 0 {
+            section = 1
+        } else if xGames.count > 0 {
+            section = 2
+        } else if wGames.count > 0 {
+            section = 3
+        } else if vGames.count > 0 {
+            section = 4
+        } else if uGames.count > 0 {
+            section = 5
+        } else if tGames.count > 0 {
+            section = 6
+        } else if sGames.count > 0 {
+            section = 7
+        } else if rGames.count > 0 {
+            section = 8
+        } else if qGames.count > 0 {
+            section = 9
+        } else if pGames.count > 0 {
+            section = 10
+        } else if oGames.count > 0 {
+            section = 11
+        } else if nGames.count > 0 {
+            section = 12
+        } else if mGames.count > 0 {
+            section = 13
+        } else if lGames.count > 0 {
+            section = 14
+        } else if kGames.count > 0 {
+            section = 15
+        } else if jGames.count > 0 {
+            section = 16
+        } else if iGames.count > 0 {
+            section = 17
+        } else if hGames.count > 0 {
+            section = 18
+        } else if gGames.count > 0 {
+            section = 19
+        } else if fGames.count > 0 {
+            section = 20
+        } else if eGames.count > 0 {
+            section = 21
+        } else if dGames.count > 0 {
+            section = 22
+        } else if cGames.count > 0 {
+            section = 23
+        } else if bGames.count > 0 {
+            section = 24
+        } else if aGames.count > 0 {
+            section = 25
+        } else if numericGames.count > 0 {
+            section = 26
+        }
+    }
+        return section
+    }
+
+    
     
     func dropDownFetchSuccess(item: String, selectedPlatformID: Int) {
         
@@ -1511,6 +2760,8 @@ extension ViewController: DropdownPickerViewDelegate {
 
         if let platformID = gameArray[0].platformID {
         currentPlatformID = platformID
+            let defaults = UserDefaults.standard
+            defaults.setValue(platformID, forKey: "lastFetchedPlatform")
         }
         
         currentPlatformName = convertPlatformIDToName(PlatformID: currentPlatformID)
@@ -1520,64 +2771,6 @@ extension ViewController: DropdownPickerViewDelegate {
 //                print(self.gameArray)
 
         print("tableview should reload")
-        
-        var section = 0
-        if numericGames.count > 0 {
-            section = 0
-        } else if aGames.count > 0 {
-            section = 1
-        } else if bGames.count > 0 {
-            section = 2
-        } else if cGames.count > 0 {
-            section = 3
-        } else if dGames.count > 0 {
-            section = 4
-        } else if eGames.count > 0 {
-            section = 5
-        } else if fGames.count > 0 {
-            section = 6
-        } else if gGames.count > 0 {
-            section = 7
-        } else if hGames.count > 0 {
-            section = 8
-        } else if iGames.count > 0 {
-            section = 9
-        } else if jGames.count > 0 {
-            section = 10
-        } else if kGames.count > 0 {
-            section = 11
-        } else if lGames.count > 0 {
-            section = 12
-        } else if mGames.count > 0 {
-            section = 13
-        } else if nGames.count > 0 {
-            section = 14
-        } else if oGames.count > 0 {
-            section = 15
-        } else if pGames.count > 0 {
-            section = 16
-        } else if qGames.count > 0 {
-            section = 17
-        } else if rGames.count > 0 {
-            section = 18
-        } else if sGames.count > 0 {
-            section = 19
-        } else if tGames.count > 0 {
-            section = 20
-        } else if uGames.count > 0 {
-            section = 21
-        } else if vGames.count > 0 {
-            section = 22
-        } else if wGames.count > 0 {
-            section = 23
-        } else if xGames.count > 0 {
-            section = 24
-        } else if yGames.count > 0 {
-            section = 25
-        } else if zGames.count > 0 {
-            section = 26
-        }
-        
 
         
         
@@ -1585,7 +2778,7 @@ extension ViewController: DropdownPickerViewDelegate {
         self.network.currentOffset += 500
 
         self.tableView.reloadData()
-        self.tableView.scrollToRow(at: IndexPath(row: 0, section: section), at: UITableView.ScrollPosition.top, animated: true)
+        self.tableView.scrollToRow(at: IndexPath(row: 0, section: getTopSection()), at: .top, animated: true)
 
         
         print("dropdown fetch complete, offset is now", network.currentOffset)

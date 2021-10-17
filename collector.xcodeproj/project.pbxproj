@@ -54,6 +54,8 @@
 		D36048B026F84D59005EDD2D /* barcodescannerwhite.json in Resources */ = {isa = PBXBuildFile; fileRef = D36048AF26F84D57005EDD2D /* barcodescannerwhite.json */; };
 		D361FB7226FA9A2500C41380 /* SwiftSoup in Frameworks */ = {isa = PBXBuildFile; productRef = D361FB7126FA9A2500C41380 /* SwiftSoup */; };
 		D361FB7626FAB3AC00C41380 /* PriceInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = D361FB7526FAB3AC00C41380 /* PriceInfo.swift */; };
+		D365E03427112F7500572CD3 /* Animator.swift in Sources */ = {isa = PBXBuildFile; fileRef = D365E03327112F7400572CD3 /* Animator.swift */; };
+		D365E03827112FF200572CD3 /* Animation.swift in Sources */ = {isa = PBXBuildFile; fileRef = D365E03727112FF200572CD3 /* Animation.swift */; };
 		D36821EF2619806700594860 /* FullImageVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = D36821EE2619806700594860 /* FullImageVC.swift */; };
 		D36821F22624863D00594860 /* IGDBGames.swift in Sources */ = {isa = PBXBuildFile; fileRef = D36821F12624863D00594860 /* IGDBGames.swift */; };
 		D36C598026E16A8500863BDA /* GradientButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = D36C597F26E16A8500863BDA /* GradientButton.swift */; };
@@ -232,6 +234,8 @@
 		D36048AD26F81B37005EDD2D /* barcodescanner.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = barcodescanner.json; sourceTree = "<group>"; };
 		D36048AF26F84D57005EDD2D /* barcodescannerwhite.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = barcodescannerwhite.json; sourceTree = "<group>"; };
 		D361FB7526FAB3AC00C41380 /* PriceInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PriceInfo.swift; sourceTree = "<group>"; };
+		D365E03327112F7400572CD3 /* Animator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Animator.swift; sourceTree = "<group>"; };
+		D365E03727112FF200572CD3 /* Animation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Animation.swift; sourceTree = "<group>"; };
 		D36821EE2619806700594860 /* FullImageVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FullImageVC.swift; sourceTree = "<group>"; };
 		D36821F12624863D00594860 /* IGDBGames.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IGDBGames.swift; sourceTree = "<group>"; };
 		D36C597F26E16A8500863BDA /* GradientButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GradientButton.swift; sourceTree = "<group>"; };
@@ -370,6 +374,8 @@
 			isa = PBXGroup;
 			children = (
 				D31BF69925073BDB0047C663 /* Main.storyboard */,
+				D365E03327112F7400572CD3 /* Animator.swift */,
+				D365E03727112FF200572CD3 /* Animation.swift */,
 				D36048A926F5AFD1005EDD2D /* BarcodeTableViewCell.swift */,
 				D3AA2A4F25CE66D700FC3958 /* WishlistHeaderView.swift */,
 				D39EB8EE26D76C3F00E88166 /* LargeImageTabBar.swift */,
@@ -725,6 +731,7 @@
 				D3AB9038270519A700EE90CD /* SavedGames+CoreDataProperties.swift in Sources */,
 				D35D2D33254400690079121C /* FilterVC.swift in Sources */,
 				D3AC2DC625C8FA4600195206 /* ScaledHeightImageView.swift in Sources */,
+				D365E03827112FF200572CD3 /* Animation.swift in Sources */,
 				D37F78C3254B2F6C00FA1AB2 /* PlayerFilterVC.swift in Sources */,
 				D375D47E26472D1A00DC8672 /* SpotlightHeaderView.swift in Sources */,
 				D3324523255B9C1000484836 /* PagingDetailVC.swift in Sources */,
@@ -788,6 +795,7 @@
 				D3D4BC9825492D0100108A44 /* AgeRangeVC.swift in Sources */,
 				D31D72EC24EAFDEF00884B2A /* developers.swift in Sources */,
 				D359CDE3256B6D65004292E7 /* MyGameVC+CoreData.swift in Sources */,
+				D365E03427112F7500572CD3 /* Animator.swift in Sources */,
 				D375D47A2645E31600DC8672 /* NewReleasesCell.swift in Sources */,
 				D36821F22624863D00594860 /* IGDBGames.swift in Sources */,
 				D3AAAC8D25B29FA100689EDA /* CustomButton.swift in Sources */,
