@@ -71,7 +71,7 @@ extension ComingSoonCell {
         container.addSubview(shadowView)
         
         
-        let maskLayer = CAGradientLayer()
+//        let maskLayer = CAGradientLayer()
 //        maskLayer.frame = shadowView.bounds
 //        maskLayer.shadowRadius = 3
 //        maskLayer.shadowPath = CGPath(roundedRect: shadowView.bounds.insetBy(dx: 3, dy: 3), cornerWidth: 10, cornerHeight: 10, transform: nil)
@@ -86,10 +86,10 @@ extension ComingSoonCell {
 //        imageView.clipsToBounds = true
 //        imageView.layer.masksToBounds = true
         if let boxartURL = game?.boxartFrontImage {
-            let gameURL = baseURL.hd.rawValue + boxartURL
+            let gameURL = baseURL.coverSmall.rawValue + boxartURL
             let url = URL(string: gameURL)!
             imageView.setImageAnimated(imageUrl: url, placeholderImage: nil) {
-                print("coming soon image loaded")
+//                print("coming soon image loaded")
                 self.boxartImage = self.imageView.image
                 
                 let blurredImage = self.boxartImage?.getImageWithBlur(blurAmount: 6)

@@ -11,6 +11,8 @@ import UIKit
 class FilterVCTableViewCell: UITableViewCell {
     @IBOutlet weak var filterChoiceLbl: UILabel!
     @IBOutlet weak var filterChoiceImage: UIImageView!
+    @IBOutlet weak var platformLabel: VerticalAlignedLabel!
+    
     var filterChoice : String? {
         didSet {
             configureCell()
@@ -49,25 +51,31 @@ extension FilterVCTableViewCell {
         filterChoiceLbl.isHidden = true
         if let title = filterChoice {
             
-            if network.sourceTag == 0 {
+            if network.sourceTag == 0 || network.sourceTag == 2 {
                 filterChoiceLbl.text = filterChoice
 
                 filterChoiceImage.isHidden = true
                 filterChoiceLbl.isHidden = false
-                print("title:", title)
+                platformLabel.isHidden = true
+//                print("title:", title)
 
 
             }
-            if network.sourceTag == 1 {
+            if network.sourceTag == 1 || network.sourceTag == 3 {
         let platformID = formatPrettyPlatformNameToID(platformName: title)
             let imageName = setPlatformIcon(platformID: platformID, mode: traitCollection.userInterfaceStyle)
+                platformLabel.text = title
+                platformLabel.contentMode = .bottom
             filterChoiceImage.image = UIImage(named: imageName)
+                filterChoiceLbl.text = filterChoice
+
                 filterChoiceLbl.isHidden = true
                 filterChoiceImage.isHidden = false
+                platformLabel.isHidden = false
                 
-                print("title:", title)
-                print("platformID:", platformID)
-                print("imageName:", imageName)
+//                print("title:", title)
+//                print("platformID:", platformID)
+//                print("imageName:", imageName)
             }
 
         }

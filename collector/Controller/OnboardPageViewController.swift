@@ -361,7 +361,7 @@ class OnboardVC: UIViewController {
         UIView.animate(withDuration: 1.5, delay: 0, animations: {
             self.phoneImageView.alpha = 1
         }, completion: { finished in
-            print("phoneImageView finished")
+//            print("phoneImageView finished")
         
         })
         
@@ -369,14 +369,14 @@ class OnboardVC: UIViewController {
     }
     
     @IBAction func nextPressed(_ sender: Any) {
-        print("pressed")
+//        print("pressed")
         nextButton.layer.shadowColor = UIColor.white.withAlphaComponent(0.75).cgColor
         lightShadow.shadowColor = UIColor.black.withAlphaComponent(0.75)
             .cgColor
     }
     
     @IBAction func nextReleased(_ sender: Any) {
-        print("released")
+//        print("released")
 
         lightShadow.shadowColor = UIColor.white.withAlphaComponent(0.75).cgColor
         nextButton.layer.shadowColor = UIColor.black.cgColor
@@ -505,11 +505,11 @@ class OnboardInitialVC: UIViewController {
         logoView.translatesAutoresizingMaskIntoConstraints = false
         logoView.clipsToBounds = false
         
-        animationLogoView = .init(name: "glogo")
+        animationLogoView = .init(name: "logo")
         animationLogoView!.frame = logoView.bounds
-        animationLogoView!.contentMode = .scaleAspectFit
+        animationLogoView!.contentMode = .scaleAspectFill
         animationLogoView!.loopMode = .playOnce
-        animationLogoView!.animationSpeed = 0.2
+        animationLogoView!.animationSpeed = 1
         logoView.addSubview(animationLogoView!)
         animationLogoView?.play()
         
@@ -534,7 +534,7 @@ class OnboardInitialVC: UIViewController {
                 self.animationLogoView?.alpha = 0
                 self.logoView.alpha = 0
             } completion: { complete in
-                print("animationview should be hidden")
+//                print("animationview should be hidden")
                 self.logoView?.isHidden = true
                 self.animationView!.play()
 
@@ -607,7 +607,7 @@ class OnboardInitialVC: UIViewController {
     }
     
     @IBAction func nextButtonTouchDown(_ sender: Any) {
-        print("pressed")
+//        print("pressed")
         nextButton.layer.shadowColor = UIColor.white.withAlphaComponent(0.75).cgColor
         lightShadow.shadowColor = UIColor.black.withAlphaComponent(0.75)
             .cgColor
@@ -617,7 +617,7 @@ class OnboardInitialVC: UIViewController {
     
     @IBAction func touched(_ sender: Any) {
         
-        print("released")
+//        print("released")
         lightShadow.shadowColor = UIColor.white.withAlphaComponent(0.75).cgColor
         nextButton.layer.shadowColor = UIColor.black.cgColor
         
@@ -647,7 +647,7 @@ class OnboardDetailVC: UIViewController {
         width = view.frame.width
 
         if width > 767 {
-            print("phone image view should be moved")
+//            print("phone image view should be moved")
             phoneImageView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -300).isActive = true
             
         }
@@ -711,7 +711,7 @@ class OnboardDetailVC: UIViewController {
         UIView.animate(withDuration: 1.5, delay: 0, animations: {
             self.phoneImageView.alpha = 1
         }, completion: { finished in
-            print("phoneImageView finished")
+//            print("phoneImageView finished")
         
         })
         
@@ -842,7 +842,7 @@ class OnboardCompletionVC: UIViewController {
         
         animationView!.play()
         
-        guard let imageName = image else { return}
+//        guard let imageName = image else { return}
         guard let titleName = cardTitle else { return }
         guard let summaryName = summary else { return }
 

@@ -22,17 +22,17 @@ class ImagePageVC: UIPageViewController {
         
         dataSource = self
         
-        print("selected index is", selectedIndex)
+//        print("selected index is", selectedIndex)
 
         let fullImageVC = sb.instantiateViewController(identifier: "fullImage") as! FullImageVC
         
         if imageURLs.count > 0 {
             
             fullImageVC.imageURL = imageURLs[selectedIndex]
-            print(imageURLs[selectedIndex])
+//            print(imageURLs[selectedIndex])
         } else {
             fullImageVC.image = images[selectedIndex]
-            print(images[selectedIndex])
+//            print(images[selectedIndex])
         }
         
         let viewControllers = [fullImageVC]

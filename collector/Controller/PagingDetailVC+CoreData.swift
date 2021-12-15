@@ -31,6 +31,7 @@ extension PagingDetailVC {
         if let releaseYear = truncatedReleaseDate {
             persistedGame.releaseYear = Int32(releaseYear)!
         }
+        persistedGame.youtubeURL = game.youtubePath
         persistedGame.rating = game.rating
         if let totalRating = game.totalRating {
         persistedGame.totalRating = Int32(totalRating)
@@ -39,15 +40,17 @@ extension PagingDetailVC {
         persistedGame.userRating = Int32(userRating)
         }
         persistedGame.boxartImageURL = game.boxartFrontImage
-        
+        var gameScreenshots : [String] = []
+
         if let screenshots = game.screenshots {
         for screenshot in screenshots {
             
             if let imageID = screenshot.imageID {
-            persistedGame.screenshotImageIDs?.append(imageID)
+                gameScreenshots.append(imageID)
             }
         }
         }
+        persistedGame.screenshotImageIDs = gameScreenshots
         
         if let width = game.boxartInfo?.width {
         persistedGame.boxartWidth = Int32(width)
@@ -156,7 +159,7 @@ extension PagingDetailVC {
     
     
     func checkForGameInLibrary(name: String, id: Int) -> Bool {
-            print("checkforgame called")
+//            print("checkforgame called")
         let savedGames = persistenceManager.fetch(SavedGames.self)
         
         for savedGame in savedGames {
@@ -170,34 +173,34 @@ extension PagingDetailVC {
     }
     
     func checkForGameInWishList(name: String, id: Int) -> Bool {
-        print("Checking for game in wishlist")
+//        print("Checking for game in wishlist")
         let savedGames = persistenceManager.fetch(WishList.self)
         
         for savedGame in savedGames {
             
              if savedGame.title == name && savedGame.gameID == id {
-                print("Game is in wishlist")
+//                print("Game is in wishlist")
                 return true
         }
           
 
     }
         
-        print("Game is not in wishlist")
+//        print("Game is not in wishlist")
         return false
     
     }
     func fetchCoreDataPlatformObject(id: Int) -> Platform {
         
         let platform = persistenceManager.fetchFilteredByPlatform(Platform.self, platformID: id)
-        print("platformplatform", platform)
+//        print("platformplatform", platform)
         let platformObj = platform[0]
         
         return platformObj
     }
     
     func checkForPlatformInLibrary(name: String, id:Int) -> Bool {
-        print("checkforPlatform called")
+//        print("checkforPlatform called")
         
         let savedPlatforms = persistenceManager.fetch(Platform.self)
         
@@ -211,7 +214,7 @@ extension PagingDetailVC {
         }
         
         
-        print("Platform is not in library")
+//        print("Platform is not in library")
         return false
         
         
@@ -303,7 +306,7 @@ extension PagingDetailVC {
     }
     
     func getSavedPlatforms() {
-        print("getSavedPlatforms")
+//        print("getSavedPlatforms")
         let savedPlatforms = persistenceManager.fetch(Platform.self)
         self.savedPlatforms = savedPlatforms
         printSavedPlatforms()
@@ -312,7 +315,7 @@ extension PagingDetailVC {
     func printSavedGames() {
         
         savedGames.forEach { (game) in
-            print("game core data")
+//            print("game core data")
 //            print(game.title, game.gameID)
             
         }
@@ -344,7 +347,7 @@ extension PagingDetailVC {
             }
             
         }
-        print("genre is not saved")
+//        print("genre is not saved")
         return false
     }
     
@@ -365,7 +368,7 @@ extension PagingDetailVC {
     
     func printSavedGenres() {
         savedGenres.forEach{ (genre) in
-            print("genre core data")
+//            print("genre core data")
 //            print(genre.name)
             
         }
@@ -381,7 +384,7 @@ extension PagingDetailVC {
     
     func printWishList() {
         wishList.forEach { (game) in
-            print("Wishlist")
+//            print("Wishlist")
 //            print(game.title)
             
             
@@ -391,10 +394,10 @@ extension PagingDetailVC {
     
     func printSavedPlatforms() {
         if savedPlatforms.count < 1 {
-            print("platforms empty")
+//            print("platforms empty")
         } else {
         savedPlatforms.forEach{ (platform) in
-            print("platform core data")
+//            print("platform core data")
 //            print(platform.name, platform.id)
         }
         }

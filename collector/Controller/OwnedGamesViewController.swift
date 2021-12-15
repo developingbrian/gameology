@@ -8,6 +8,8 @@
 import Foundation
 import UIKit
 import CoreData
+import SDWebImage
+import SwiftUI
 
 
 protocol ModalDelegate {
@@ -25,7 +27,6 @@ protocol SearchFilterDelegate {
 
 class OwnedGamesViewController: UIViewController, OwnedGameDelegate, ModalDelegate, AgeRangeDelegate, SearchFilterDelegate {
 
-    
 
     
     @IBOutlet weak var filteredGameCountLbl: UILabel!
@@ -43,6 +44,7 @@ class OwnedGamesViewController: UIViewController, OwnedGameDelegate, ModalDelega
     @IBOutlet weak var noGamesInLibraryView: UIView!
     @IBOutlet weak var gameLibraryImage: UIImageView!
     
+    var fetchedResultsController : NSFetchedResultsController<NSFetchRequestResult>!
     var sortDirection : ComparisonResult = .orderedAscending
     var sortBtn = UIButton()
     var numericGames : [SavedGames] = []
@@ -110,7 +112,7 @@ class OwnedGamesViewController: UIViewController, OwnedGameDelegate, ModalDelega
                 
                 let titleCleaned = removeLeadingArticle(fromString: game.title!)
             
-                print("titleCleaned is", titleCleaned)
+//                print("titleCleaned is", titleCleaned)
                 
                 if titleCleaned.first.flatMap({ Int(String($0)) }) != nil {
                     numericGames.append(game)
@@ -290,14 +292,27 @@ class OwnedGamesViewController: UIViewController, OwnedGameDelegate, ModalDelega
         return allGames.count
     }
     
+    override func viewWillDisappear(_ animated: Bool) {
+        clearImageCacheFromMemory()
+    }
+    
+    override func didReceiveMemoryWarning() {
+        clearImageCacheFromMemory()
+    }
+    
+    func clearImageCacheFromMemory() {
+        let imageCache = SDImageCache.shared
+        imageCache.clearMemory()
+    }
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        print("platformID \(platformID)")
+//        print("platformID \(platformID)")
         
         
         setAppearance()
-        fetchData()
+//        fetchData()
         setNavigationLogoImage()
         configureNavigationController()
         createSearchController()
@@ -305,6 +320,7 @@ class OwnedGamesViewController: UIViewController, OwnedGameDelegate, ModalDelega
         if totalGameCount < 1 {
             
             noGamesInLibraryView.isHidden = false
+            noGamesInLibraryView.backgroundColor = .red
             toggleNavigationControllerItems(isGameLibraryEmpty: true)
 
         } else {
@@ -313,13 +329,26 @@ class OwnedGamesViewController: UIViewController, OwnedGameDelegate, ModalDelega
             noGamesInLibraryView.isHidden = true
         }
 
-        
-        
-        
+        let entityName = String(describing: SavedGames.self)
+        let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: entityName)
+        fetchRequest.sortDescriptors = [
+        NSSortDescriptor(key: "title", ascending: true)
+        ]
+        fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: persistenceManager.context, sectionNameKeyPath: nil, cacheName: nil)
+        fetchedResultsController.delegate = self
         tableView.dataSource = self
         tableView.delegate = self
         let lightBlue = UIColorFromRGB(0x2B95CE)
         tableView.sectionIndexColor = lightBlue
+        
+        let searchText = search.searchBar.text
+        
+        if searchText == "" {
+            reloadData(byGameTitle: nil, platformID: nil, selectedGenres: genreSelections, selectedPlatforms: platformsToFilter, selectedDateRange: dateSelections)
+        } else {
+            reloadData(byGameTitle: searchText, platformID: nil, selectedGenres: genreSelections, selectedPlatforms: platformsToFilter, selectedDateRange: dateSelections)
+
+        }
         self.tableView.reloadData()
     }
     
@@ -327,10 +356,17 @@ class OwnedGamesViewController: UIViewController, OwnedGameDelegate, ModalDelega
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        print("filterSelects \(genreSelections)")
+//        print("filterSelects \(genreSelections)")
         setAppearance()
+        let searchText = search.searchBar.text
         
-        fetchData()
+        if searchText == "" {
+            reloadData(byGameTitle: nil, platformID: nil, selectedGenres: genreSelections, selectedPlatforms: platformsToFilter, selectedDateRange: dateSelections)
+        } else {
+            reloadData(byGameTitle: searchText, platformID: nil, selectedGenres: genreSelections, selectedPlatforms: platformsToFilter, selectedDateRange: dateSelections)
+
+        }
+        //        fetchData()
         if totalGameCount < 1 {
 
             noGamesInLibraryView.isHidden = false
@@ -343,8 +379,8 @@ class OwnedGamesViewController: UIViewController, OwnedGameDelegate, ModalDelega
             noGamesInLibraryView.isHidden = true
           
         }
-        print(platformID)
-        print(traitCollection.userInterfaceStyle.rawValue)
+//        print(platformID)
+//        print(traitCollection.userInterfaceStyle.rawValue)
         
         setFilterIndicators()
 //        setSortLabels()
@@ -352,7 +388,7 @@ class OwnedGamesViewController: UIViewController, OwnedGameDelegate, ModalDelega
         totalGameCountLbl.text = "\(totalGameCount)"
 
         self.tableView.reloadData()
-        print("tableview reloaded")
+//        print("tableview reloaded")
     }
     
     
@@ -363,10 +399,171 @@ class OwnedGamesViewController: UIViewController, OwnedGameDelegate, ModalDelega
 //        tableView.reloadData()
     }
     
+    func reloadData(byGameTitle: String?, platformID: Int?, selectedGenres: [String]?, selectedPlatforms: [Int]?, selectedDateRange: [Int]?) {
+        var filterPredicate : NSPredicate?
+        var platforms : [Int] = []
+        var genres : [String] = []
+        var dates : [Int] = []
+        var title = ""
+        var startYear = 0
+        var endYear = 0
+        
+        if let platform = selectedPlatforms{
+        platforms = platform
+        }
+        if let genre = selectedGenres {
+            genres = genre
+        }
+        
+        if let date = selectedDateRange {
+            dates = date
+
+        }
+        if dates.count > 0 {
+            startYear = dates.first!
+            endYear = dates.last!
+        }
+        
+        if let gameTitle = byGameTitle {
+            title = gameTitle
+        }
+        
+        
+        
+        switch (dates.isEmpty, platforms.isEmpty, genres.isEmpty, byGameTitle == nil) {
+                
+                case (true, true, true, true):
+                    // all arrays are empty so we don't filter anything and return all SavedGame objects
+                    print("all arrays are empty so we don't filter anything and return all SavedGame objects")
+                    filterPredicate = NSPredicate(value: true)
+                    
+                case (true ,true, false, true):
+                    // only filter genres
+                    print("only filter genres")
+                    
+                    filterPredicate = NSPredicate(format: "SUBQUERY(%K, $genre, $genre.name IN %@).@count > 0", #keyPath(SavedGames.genreType), genres)
+
+                case (true, false, true, true):
+                    // only filter platforms
+                    print("only filter platforms")
+                    
+                    filterPredicate = NSPredicate(format: "%K in %@", argumentArray: [#keyPath(SavedGames.platformID), platforms])
+                    
+                case (true, false, false, true):
+                    // filter both genres and platforms
+                    print("filter both genres and platforms")
+                    
+                    filterPredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [
+                        NSPredicate(format: "SUBQUERY(%K, $genre, $genre.name IN %@).@count > 0", #keyPath(SavedGames.genreType), genres),
+                        NSPredicate(format: "%K IN %@", argumentArray: [#keyPath(SavedGames.platformID), platforms])
+                    ])
+                    
+                    
+                case (true, true, true, false):
+                    //Filtering by name only
+                    filterPredicate = NSPredicate(format: "%K CONTAINS [c] %@", argumentArray: [#keyPath(SavedGames.title), title])
+                    
+                    
+                case (true, true, false, false):
+                    //filtering by name and genre
+                    filterPredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [
+                        NSPredicate(format: "%K CONTAINS [c] %@", argumentArray: [#keyPath(SavedGames.title), title]),
+                        NSPredicate(format: "SUBQUERY(%K, $genre, $genre.name IN %@).@count > 0", #keyPath(SavedGames.genreType), genres)
+                    ])
+                    
+                case (true, false, true, false):
+                    //filtering by name and platform
+                    filterPredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [
+                        NSPredicate(format: "%K CONTAINS [c] %@", argumentArray: [#keyPath(SavedGames.title), title]),
+                        NSPredicate(format: "%K in %@", argumentArray: [#keyPath(SavedGames.platformID), platforms])
+                    ])
+                    
+                case (true, false, false, false):
+                    //filtering by name, genre, and platform
+        
+                    filterPredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [
+                        NSPredicate(format: "%K CONTAINS [c] %@", argumentArray: [#keyPath(SavedGames.title), title]),
+                        NSPredicate(format: "SUBQUERY(%K, $genre, $genre.name IN %@).@count > 0", #keyPath(SavedGames.genreType), genres),
+                        NSPredicate(format: "%K IN %@", argumentArray: [#keyPath(SavedGames.platformID), platforms])
+                        
+                    ])
+            case (false, true, true, true):
+                //filtering only by date range
+                filterPredicate = NSPredicate(format: "(releaseYear >= %i) AND (releaseYear <= %i)", startYear, endYear)
+            case (false, false, true, true):
+            //filtering by date range and platforms
+                filterPredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [
+                    NSPredicate(format: "(releaseYear >= %i) AND (releaseYear <= %i)", startYear, endYear),
+                    NSPredicate(format: "%K in %@", argumentArray: [#keyPath(SavedGames.platformID), platforms])
+                ])
+                    
+            case (false, false, false, true):
+            //filtering by date range, platforms, and genres
+                filterPredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [
+                    NSPredicate(format: "(releaseYear >= %i) AND (releaseYear <= %i)", startYear, endYear),
+                    NSPredicate(format: "%K in %@", argumentArray: [#keyPath(SavedGames.platformID), platforms]),
+                    NSPredicate(format: "SUBQUERY(%K, $genre, $genre.name IN %@).@count > 0", #keyPath(SavedGames.genreType), genres)
+                ])
+            case (false, false, false, false):
+            //filtering by date range, platforms, genres, and name
+                filterPredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [
+                    NSPredicate(format: "(releaseYear >= %i) AND (releaseYear <= %i)", startYear, endYear),
+                    NSPredicate(format: "%K in %@", argumentArray: [#keyPath(SavedGames.platformID), platforms]),
+                    NSPredicate(format: "SUBQUERY(%K, $genre, $genre.name IN %@).@count > 0", #keyPath(SavedGames.genreType), genres),
+                    NSPredicate(format: "%K CONTAINS [c] %@", argumentArray: [#keyPath(SavedGames.title), title])
+                ])
+            case (false, true, false, false):
+            //filtering by date range, genres, and name
+                filterPredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [
+                    NSPredicate(format: "(releaseYear >= %i) AND (releaseYear <= %i)", startYear, endYear),
+                    NSPredicate(format: "SUBQUERY(%K, $genre, $genre.name IN %@).@count > 0", #keyPath(SavedGames.genreType), genres),
+                    NSPredicate(format: "%K CONTAINS [c] %@", argumentArray: [#keyPath(SavedGames.title), title])
+                ])
+        
+            case (false, true, false, true):
+            //filtering by date range and genres
+                filterPredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [
+                    NSPredicate(format: "(releaseYear >= %i) AND (releaseYear <= %i)", startYear, endYear),
+                    NSPredicate(format: "SUBQUERY(%K, $genre, $genre.name IN %@).@count > 0", #keyPath(SavedGames.genreType), genres)
+                ])
+            case (false, true, true, false):
+            //filtering by date range and name
+                filterPredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [
+                    NSPredicate(format: "(releaseYear >= %i) AND (releaseYear <= %i)", startYear, endYear),
+                    NSPredicate(format: "%K CONTAINS [c] %@", argumentArray: [#keyPath(SavedGames.title), title])
+                ])
+            case (false, false, true, false):
+            //filtering by date range, platforms, and name
+                filterPredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [
+                    NSPredicate(format: "(releaseYear >= %i) AND (releaseYear <= %i)", startYear, endYear),
+                    NSPredicate(format: "%K in %@", argumentArray: [#keyPath(SavedGames.platformID), platforms]),
+                    NSPredicate(format: "%K CONTAINS [c] %@", argumentArray: [#keyPath(SavedGames.title), title])
+                ])
+       
+
+        }
+        
+        
+        fetchedResultsController.fetchRequest.predicate = filterPredicate
+        
+        do {
+            try fetchedResultsController.performFetch()        }
+        
+        catch {
+            
+            fatalError("Error fetching Saved Game objects")
+        }
+        
+        
+        ownedGames = fetchedResultsController.fetchedObjects as! [SavedGames]
+   
+        tableView.reloadData()
+    }
+    
 
     
     func removeFromLibrary(index: IndexPath) {
-        print("remove from library")
+//        print("remove from library")
         
         
             
@@ -389,7 +586,7 @@ class OwnedGamesViewController: UIViewController, OwnedGameDelegate, ModalDelega
                 }
                 self.filteredGameCountLbl.text = "\(self.ownedGames.count)"
                 self.totalGameCountLbl.text = "\(self.totalGameCount)"
-                print("owned games count",self.ownedGames.count)
+//                print("owned games count",self.ownedGames.count)
                 self.tableView.reloadData()
             }
             
@@ -440,18 +637,18 @@ class OwnedGamesViewController: UIViewController, OwnedGameDelegate, ModalDelega
     }
     
     @objc func sortButtonPressed() {
-        print("Sort Button Success")
+//        print("Sort Button Success")
         
         
        
 
                 if sortDirection == .orderedAscending {
-                    print("should change z to a")
+//                    print("should change z to a")
                     sortDirection = .orderedDescending
                     self.sortBtn.setImage(UIImage(named:"ztoa3")?.sd_resizedImage(with: CGSize(width: 20, height: 20), scaleMode: .aspectFit), for: .normal)
    
                 } else {
-                    print("should change a to z")
+//                    print("should change a to z")
 
                     
                     sortDirection = .orderedAscending
@@ -467,7 +664,7 @@ class OwnedGamesViewController: UIViewController, OwnedGameDelegate, ModalDelega
     }
     
     @objc func backButtonPressed() -> Void {
-        print("back button pressed")
+//        print("back button pressed")
 
         self.navigationController?.popViewController(animated: false)
 
@@ -567,7 +764,7 @@ class OwnedGamesViewController: UIViewController, OwnedGameDelegate, ModalDelega
     
     
     func changeDateRange(dateRange: [Int], platformID: Int?) {
-        print("changeDateRange called")
+//        print("changeDateRange called")
         self.dateSelections = dateRange
         self.ownedGames = persistenceManager.fetchGame(SavedGames.self, byGameTitle: nil, platformID: nil, selectedGenres: genreSelections, selectedPlatforms: platformsToFilter, selectedDateRange: dateRange)
             self.ownedGames = persistenceManager.fetchFilteredByReleaseDate(SavedGames.self, platformID: nil, dateRange: dateRange)
@@ -575,16 +772,16 @@ class OwnedGamesViewController: UIViewController, OwnedGameDelegate, ModalDelega
         filteredGameCountLbl.text = "\(ownedGames.count)"
 
         tableView.reloadData()
-        print("changeDateRange called")
+//        print("changeDateRange called")
 
     }
     
     func changeValue(value: [String], platformID: Int?){
         self.genreSelections = value
         
-        print("genreSelections", genreSelections)
-        print("platformsToFilter", platformsToFilter)
-        print("changeValue called through protocal")
+//        print("genreSelections", genreSelections)
+//        print("platformsToFilter", platformsToFilter)
+//        print("changeValue called through protocal")
 
 
         let searchText = search.searchBar.text
@@ -602,7 +799,7 @@ class OwnedGamesViewController: UIViewController, OwnedGameDelegate, ModalDelega
 
         tableView.reloadData()
 
-        print("modal delegate filter selections \(self.genreSelections)")
+//        print("modal delegate filter selections \(self.genreSelections)")
     }
     
     
@@ -624,15 +821,15 @@ class OwnedGamesViewController: UIViewController, OwnedGameDelegate, ModalDelega
     
     
     func createGameObjectFromCoreData(persistedObject: SavedGames) -> GameObject {
-        print("persisted object \(persistedObject)")
+//        print("persisted object \(persistedObject)")
         var screenshots : [ImageInfo] = []
         
         if let persistedScreenshots = persistedObject.screenshotImageIDs {
         for screenshot in persistedScreenshots {
             let imageInfo = ImageInfo(id: nil, alphaChannel: nil, animated: nil, game: nil, height: nil, imageID: screenshot, url: nil, width: nil, checksum: nil)
 
-            print("should be adding imageinfo")
-            print(imageInfo)
+//            print("should be adding imageinfo")
+//            print(imageInfo)
             screenshots.append(imageInfo)
         }
         }
@@ -684,14 +881,14 @@ class OwnedGamesViewController: UIViewController, OwnedGameDelegate, ModalDelega
         }
         let searchText = search.searchBar.text
         platformsToFilter = platformArray
-        print("filtering platforms", platformsToFilter)
+//        print("filtering platforms", platformsToFilter)
         if searchText == "" {
-            print("genreSelections", genreSelections)
-            print("platformsToFilter", platformsToFilter)
+//            print("genreSelections", genreSelections)
+//            print("platformsToFilter", platformsToFilter)
             self.ownedGames = self.persistenceManager.fetchGame(SavedGames.self, byGameTitle: nil, platformID: nil, selectedGenres: genreSelections, selectedPlatforms: platformsToFilter, selectedDateRange: dateSelections)
         } else {
-            print("genreSelections", genreSelections)
-            print("platformsToFilter", platformsToFilter)
+//            print("genreSelections", genreSelections)
+//            print("platformsToFilter", platformsToFilter)
             self.ownedGames = self.persistenceManager.fetchGame(SavedGames.self, byGameTitle: searchText, platformID: nil, selectedGenres: genreSelections, selectedPlatforms: platformsToFilter, selectedDateRange: dateSelections)
         }
         self.setFilterIndicators()
@@ -717,7 +914,7 @@ class OwnedGamesViewController: UIViewController, OwnedGameDelegate, ModalDelega
     
     
     func convertPlatformNameToID(platformName: String) -> Int {
-        print("platformName is", platformName)
+//        print("platformName is", platformName)
         let allPlatforms = network.platforms
         var platformID = 0
         for platform in allPlatforms {
@@ -727,7 +924,7 @@ class OwnedGamesViewController: UIViewController, OwnedGameDelegate, ModalDelega
             }
             
         }
-        print("platformID is", platformID)
+//        print("platformID is", platformID)
       return platformID
     }
     
@@ -763,7 +960,8 @@ class OwnedGamesViewController: UIViewController, OwnedGameDelegate, ModalDelega
             noGamesInLibraryView.backgroundColor = lightGray
             gameLibraryImage.image = UIImage(named: "gamelibrarynew")
             
-            
+            navigationController?.view.backgroundColor = .white
+
 
         } else if traitCollection.userInterfaceStyle == .dark {
             let darkGray = UIColor(red: (18/255), green: (18/255), blue: (18/255), alpha: 1)
@@ -771,6 +969,7 @@ class OwnedGamesViewController: UIViewController, OwnedGameDelegate, ModalDelega
             view.backgroundColor = darkGray
             noGamesInLibraryView.backgroundColor = darkGray
             gameLibraryImage.image = UIImage(named: "gamelibraryinversenew")
+            navigationController?.view.backgroundColor = .black
 
 
         }
@@ -798,13 +997,13 @@ class OwnedGamesViewController: UIViewController, OwnedGameDelegate, ModalDelega
         search.searchBar.delegate = self
         search.searchResultsUpdater = self
         search.obscuresBackgroundDuringPresentation = false
-        search.searchBar.placeholder = "Type something here to search"
+        search.searchBar.placeholder = "Enter game name to search"
         navigationItem.hidesSearchBarWhenScrolling = false
         navigationItem.searchController = search
     }
     
     func setNavigationLogoImage() {
-        let logo = UIImage(named: "glogo44")
+        let logo = UIImage(named: "gameologylogo44")
         let imageView = UIImageView(image:logo)
         imageView.contentMode = .scaleAspectFit
         self.navigationItem.titleView = imageView
@@ -823,6 +1022,8 @@ class OwnedGamesViewController: UIViewController, OwnedGameDelegate, ModalDelega
         } else {
             print("Can't load VC. Check name")
         }
+        
+        
         
         if let ageRangeViewController = UIStoryboard(
             name: "Main",
@@ -885,6 +1086,7 @@ class OwnedGamesViewController: UIViewController, OwnedGameDelegate, ModalDelega
                 print("something wrong")
                 return }
             viewController.id = self.platformID
+            self.network.sourceTag = 5
             viewController.delegate = self
             
             self.present(viewController, animated: true, completion: nil)
@@ -1142,7 +1344,7 @@ class OwnedGamesViewController: UIViewController, OwnedGameDelegate, ModalDelega
     
     func removeLeadingArticle(fromString: String) -> String{
         let articles = ["a ", "an ", "the ", "The ", "A ", "An "]
-        var returnString : String?
+//        var returnString : String?
         
         for article in articles {
             if fromString.lowercased().hasPrefix(article.lowercased()) {
@@ -1641,8 +1843,8 @@ extension OwnedGamesViewController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "ownedGamesCell", for: indexPath) as? OwnedGamesVCTableViewCell
-        print("filterSelections")
-        print(genreSelections)
+//        print("filterSelections")
+//        print(genreSelections)
         
         cell?.index = indexPath
 //        cell?.game = ownedGames[indexPath.row]
@@ -1722,17 +1924,17 @@ extension OwnedGamesViewController: UITableViewDelegate, UITableViewDataSource {
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        print("outside destination")
+//        print("outside destination")
         if let destination = segue.destination as? PagingDetailVC {
-            print("destination")
-            print(destination)
+//            print("destination")
+//            print(destination)
             let index = (tableView.indexPathForSelectedRow?.row)!
             let indexPathForRow = tableView.indexPathForSelectedRow
             var selectedGame : SavedGames?
 //            let section = tableView.indexPath.se
 //            let selectedGame : SavedGames?
             if let indexPath = indexPathForRow {
-                print("index path is not nil")
+//                print("index path is not nil")
                 if sortDirection == .orderedAscending {
                 switch indexPath.section {
                     case 0   :     selectedGame = numericGames[index]
@@ -1804,7 +2006,7 @@ extension OwnedGamesViewController: UITableViewDelegate, UITableViewDataSource {
             
             let game = createGameObjectFromCoreData(persistedObject: selectedGame!)
             
-            print("prepare persistedGame = \(game)")
+//            print("prepare persistedGame = \(game)")
             
             
             destination.game = game
@@ -1813,7 +2015,7 @@ extension OwnedGamesViewController: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        print("row selected")
+//        print("row selected")
         self.performSegue(withIdentifier: "pageVC", sender: self)
         
 
@@ -1823,11 +2025,32 @@ extension OwnedGamesViewController: UITableViewDelegate, UITableViewDataSource {
     
 }
 
+extension OwnedGamesViewController : NSFetchedResultsControllerDelegate {
+    
+    func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
+        let searchText = search.searchBar.text
+        
+        if searchText == "" {
+            reloadData(byGameTitle: nil, platformID: nil, selectedGenres: genreSelections, selectedPlatforms: platformsToFilter, selectedDateRange: dateSelections)
+        } else {
+            reloadData(byGameTitle: searchText, platformID: nil, selectedGenres: genreSelections, selectedPlatforms: platformsToFilter, selectedDateRange: dateSelections)
+
+        }
+        
+        let allGames = persistenceManager.fetchGame(SavedGames.self, byGameTitle: nil, platformID: nil, selectedGenres: nil, selectedPlatforms: nil, selectedDateRange: nil)
+        filteredGameCountLbl.text = "\(ownedGames.count)"
+        totalGameCountLbl.text = "\(allGames.count)"
+        
+    }
+    
+}
+                                    
+
 extension OwnedGamesViewController : UISearchResultsUpdating {
     
     func updateSearchResults(for searchController: UISearchController) {
         guard let text = searchController.searchBar.text else { return }
-        print(text)
+//        print(text)
 
             
         
@@ -1842,7 +2065,7 @@ extension OwnedGamesViewController : UISearchResultsUpdating {
         self.filteredGameCountLbl.text = "\(self.ownedGames.count)"
 
        
-        print(self.ownedGames)
+//        print(self.ownedGames)
         tableView.reloadData()
     }
     
@@ -1858,13 +2081,13 @@ extension OwnedGamesViewController: UISearchBarDelegate {
                 self.ownedGames = self.persistenceManager.fetchGame(SavedGames.self, byGameTitle: text, platformID: nil, selectedGenres: genreSelections, selectedPlatforms: platformsToFilter, selectedDateRange: dateSelections)
             
       
-        print("search bar search button clicked")
+//        print("search bar search button clicked")
         self.filteredGameCountLbl.text = "\(self.ownedGames.count)"
 
         tableView.reloadData()
         
         search.dismiss(animated: true) {
-            print("search clicked")
+//            print("search clicked")
         }
         
     }
@@ -1873,7 +2096,7 @@ extension OwnedGamesViewController: UISearchBarDelegate {
     func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
 
         search.dismiss(animated: true) {
-            print("cancel clicked")
+//            print("cancel clicked")
         }
         
         

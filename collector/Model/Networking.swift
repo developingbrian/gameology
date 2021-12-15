@@ -47,6 +47,7 @@ class Networking {
     var gamesData: ByPlatformIDData?
     var games = [GDBGamesPlatform]()
     var gameArray = [GameObject]()
+    var searchResultsData = [GameObject]()
     var boxarts = [String : [ImageData]]()
     var boxartsGameName = [String : [GameData]]()
     var boxart : Boxart?
@@ -90,6 +91,8 @@ class Networking {
     var newDataCount = 0
     var currentTask : URLSessionTask?
     var totalRequestCount = 0
+    var priceInfo = PriceInfo()
+
     
 //    var connected: Bool! {
 //      willSet {
@@ -134,8 +137,8 @@ class Networking {
 //    }
     
     
-    func scrapePriceCharting(platformID: Int, gameName: String, uneditedGameName: String) -> PriceInfo {
-        let priceInfo = PriceInfo()
+    func scrapePriceCharting(platformID: Int, gameName: String, uneditedGameName: String, completed: @escaping () -> () ) {
+//        let priceInfo = PriceInfo()
         let consoleUID = formatPlatformIDToPriceChartingID(ID: platformID)
         var name = gameName.replacingOccurrences(of: " ", with: "-")
 //        var allowedQueryParamAndKey = NSCharacterSet.urlQueryAllowed
@@ -143,16 +146,19 @@ class Networking {
         name = name.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)!
         name = name.replacingOccurrences(of: "'", with: "%27")
 //        name = name.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!
-        print(name)
+//        print(name)
         let url = URL(string:"https://www.pricecharting.com/search-products?q=\(name)&type=prices&sort=popularity&broad-category=video-games&console-uid=\(consoleUID)&region-name=ntsc&exclude-variants=false")!
         network.scrapedURL = url.absoluteString
-        print("contents of url", url)
+//        print("contents of url", url)
         let content = (try? String(contentsOf: url))
         
-            
+    
         if let htmlContent = content {
-        let doc : Document = try! SwiftSoup.parse(htmlContent)
-        let doclocation = doc.location()
+            
+            
+            do {
+        let doc : Document = try SwiftSoup.parse(htmlContent)
+//        let doclocation = doc.location()
         let docTitle = try! doc.title()
         
         if docTitle.contains("Game List") {
@@ -160,43 +166,47 @@ class Networking {
             //scrape result returned no results
             
             
-        print("doc location = ",
-              docTitle)
-            
+//        print("doc location = ",
+//              docTitle)
+            print("scrape returned no results")
             if try! doc.select("table#games_table.hoverable-rows.sortable").first() == nil {
             
-                let page = try! doc.select("div#search-page.js-console-page")
+//                let page = try! doc.select("div#search-page.js-console-page")
                 
-                let results = try! page.compactMap { row throws -> String in
-                    
-                    guard page.count == 1, let link = try page[0].select("h1").first() else {
-                        return "N/A" // wrong row
-                    }
-
-                    return try link.text()
-                    
-                }
+//                let results = try! page.compactMap { row throws -> String in
+//                    
+//                    guard page.count == 1, let link = try page[0].select("h1").first() else {
+//                        return "N/A" // wrong row
+//                    }
+//
+//                    return try link.text()
+//                    
+//                }
                 
-                print("results", results)
+//                print("results", results)
                 
                 priceInfo.title = "N/A"
                 priceInfo.loosePrice = "N/A"
                 priceInfo.cibPrice = "N/A"
                 priceInfo.newPrice = "N/A"
+            
                 
-                return priceInfo
+                DispatchQueue.main.async {
+                    completed()
+                }
+//                return priceInfo
                 
                 
                 
+            
                 
-                
-            }
+            } else {
             
             
             //scrape result is returning multiple games, identifying needed properties and then taking most relavent result
 
             
-            
+//                print("scrape returned multiple results")
         let table = try! doc.select("table#games_table.hoverable-rows.sortable").first()!
         let rows = try! table.select("tr")
         
@@ -245,16 +255,16 @@ class Networking {
             return try link.text()
         }
         
-        print("titles are", titles)
-        print("platforms are", platforms)
-        print("loose prices are", loosePrices)
-        print("cib prices are", cibPrices)
-        print("new prices are", newPrices)
-            print("game name", uneditedGameName)
+//        print("titles are", titles)
+//        print("platforms are", platforms)
+//        print("loose prices are", loosePrices)
+//        print("cib prices are", cibPrices)
+//        print("new prices are", newPrices)
+//            print("game name", uneditedGameName)
 
             let currentPlatform = formatPlatformIDToPlatformName(ID: platformID)
-            var platformScoreArray : [Double] = []
-            print("current platform", currentPlatform)
+//            var platformScoreArray : [Double] = []
+//            print("current platform", currentPlatform)
             var matchingIndexArray : [Int] = []
 
             var index = 0
@@ -273,7 +283,7 @@ class Networking {
                 for index in matchingIndexArray {
                     let title = titles[index]
                     let score = title.levenshteinDistanceScore(to: uneditedGameName, ignoreCase: true, trimWhiteSpacesAndNewLines: true)
-                    print("score for ", title," is ",score)
+//                    print("score for ", title," is ",score)
                     titleScoreArray.append(score)
                     
                 }
@@ -292,51 +302,54 @@ class Networking {
                 }
                 
                 if let index = winningIndex {
-                    priceInfo.title = titles[index]
-                    priceInfo.loosePrice = loosePrices[index]
-                    priceInfo.cibPrice = cibPrices[index]
-                    priceInfo.newPrice = newPrices[index]
+                    self.priceInfo.title = titles[index]
+                    self.priceInfo.loosePrice = loosePrices[index]
+                    self.priceInfo.cibPrice = cibPrices[index]
+                    self.priceInfo.newPrice = newPrices[index]
                     
                 } else {
-                    priceInfo.title = "N/A"
-                    priceInfo.loosePrice = "N/A"
-                    priceInfo.cibPrice = "N/A"
-                    priceInfo.newPrice = "N/A"
+                    self.priceInfo.title = "N/A"
+                    self.priceInfo.loosePrice = "N/A"
+                    self.priceInfo.cibPrice = "N/A"
+                    self.priceInfo.newPrice = "N/A"
                     
                 }
                 
                 
             } else {
-                priceInfo.title = "N/A"
-                priceInfo.loosePrice = "N/A"
-                priceInfo.cibPrice = "N/A"
-                priceInfo.newPrice = "N/A"
+                self.priceInfo.title = "N/A"
+                self.priceInfo.loosePrice = "N/A"
+                self.priceInfo.cibPrice = "N/A"
+                self.priceInfo.newPrice = "N/A"
                             }
             
-
-
-        return priceInfo
+            DispatchQueue.main.async {
+                completed()
+            }
+            }
+//        return priceInfo
             
         } else {
+//            print("scrape returned exact match")
             
             
         //scrape result found exact match.  identifying needed properties and then taking first (most relavent) result
             
             
-        print("doc location = ",
-              docTitle)
+//        print("doc location = ",
+//              docTitle)
         let table = try! doc.select("table#price_data.info_box").first()!
         let rows = try! table.select("tr")
         let gamePage = try! doc.select("div#game-page").first()!
         let gameText = try! gamePage.select("h1#product_name.chart_title")
-            let gameTitle = try! gamePage.select("h1#text")
-        print("game text", gameText.count)
-        print(gameText[0])
+//            let gameTitle = try! gamePage.select("h1#text")
+//        print("game text", gameText.count)
+//        print(gameText[0])
             var titles = try! gameText.compactMap { row throws -> String? in
 //            let link = gameTitle
            
             let link = gameText[0]
-            print(try link.text())
+//            print(try link.text())
             return try link.text()
         }
             
@@ -393,34 +406,49 @@ class Networking {
              bestMatchIndex = Int(location)
             }
             }
-        print("titles are", titles)
-        print("loose prices are", loosePrices)
-        print("cib prices are", cibPrices)
-        print("new prices are", newPrices)
+//        print("titles are", titles)
+//        print("loose prices are", loosePrices)
+//        print("cib prices are", cibPrices)
+//        print("new prices are", newPrices)
+//        print("best match index is", bestMatchIndex)
             if let index = bestMatchIndex {
-        priceInfo.title = titles[index]
-        priceInfo.loosePrice = loosePrices[index]
-        priceInfo.cibPrice = cibPrices[index]
-        priceInfo.newPrice = newPrices[index]
+                self.priceInfo.title = titles[index]
+                self.priceInfo.loosePrice = loosePrices[index]
+                self.priceInfo.cibPrice = cibPrices[index]
+                self.priceInfo.newPrice = newPrices[index]
             } else {
-                priceInfo.title = "N/A"
-                priceInfo.loosePrice = "N/A"
-                priceInfo.cibPrice = "N/A"
-                priceInfo.newPrice = "N/A"
+                self.priceInfo.title = "N/A"
+                self.priceInfo.loosePrice = "N/A"
+                self.priceInfo.cibPrice = "N/A"
+                self.priceInfo.newPrice = "N/A"
             }
-            
-        return priceInfo
+            DispatchQueue.main.async {
+                completed()
+            }
+//        return priceInfo
     
         }
-    
+            
+            
+        }
+            
+            
+            catch {
+                print("fail")
+            }
+            
     }
         
-        priceInfo.title = "N/A"
-        priceInfo.loosePrice = "N/A"
-        priceInfo.cibPrice = "N/A"
-        priceInfo.newPrice = "N/A"
-        
-        return priceInfo
+//        priceInfo.title = "N/A"
+//        priceInfo.loosePrice = "N/A"
+//        priceInfo.cibPrice = "N/A"
+//        priceInfo.newPrice = "N/A"
+//
+//
+//        DispatchQueue.main.async {
+//            completed()
+//        }
+//        return priceInfo
         
     }
     
@@ -597,9 +625,9 @@ class Networking {
                 urlString = pageURL!
             }
             
-        print("urlString = \(urlString)")
+//        print("urlString = \(urlString)")
         let url = URL(string: urlString)!
-            print("\(url)")
+//            print("\(url)")
         var requestHeader = URLRequest.init(url: url)
         requestHeader.httpMethod = "GET"
         requestHeader.setValue("application/json", forHTTPHeaderField: "Accept")
@@ -608,8 +636,8 @@ class Networking {
             
             if error == nil {
                 do {
-                    let json = String(data: data!, encoding: .utf8)
-                    print("\(String(describing: json))")
+//                    let json = String(data: data!, encoding: .utf8)
+//                    print("\(String(describing: json))")
                     
                     var array = [GameObject]()
                     
@@ -618,13 +646,13 @@ class Networking {
                         let decodedByGameName = jsonDecodedByGameName.data?.games
                         let boxartByGameName = jsonDecodedByGameName.include.boxart?.data
                         self.boxartsGameName.merge(boxartByGameName!, uniquingKeysWith:  { (first, _) in first })
-                        print(boxartsGameName)
+//                        print(boxartsGameName)
                         for item in decodedByGameName! {
                             
                             var game = GameObject()
                             game.id = item.id
                                 game.title = item.gameTitle
-                            print("gamename item.releaseDate \(String(describing: item.releaseDate))")
+//                            print("gamename item.releaseDate \(String(describing: item.releaseDate))")
                             if let unformattedDate = item.releaseDate{
                                 
                                     game.releaseDate = formatDate(releaseDate: unformattedDate)
@@ -660,7 +688,7 @@ class Networking {
                             
                             game.owned = delegate?.checkForGameInLibrary(name: name, id: id, platformID: platformID)
 
-                                print(game)
+//                                print(game)
                             array.append(game)
                             self.tempArray = array
                         }
@@ -683,7 +711,7 @@ class Networking {
 }
     
     func downloadGameImageJSON(gameID: Int?, completed: @escaping () -> () ) {
-        print("downloadGameImageJSON()")
+//        print("downloadGameImageJSON()")
         
 //        var game = GameObject()
 //        print("games.count = \(games.count)")
@@ -692,7 +720,7 @@ class Networking {
 //            print(games[0].id!)
             if let gameData = gameID {
 //            if let gameData = gameData[0].id {
-                print("gameData = \(gameData)")
+//                print("gameData = \(gameData)")
                 let urlString = "https://api.thegamesdb.net/v1/Games/Images?apikey=\(apiKey)&games_id=\(gameData)&filter%5Btype%5D=fanart%2Cbanner%2Cboxart%2Cscreenshot%2Cclearlogo%2Ctitlescreen"
                 let url = URL(string: urlString)
 //                &filter%5Btype%5D=%20valfanart%2Cbanner%2Cboxart%2Cscreenshot%2Cclearlogo%2Ctitlescreen"
@@ -708,9 +736,8 @@ class Networking {
                     
                     if error == nil {
                         do {
-                            let json = String(data:data!, encoding: .utf8)
-                            print("\(String(describing: json))")
-                            print("gameData = \(gameData)")
+////                            print("\(String(describing: json))")
+//                            print("gameData = \(gameData)")
 //                             self.gameDataImages
                             if let jsonDecodedGameImages = try JSONDecoder().decode(GameDBData?.self, from: data!) {
 //                                self.gameImages = jsonDecodedGameImages.data?.images.innerArray["\(gameData)"] as [GameImages.Inner]
@@ -737,9 +764,9 @@ class Networking {
                                 image.clearLogoArray = self.fetchAddtionalImageArrays(imageType: "clearlogo", imageData: self.gametestImageData!)
                                 image.titleScreenArray = self.fetchAddtionalImageArrays(imageType: "titlescreen", imageData: self.gametestImageData!)
                                 
-                                print(image)
-                                print("inside downloadGameImageJSON-gameImageData = \(String(describing: self.gameImages))")
-                                print("gametestImageData \(String(describing: self.gametestImageData))")
+//                                print(image)
+//                                print("inside downloadGameImageJSON-gameImageData = \(String(describing: self.gameImages))")
+//                                print("gametestImageData \(String(describing: self.gametestImageData))")
                                
                             }
                             
@@ -797,8 +824,8 @@ class Networking {
     
     func fetchGameFromUPC(gameName: String, platformID: [Int], completed: @escaping (Error?) -> () ) {
         scannedGameResults.removeAll()
-        var searchResults : [GameObject] = []
-        let stringComponents = gameName.components(separatedBy: " ")
+//        var searchResults : [GameObject] = []
+//        let stringComponents = gameName.components(separatedBy: " ")
         let allowedPlatforms : [Int] = [50,114,59,66,60,62,61,68,127,67,88,11,12,49,169,80,136,119,120,307,18,19,87,4,21,5,41,130,33,22,24,20,159,37,137,166,42,122,86,128,117,84,64,29,78,30,32,23,35,339,7,8,9,48,167,38,46,70,57,123,240]
         let fields = "fields age_ratings.*, genres.*, name, first_release_date, summary, involved_companies.company.name, involved_companies.publisher, total_rating, total_rating_count, platforms.*, cover.*, platforms.versions.platform_logo.*, platforms.platform_logo.*, screenshots.*, game_modes.name, rating, status, videos.video_id;"
 //        let filter = "where name ~*(\"\(gameName)\");"
@@ -824,7 +851,7 @@ class Networking {
             }
         }
         
-        print("platforms are", platforms)
+//        print("platforms are", platforms)
 //        let filter = " where themes != (42) & status = n & release_dates.region != (5,6,7) & category != (1,2,5,6,7) & name ~ *\"\(gameName)\"*; sort name asc;"
         
         if platformID.count < 1 {
@@ -836,7 +863,7 @@ class Networking {
         
         let search = "search \"\(gameName)\";"
         let httpBodyString = fields + search + filter
-        print("httpBodyString", httpBodyString)
+//        print("httpBodyString", httpBodyString)
         let url = URL(string: "https://30kn8ciec4.execute-api.us-west-2.amazonaws.com/production/v4/games")!
         var requestHeader = URLRequest.init(url: url)
         requestHeader.httpBody = httpBodyString.data(using: .utf8, allowLossyConversion: false)
@@ -849,8 +876,8 @@ class Networking {
                 var array = [GameObject]()
                 
                 if let decodedGameData = try JSONDecoder().decode(IGDBGames?.self, from: data!) {
-                    print("decodedUPCGAMEDATA", decodedGameData)
-                    var tempArray : [GameObject] = []
+//                    print("decodedUPCGAMEDATA", decodedGameData)
+//                    var tempArray : [GameObject] = []
                     if decodedGameData.count == 0 {
                         resultsReceived = false
                         DispatchQueue.main.async {
@@ -881,14 +908,14 @@ class Networking {
                                 dateFormatter.dateFormat = "MM-dd-yyyy"
                                 dateFormatter.timeZone = TimeZone(abbreviation: "GMT")
                                 let formattedDate = dateFormatter.string(from: releaseDate as Date)
-                                print("release date \(formattedDate)")
+//                                print("release date \(formattedDate)")
                                 game.releaseDate = "\(formattedDate)"
                             }
                             
                             var genreArray : [String] = []
                             if let genreData = gameData.genres {
                             for genre in genreData {
-                                print("genre.name \(String(describing: genre.name))")
+//                                print("genre.name \(String(describing: genre.name))")
                                 
                                 genreArray.append(genre.name!)
                             }
@@ -934,9 +961,9 @@ class Networking {
                                 if esrbRatings.count > 0 {
                                     
                                     let rating = esrbRatings[0].rating!
-                                    print(esrbRatings)
+//                                    print(esrbRatings)
                                     game.rating = fetchAgeRatingString(rating: rating)
-                                    print("game rating in esrb rating count: \(String(describing: game.rating))")
+//                                    print("game rating in esrb rating count: \(String(describing: game.rating))")
                                 } else {
                                     if esrbRatings.count == 0 {
                                     if pegiRatings.count > 0 {
@@ -947,7 +974,7 @@ class Networking {
                                 }
                                 
                                 
-                                print("game rating is: \(String(describing: game.rating))")
+//                                print("game rating is: \(String(describing: game.rating))")
                                 
                     
                             } else {
@@ -990,10 +1017,10 @@ class Networking {
                             for company in involvedCompanies {
                                 
                                 if company.publisher == true {
-                                    print("companydata \(company) company.id \(String(describing: company.id))")
+//                                    print("companydata \(company) company.id \(String(describing: company.id))")
                                     game.developer = fetchCompanyName(companyID: company.id!, game: gameData
                                     )
-                                    print("game.developer \(String(describing: game.developer))")
+//                                    print("game.developer \(String(describing: game.developer))")
                                 }
                             }
                             }
@@ -1010,7 +1037,7 @@ class Networking {
                             array.append(game)
                             self.scannedGameResults = array
                                 
-                                print("barcode request complete, results are", scannedGameResults)
+//                                print("barcode request complete, results are", scannedGameResults)
                                 
                                 DispatchQueue.main.async {
                                     completed(nil)
@@ -1022,7 +1049,7 @@ class Networking {
                         }
                         
                         else {
-                            print("gamedata platform", gameData.platforms)
+//                            print("gamedata platform", gameData.platforms)
                             if let platforms = gameData.platforms {
                                 
                                 
@@ -1039,7 +1066,7 @@ class Networking {
                                 dateFormatter.dateFormat = "MM-dd-yyyy"
                                 dateFormatter.timeZone = TimeZone(abbreviation: "GMT")
                                 let formattedDate = dateFormatter.string(from: releaseDate as Date)
-                                print("release date \(formattedDate)")
+//                                print("release date \(formattedDate)")
                                 game.releaseDate = "\(formattedDate)"
                             }
                             
@@ -1092,9 +1119,9 @@ class Networking {
                                 if esrbRatings.count > 0 {
                                     
                                     let rating = esrbRatings[0].rating!
-                                    print(esrbRatings)
+//                                    print(esrbRatings)
                                     game.rating = fetchAgeRatingString(rating: rating)
-                                    print("game rating in esrb rating count: \(String(describing: game.rating))")
+//                                    print("game rating in esrb rating count: \(String(describing: game.rating))")
                                 } else {
                                     if esrbRatings.count == 0 {
                                     if pegiRatings.count > 0 {
@@ -1105,7 +1132,7 @@ class Networking {
                                 }
                                 
                                 
-                                print("game rating is: \(String(describing: game.rating))")
+//                                print("game rating is: \(String(describing: game.rating))")
                                 
                     
                             } else {
@@ -1149,10 +1176,10 @@ class Networking {
                             for company in involvedCompanies {
                                 
                                 if company.publisher == true {
-                                    print("companydata \(company) company.id \(String(describing: company.id))")
+//                                    print("companydata \(company) company.id \(String(describing: company.id))")
                                     game.developer = fetchCompanyName(companyID: company.id!, game: gameData
                                     )
-                                    print("game.developer \(String(describing: game.developer))")
+//                                    print("game.developer \(String(describing: game.developer))")
                                 }
                             }
                             }
@@ -1169,7 +1196,7 @@ class Networking {
                             array.append(game)
                             self.scannedGameResults = array
                                     
-                                    print("barcode request complete, results are", scannedGameResults)
+//                                    print("barcode request complete, results are", scannedGameResults)
                                     
                                     DispatchQueue.main.async {
                                         completed(nil)
@@ -1224,13 +1251,10 @@ class Networking {
 //        print(currentDate)
         
 //        let today = Int(currentDate!.timeIntervalSince1970)
-        
-        let today = Int(Calendar(identifier: .gregorian).startOfDay(for: Date()).timeIntervalSince1970)
-        
-        let todayMinusThirty = Int(Calendar.current.date(byAdding: .month, value: -1, to: Date())!.timeIntervalSince1970)
+ 
 //        let todayPlusThirty = Int(datePlusThirty!.timeIntervalSince1970)
-        print("top20")
-        print(today, todayMinusThirty)
+//        print("top20")
+//        print(today, todayMinusThirty)
         
         let fields = "fields age_ratings.*, genres.*, name, first_release_date, summary, involved_companies.company.name, involved_companies.publisher, total_rating, total_rating_count, platforms.*, cover.*, platforms.versions.platform_logo.*, platforms.platform_logo.*, screenshots.*, game_modes.name, rating, status, videos.video_id;"
         let filter = " where themes != (42) & status = n & total_rating != n & total_rating_count > 5 &category != (1,2,5,6,7) & platforms = (\(platformID)) & platforms != (19); limit 20; sort total_rating desc;"
@@ -1238,7 +1262,7 @@ class Networking {
         
         
         let httpBodyString = fields + filter
-        print("coming soon", httpBodyString)
+//        print("coming soon", httpBodyString)
         let url = URL(string: "https://30kn8ciec4.execute-api.us-west-2.amazonaws.com/production/v4/games")!
         var requestHeader = URLRequest.init(url: url)
         requestHeader.httpBody = httpBodyString.data(using: .utf8, allowLossyConversion: false)
@@ -1263,10 +1287,10 @@ class Networking {
                         
                         if decodedGameData.count == 0 {
                             endOfResults = true
-                            print("endofresults = \(endOfResults)")
+//                            print("endofresults = \(endOfResults)")
                         } else {
                             endOfResults = false
-                            print("endofresults = \(endOfResults)")
+//                            print("endofresults = \(endOfResults)")
 
                         }
                         for gameData in decodedGameData {
@@ -1282,14 +1306,14 @@ class Networking {
                                 dateFormatter.dateFormat = "MM-dd-yyyy"
                                 dateFormatter.timeZone = TimeZone(abbreviation: "GMT")
                                 let formattedDate = dateFormatter.string(from: releaseDate as Date)
-                                print("release date \(formattedDate)")
+//                                print("release date \(formattedDate)")
                                 game.releaseDate = "\(formattedDate)"
                             }
                             
                             var genreArray : [String] = []
                             if let genreData = gameData.genres {
                             for genre in genreData {
-                                print("genre.name \(String(describing: genre.name))")
+//                                print("genre.name \(String(describing: genre.name))")
                                 
                                 genreArray.append(genre.name!)
                             }
@@ -1335,9 +1359,9 @@ class Networking {
                                 if esrbRatings.count > 0 {
                                     
                                     let rating = esrbRatings[0].rating!
-                                    print(esrbRatings)
+//                                    print(esrbRatings)
                                     game.rating = fetchAgeRatingString(rating: rating)
-                                    print("game rating in esrb rating count: \(String(describing: game.rating))")
+//                                    print("game rating in esrb rating count: \(String(describing: game.rating))")
                                 } else {
                                     if esrbRatings.count == 0 {
                                     if pegiRatings.count > 0 {
@@ -1348,7 +1372,7 @@ class Networking {
                                 }
                                 
                                 
-                                print("game rating is: \(String(describing: game.rating))")
+//                                print("game rating is: \(String(describing: game.rating))")
                                 
                     
                             } else {
@@ -1396,10 +1420,10 @@ class Networking {
                             for company in involvedCompanies {
                                 
                                 if company.publisher == true {
-                                    print("companydata \(company) company.id \(String(describing: company.id))")
+//                                    print("companydata \(company) company.id \(String(describing: company.id))")
                                     game.developer = fetchCompanyName(companyID: company.id!, game: gameData
                                     )
-                                    print("game.developer \(String(describing: game.developer))")
+//                                    print("game.developer \(String(describing: game.developer))")
                                 }
                             }
                             }
@@ -1415,7 +1439,7 @@ class Networking {
                             game.owned = delegate?.checkForGameInLibrary(name: name, id: id, platformID: platformID)
                             array.append(game)
                             self.tempArray = array
-                        print("platforms downloaded")
+//                        print("platforms downloaded")
 
                     }
                         
@@ -1477,8 +1501,8 @@ class Networking {
         
         let todayMinusThirty = Int(Calendar.current.date(byAdding: .month, value: -1, to: Date())!.timeIntervalSince1970)
 //        let todayPlusThirty = Int(datePlusThirty!.timeIntervalSince1970)
-        print("recently released")
-        print(today, todayMinusThirty)
+//        print("recently released")
+//        print(today, todayMinusThirty)
         
         let fields = "fields age_ratings.*, genres.*, name, first_release_date, summary, involved_companies.company.name, involved_companies.publisher, total_rating, total_rating_count, platforms.*, cover.*, platforms.versions.platform_logo.*, platforms.platform_logo.*, screenshots.*, game_modes.name, rating, status, videos.video_id;"
         let filter = " where themes != (42) & status = n & category != (1,2,5,6,7) & platforms = (\(platformID)) & first_release_date > \(todayMinusThirty) & first_release_date <= \(today); limit 500; sort first_release_date desc;"
@@ -1511,10 +1535,10 @@ class Networking {
                         
                         if decodedGameData.count == 0 {
                             endOfResults = true
-                            print("endofresults = \(endOfResults)")
+//                            print("endofresults = \(endOfResults)")
                         } else {
                             endOfResults = false
-                            print("endofresults = \(endOfResults)")
+//                            print("endofresults = \(endOfResults)")
 
                         }
                         for gameData in decodedGameData {
@@ -1530,7 +1554,7 @@ class Networking {
                                 dateFormatter.dateFormat = "MM-dd-yyyy"
                                 dateFormatter.timeZone = TimeZone(abbreviation: "GMT")
                                 let formattedDate = dateFormatter.string(from: releaseDate as Date)
-                                print("release date \(formattedDate)")
+//                                print("release date \(formattedDate)")
                                 game.releaseDate = "\(formattedDate)"
                             }
                             
@@ -1583,7 +1607,7 @@ class Networking {
                                 if esrbRatings.count > 0 {
                                     
                                     let rating = esrbRatings[0].rating!
-                                    print(esrbRatings)
+//                                    print(esrbRatings)
                                     game.rating = fetchAgeRatingString(rating: rating)
 //                                    print("game rating in esrb rating count: \(game.rating)")
                                 } else {
@@ -1663,7 +1687,7 @@ class Networking {
                             game.owned = delegate?.checkForGameInLibrary(name: name, id: id, platformID: platformID)
                             array.append(game)
                             self.tempArray = array
-                        print("platforms downloaded")
+//                        print("platforms downloaded")
 
                     }
                         
@@ -1674,13 +1698,13 @@ class Networking {
                         
                         oldData.append(contentsOf: newData)
                         let mergedData = oldData
-                        print("currentOffset before = \(currentOffset)")
-                        print("mergeddata count is \(mergedData.count)")
+//                        print("currentOffset before = \(currentOffset)")
+//                        print("mergeddata count is \(mergedData.count)")
                         //think this is the one to work with**
                         if self.currentOffset < mergedData.count {
                             
                             self.recentlyReleasedArray = mergedData
-                            print("recently released count \(recentlyReleasedArray.count)")
+//                            print("recently released count \(recentlyReleasedArray.count)")
 //                            currentOffset = mergedData.count
                
 
@@ -1698,7 +1722,7 @@ class Networking {
                 }
                 
                 catch {
-                    print(error)
+//                    print(error)
                     DispatchQueue.main.async {
                         completed(error)
                     }
@@ -1726,7 +1750,7 @@ class Networking {
         let todayPlusThirty = Int(Calendar.current.date(byAdding: .month, value: 1, to: Date())!.timeIntervalSince1970)
 //        let todayPlusThirty = Int(datePlusThirty!.timeIntervalSince1970)
 
-        print(today, todayPlusThirty)
+//        print(today, todayPlusThirty)
         
         let fields = "fields age_ratings.*, genres.*, name, first_release_date, summary, involved_companies.company.name, involved_companies.publisher, total_rating, total_rating_count, platforms.*, cover.*, platforms.versions.platform_logo.*, platforms.platform_logo.*, screenshots.*, game_modes.name, rating, status, videos.video_id;"
         let filter = " where themes != (42) & status = n & category != (1,2,5,6,7) & platforms = (\(platformID)) & first_release_date > \(today) & first_release_date < \(todayPlusThirty); limit 500; sort first_release_date asc;"
@@ -1734,7 +1758,7 @@ class Networking {
         
         
         let httpBodyString = fields + filter
-        print("coming soon", httpBodyString)
+//        print("coming soon", httpBodyString)
         let url = URL(string: "https://30kn8ciec4.execute-api.us-west-2.amazonaws.com/production/v4/games")!
         var requestHeader = URLRequest.init(url: url)
         requestHeader.httpBody = httpBodyString.data(using: .utf8, allowLossyConversion: false)
@@ -1759,10 +1783,10 @@ class Networking {
                         
                         if decodedGameData.count == 0 {
                             endOfResults = true
-                            print("endofresults = \(endOfResults)")
+//                            print("endofresults = \(endOfResults)")
                         } else {
                             endOfResults = false
-                            print("endofresults = \(endOfResults)")
+//                            print("endofresults = \(endOfResults)")
 
                         }
                         for gameData in decodedGameData {
@@ -1778,7 +1802,7 @@ class Networking {
                                 dateFormatter.dateFormat = "MM-dd-yyyy"
                                 dateFormatter.timeZone = TimeZone(abbreviation: "GMT")
                                 let formattedDate = dateFormatter.string(from: releaseDate as Date)
-                                print("release date \(formattedDate)")
+//                                print("release date \(formattedDate)")
                                 game.releaseDate = "\(formattedDate)"
                             }
                             
@@ -1831,7 +1855,7 @@ class Networking {
                                 if esrbRatings.count > 0 {
                                     
                                     let rating = esrbRatings[0].rating!
-                                    print(esrbRatings)
+//                                    print(esrbRatings)
                                     game.rating = fetchAgeRatingString(rating: rating)
 //                                    print("game rating in esrb rating count: \(game.rating)")
                                 } else {
@@ -1911,7 +1935,7 @@ class Networking {
                             game.owned = delegate?.checkForGameInLibrary(name: name, id: id, platformID: platformID)
                             array.append(game)
                             self.tempArray = array
-                        print("platforms downloaded")
+//                        print("platforms downloaded")
 
                     }
                         
@@ -1922,13 +1946,13 @@ class Networking {
                         
                         oldData.append(contentsOf: newData)
                         let mergedData = oldData
-                        print("currentOffset before = \(currentOffset)")
-                        print("mergeddata count is \(mergedData.count)")
+//                        print("currentOffset before = \(currentOffset)")
+//                        print("mergeddata count is \(mergedData.count)")
                         //think this is the one to work with**
                         if self.currentOffset < mergedData.count {
                             
                             self.comingSoonArray = mergedData
-                            print("gamearray count \(comingSoonArray.count)")
+//                            print("gamearray count \(comingSoonArray.count)")
 //                            currentOffset = mergedData.count
                
 
@@ -1956,53 +1980,53 @@ class Networking {
         }.resume()
     }
     
-    func searchIGDBByName(platformID: Int, searchByName: String, sortAscending: Bool, completed: @escaping () -> () ) {
-    
-        self.lastRequestedPlatformID = platformID
-        
-        var sortDirection : String {
-            if sortAscending == true {
-                return "asc"
-            } else {
-                return "dsc"
-            }
-        }
-        
-        var filter = " where themes != (42) % status = n & release_dates.region != (5,6,7) & category != (1,2,5,6,7) & platforms = \(platformID) & name ~ *\"\(searchByName)\"*; sort name \(sortDirection)"
-    
-        let fields = "fields age_ratings.*, genres.*, name, first_release_date, summary, involved_companies.company.name, involved_companies.publisher, total_rating, platforms.*, cover.*, platforms.versions.platform_logo.*, platforms.platform_logo.*, screenshots.*, game_modes.name, rating, status, videos.video_id, release_dates.*;"
-        
-        let httpBodyString =  fields + filter
-        let url = URL(string: "https://30kn8ciec4.execute-api.us-west-2.amazonaws.com/production/v4/games")!
-        var requestHeader = URLRequest.init(url: url)
-        requestHeader.httpBody = httpBodyString.data(using: .utf8, allowLossyConversion: false)
-        
-        requestHeader.httpMethod = "POST"
-        
-        URLSession.shared.dataTask(with: requestHeader) { [weak self] data, response, error in
-            
-            do {
-                
-                if let decodedGameData = try JSONDecoder().decode(IGDBGames?.self, from: data!) {
-                    
-                    for gameData in decodedGameData {
-                        
-                        
-                        
-                    }
-                    
-                    
-                }
-                
-            }
-            
-            catch {
-                
-                
-            }
-        }
-        
-    }
+//    func searchIGDBByName(platformID: Int, searchByName: String, sortAscending: Bool, completed: @escaping () -> () ) {
+//
+//        self.lastRequestedPlatformID = platformID
+//
+//        var sortDirection : String {
+//            if sortAscending == true {
+//                return "asc"
+//            } else {
+//                return "dsc"
+//            }
+//        }
+//
+//        let filter = " where themes != (42) % status = n & release_dates.region != (5,6,7) & category != (1,2,5,6,7) & platforms = \(platformID) & name ~ *\"\(searchByName)\"*; sort name \(sortDirection)"
+//
+//        let fields = "fields age_ratings.*, genres.*, name, first_release_date, summary, involved_companies.company.name, involved_companies.publisher, total_rating, platforms.*, cover.*, platforms.versions.platform_logo.*, platforms.platform_logo.*, screenshots.*, game_modes.name, rating, status, videos.video_id, release_dates.*;"
+//
+//        let httpBodyString =  fields + filter
+//        let url = URL(string: "https://30kn8ciec4.execute-api.us-west-2.amazonaws.com/production/v4/games")!
+//        var requestHeader = URLRequest.init(url: url)
+//        requestHeader.httpBody = httpBodyString.data(using: .utf8, allowLossyConversion: false)
+//
+//        requestHeader.httpMethod = "POST"
+//
+//        URLSession.shared.dataTask(with: requestHeader) { data, response, error in
+//
+//            do {
+//
+////                if let decodedGameData = try JSONDecoder().decode(IGDBGames?.self, from: data!) {
+////
+//////                    for gameData in decodedGameData {
+//////
+//////
+//////
+//////                    }
+////
+////
+////                }
+//
+//            }
+//
+//            catch {
+//
+//
+//            }
+//        }
+//
+//    }
     
     func createHTTPBody(sortByField: String?, sortAscending: Bool?, filterBy: String?, platformID: Int?, searchByName: String?, offset: Int, resultsPerPage: Int?) -> String {
         var sortDirection = "asc"
@@ -2065,6 +2089,289 @@ class Networking {
         return httpBodyString
     }
     
+    func fetchAdvancedSearchData(title: String?, platforms: [Int]?, genres: [Int]?, yearRange: [Int]?, completed: @escaping () -> () ) {
+        let fields = "fields age_ratings.*, genres.*, name, first_release_date, summary, involved_companies.company.name, involved_companies.publisher, total_rating, platforms.*, cover.*, platforms.versions.platform_logo.*, platforms.platform_logo.*, screenshots.*, game_modes.name, rating, status, videos.video_id, release_dates.*;"
+        var parameters = ""
+
+        switch(title == "", platforms?.isEmpty, genres?.isEmpty, yearRange?.isEmpty) {
+        case (true, true, true, true) :
+            print("nothing is selected")
+           
+        default:
+//            print("before parameters", title, platforms, genres, yearRange)
+             parameters = createFilterParameters(title: title!, platforms: platforms!, genres: genres!, yearRange: yearRange!)
+       
+//            print("after parameters", parameters)
+            let httpBodyString = fields + parameters
+            let url = URL(string: "https://30kn8ciec4.execute-api.us-west-2.amazonaws.com/production/v4/games")!
+            var requestHeader = URLRequest.init(url: url)
+            requestHeader.httpBody = httpBodyString.data(using: .utf8, allowLossyConversion: false)
+            requestHeader.httpMethod = "POST"
+            
+            URLSession.shared.dataTask(with: requestHeader) { [weak self] (data, response, error) in
+                
+                do {
+                    var array : [GameObject] = []
+                    
+//                    if let json = try? JSONSerialization.jsonObject(with: data!, options: .mutableContainers),
+//                       let jsonData = try? JSONSerialization.data(withJSONObject: json, options: .prettyPrinted) {
+////                        print(String(decoding: jsonData, as: UTF8.self))
+//                    } else {
+//                        print("json data malformed")
+//                    }
+                    
+                    if let decodedGameData = try JSONDecoder().decode(IGDBGames?.self, from: data!) {
+//                        print("decoded game data",decodedGameData)
+//                        print("decoded count", decodedGameData.count)
+                       
+                        if platforms?.count == 0 {
+                        for gameData in decodedGameData {
+//                            print("gamedata name", gameData.name)
+                            for platform in gameData.platforms! {
+//                                print("platform name", platform)
+                            if let date = gameData.releaseDate {
+//                                print("release date", date)
+                                
+                        
+                                let game =  self?.addGameToArray(gameFromRegion: date, gameData: gameData, platform: platform.id)
+//                                print("game is",game)
+                                array.append(contentsOf: game!)
+                                
+                             
+                                
+                            }
+                                
+                    
+                        }
+                        }
+                        } else {
+                            
+                            for gameData in decodedGameData {
+//                                print("gamedata name", gameData.name)
+                                for platform in platforms! {
+//                                    print("platform name", platform)
+                                if let date = gameData.releaseDate {
+//                                    print("release date", date)
+                                    
+                            
+                                    let game =  self?.addGameToArray(gameFromRegion: date, gameData: gameData, platform: platform)
+//                                    print("game is",game)
+                                    array.append(contentsOf: game!)
+                                    
+                                 
+                                    
+                                }
+                                    
+                        
+                            }
+                            }
+                            
+                        }
+                        
+                        
+                        
+//                        print("array count", array.count)
+//                        for game in array {
+////                            print(game.title)
+//                        }
+                        
+                        self?.searchResultsData = array
+                        
+                        
+                        DispatchQueue.main.async {
+                             completed()
+                        }
+                    }
+                }
+                
+                catch {
+                    
+                   print("error, error = ", error)
+                    
+                }
+                
+                
+                
+                
+            }.resume()
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        }
+        
+    }
+    
+    func addGameToArray(gameFromRegion: [ReleaseDate], gameData: IGDBGame, platform: Int) -> [GameObject]{
+//        print("addgametoarray", gameData)
+        var array : [GameObject] = []
+        let game = createGameWithPlatformDateFiltered(releaseDates: gameFromRegion, platformID: platform, gameData: gameData)
+//                            print(game)
+
+            array.append(contentsOf: game)
+            
+        return array
+    }
+    
+    func createFilterParameters(title:String, platforms: [Int], genres: [Int], yearRange: [Int]) -> String {
+//        print("create filter parameters")
+    
+        var requestParameters = ""
+        
+        var platformsString: String?
+        for platform in platforms {
+            if platformsString == nil {
+                platformsString = String(platform)
+            } else {
+                platformsString = platformsString! + ", " + String(platform)
+            }
+        }
+        
+        var genreString: String?
+        for genre in genres {
+            if genreString == nil {
+                genreString = String(genre)
+            } else {
+                genreString = genreString! + ", " + String(genre)
+            }
+        }
+        var startYear = 0
+        var endYear = 0
+        
+        if yearRange.count >= 2 {
+       
+            let calendar = Calendar.current
+        
+            let firstDateComponents = DateComponents(calendar: nil, timeZone: TimeZone(secondsFromGMT: -18000), era: nil, year: yearRange.first, month: 1, day: 1, hour: 1, minute: 0, second: 0, nanosecond: nil, weekday: nil, weekdayOrdinal: nil, quarter: nil, weekOfMonth: nil, weekOfYear: nil, yearForWeekOfYear: nil)
+        
+        
+            let secondDateComponents = DateComponents(calendar: nil, timeZone: TimeZone(secondsFromGMT: -18000), era: nil, year: yearRange.last, month: 1, day: 1, hour: 1, minute: 0, second: 0, nanosecond: nil, weekday: nil, weekdayOrdinal: nil, quarter: nil, weekOfMonth: nil, weekOfYear: nil, yearForWeekOfYear: nil)
+        
+         
+            startYear = Int(calendar.date(from: firstDateComponents)!.timeIntervalSince1970)
+        
+      
+            endYear = Int(calendar.date(from: secondDateComponents)!.timeIntervalSince1970)
+        }
+        print("new parameters", title, platforms, genres, yearRange)
+        switch (title == "", platforms.isEmpty, genres.isEmpty, yearRange.isEmpty) {
+        
+        
+        case (true, true, true, true):
+                        //no search parameters
+                        //Title
+                        //Platforms
+                        //Genres
+                        //Years
+                print("no search parameters")
+        
+                    case (false, false, false,false):
+                        //Title         X
+                        //Platforms     X
+                        //Genres        X
+                        //Years         X
+        
+                        requestParameters = " where themes != (42) & status = n & release_dates.region != (5,6,7) & category != (1,2,5,6,7) & platforms = (\(platformsString!)) & first_release_date > \(startYear) & first_release_date <= \(endYear) & genres = (\(genreString!)); search \"\(title)\"; limit 500;"
+        
+                    case (false, true, true, true):
+                        //Title         X
+                        //Platforms
+                        //Genres
+                        //Years
+                        requestParameters = " where themes != (42) & status = n & release_dates.region != (5,6,7) & category != (1,2,5,6,7); search \"\(title)\"; limit 500;"
+        
+                    case(false, false, true, true):
+                        //Title         X
+                        //Platforms     X
+                        //Genres
+                        //Years
+                        requestParameters = " where themes != (42) & status = n & release_dates.region != (5,6,7) & category != (1,2,5,6,7) & platforms = (\(platformsString!)); search \"\(title)\"; limit 500;"
+        
+        
+                    case(false, true, true, false):
+                        //Title         X
+                        //Platforms
+                        //Genres
+                        //Years         X
+                        requestParameters = " where themes != (42) & status = n & release_dates.region != (5,6,7) & category != (1,2,5,6,7) & first_release_date > \(startYear) & first_release_date <= \(endYear); search \"\(title)\"; limit 500;"
+                    case(false, true, false, true):
+                        //Title         X
+                        //Platforms
+                        //Genres        X
+                        //Years
+                        requestParameters = " where themes != (42) & status = n & release_dates.region != (5,6,7) & category != (1,2,5,6,7) & genres = (\(genreString!)); search \"\(title)\"; limit 500;"
+                    case(false, false, false, true):
+                        //Title         X
+                        //Platforms     X
+                        //Genres        X
+                        //Years
+                        requestParameters = " where themes != (42) & status = n & release_dates.region != (5,6,7) & category != (1,2,5,6,7) & platforms = (\(platformsString!)) & genres = (\(genreString!)); search \"\(title)\"; limit 500;"
+                    case(false, false, true, false):
+                        //Title         X
+                        //Platforms     X
+                        //Genres
+                        //Years         X
+                        requestParameters = " where themes != (42) & status = n & release_dates.region != (5,6,7) & category != (1,2,5,6,7) & platforms = (\(platformsString!)) & first_release_date > \(startYear) & first_release_date <= \(endYear); search \"\(title)\"; limit 500;"
+                    case(false, true, false, false):
+                        //Title         X
+                        //Platforms
+                        //Genres        X
+                        //Years         X
+            requestParameters = " where themes != (42) & status = n & release_dates.region != (5,6,7) & category != (1,2,5,6,7) & genres = (\(String(describing: genreString))) & first_release_date > \(startYear) & first_release_date <= \(endYear); search \"\(title)\"; limit 500;"
+                    case(true, false, true, true):
+                        //Title
+                        //Platforms     X
+                        //Genres
+                        //Years
+                        requestParameters = " where themes != (42) & status = n & release_dates.region != (5,6,7) & category != (1,2,5,6,7)  & platforms = (\(platformsString!)); limit 500; sort name asc;"
+                    case (true, false, false, true):
+                        //Title
+                        //Platforms     X
+                        //Genres        X
+                        //Years
+                        requestParameters = " where themes != (42) & status = n & release_dates.region != (5,6,7) & category != (1,2,5,6,7) & platforms = (\(platformsString!)) & genres = (\(genreString!)); limit 500; sort name asc;"
+                    case(true, false, false, false):
+                        //Title
+                        //Platforms     X
+                        //Genres        X
+                        //Years         X
+                        requestParameters = " where themes != (42) & status = n & release_dates.region != (5,6,7) & category != (1,2,5,6,7) & platforms = (\(platformsString!)) & genres = (\(genreString!)) & first_release_date > \(startYear) & first_release_date <= \(endYear); limit 500; sort name asc;"
+                    case(true, false, true, false):
+                        //Title
+                        //Platforms     X
+                        //Genres
+                        //Years         X
+                        requestParameters = " where themes != (42) & status = n & release_dates.region != (5,6,7) & category != (1,2,5,6,7) & platforms = (\(platformsString!)) & genres = (\(genreString!)) & first_release_date > \(startYear) & first_release_date <= \(endYear); limit 500; sort name asc;"
+                    case(true, true, false, true):
+                        //Title
+                        //Platforms
+                        //Genres        X
+                        //Years
+                        requestParameters = " where themes != (42) & status = n & release_dates.region != (5,6,7) & category != (1,2,5,6,7) & genres = (\(genreString!)); limit 500; sort name asc;"
+                    case(true, true, false, false):
+                        //Title
+                        //Platforms
+                        //Genres        X
+                        //Years         X
+                        requestParameters = " where themes != (42) & status = n & release_dates.region != (5,6,7) & category != (1,2,5,6,7) & genres = (\(genreString!)) & first_release_date > \(startYear) & first_release_date <= \(endYear); limit 500; sort name asc;"
+                    case(true, true, true, false):
+                        //Title
+                        //Platforms
+                        //Genres
+                        //Years     X
+                        requestParameters = " where themes != (42) & status = n & release_dates.region != (5,6,7) & category != (1,2,5,6,7) & first_release_date > \(startYear) & first_release_date <= \(endYear); limit 500; sort name asc;"
+                
+        
+                    }
+//        print("request parameters",requestParameters)
+        return requestParameters
+    
+    }
     
     func fetchIGDBGamesData(filterBy: String?, platformID: Int?, searchByName: String?, sortByField: String?, sortAscending: Bool?, offset: Int, resultsPerPage: Int?, completed: @escaping (Error?) -> () ) {
         if let platform = platformID {
@@ -2131,32 +2438,32 @@ class Networking {
 //        }
         let httpBody = createHTTPBody(sortByField: sortByField, sortAscending: sortAscending, filterBy: filterBy, platformID: platformID, searchByName: searchByName, offset: offset, resultsPerPage: resultsPerPage)
 
-        print("httpbodystring \(httpBody)")
+//        print("httpbodystring \(httpBody)")
 //        requestHeader.httpBody = httpBodyString.data(using: .utf8, allowLossyConversion: false)
         requestHeader.httpBody = httpBody.data(using: .utf8, allowLossyConversion: false)
 
         requestHeader.httpMethod = "POST"
             
-        self.currentTask = URLSession.shared.dataTask(with: requestHeader) { [weak self] (data, response, error) in
+        self.currentTask = URLSession.shared.dataTask(with: requestHeader) {  (data, response, error) in
     
                 
                 do {
                     
                     if let httpResponse = response as? HTTPURLResponse {
-                        print("Response is")
-                        print(httpResponse.allHeaderFields)
+//                        print("Response is")
+//                        print(httpResponse.allHeaderFields)
                         if let xCount = httpResponse.allHeaderFields["x-count"] as? String {
-                            self?.totalRequestCount = Int(xCount)!
-                            print("total request count is", self?.totalRequestCount)
+                            self.totalRequestCount = Int(xCount)!
+//                            print("total request count is", self.totalRequestCount)
                         }
                         
                     }
                     
-                    self?.gameFetchDidFail = false
-                    self?.gameFetchSuccess = true
+                    self.gameFetchDidFail = false
+                    self.gameFetchSuccess = true
                     
-                    if self?.platformFetchSuccess == true && self?.genreFetchSuccess == true && self?.gameFetchSuccess == true {
-                        self?.initialFetchComplete = true
+                    if self.platformFetchSuccess == true && self.genreFetchSuccess == true && self.gameFetchSuccess == true {
+                        self.initialFetchComplete = true
                         
                     }
                     
@@ -2165,49 +2472,52 @@ class Networking {
                     func addGameToArray(gameFromRegion: [ReleaseDate], gameData: IGDBGame, platform: Int) {
                     
                         
-                        let game = self?.createGameWithPlatformDateFiltered(releaseDates: gameFromRegion, platformID: platform, gameData: gameData)
+                        let game = self.createGameWithPlatformDateFiltered(releaseDates: gameFromRegion, platformID: platform, gameData: gameData)
 //                            print(game)
-                            if let game = game {
+//                            if let game = game {
                                 
                                 
                                 
                                 
                             array.append(contentsOf: game)
-                            }
+//                            }
                         
                     }
 //                                        let json = String(data:data!, encoding: .utf8)
 //                    print("here is json")
 //                    print(json)
-                    if let decodedGameData = try JSONDecoder().decode(IGDBGames?.self, from: data!) {
+                    guard let gameData = data else { return }
+                    if let decodedGameData = try JSONDecoder().decode(IGDBGames?.self, from: gameData) {
                         
                         if decodedGameData.count < 500 {
-                            self?.endOfResults = true
+                            self.endOfResults = true
 //                            DispatchQueue.main.async {
 //                                completed( nil)
 //                            }
-                            print("endofresults = \(self?.endOfResults)")
+//                            print("endofresults = \(self.endOfResults)")
                         } else {
-                            self?.endOfResults = false
-                            print("endofresults = \(self?.endOfResults)")
+                            self.endOfResults = false
+//                            print("endofresults = \(self.endOfResults)")
 
                         }
                         
-                        self?.newDataCount = decodedGameData.count
+                        self.newDataCount = decodedGameData.count
 
 //                        let test = decodedGameData.filter( {$0.releaseDate?.filter( {$0.region == 2} )})
 //                        let filteredGameData = decodedGameData })
-                        var testArray : [GameObject] = []
-                        self?.tempArray.removeAll()
+//                        let testArray : [GameObject] = []
+                        self.tempArray.removeAll()
                         for gameData in decodedGameData {
                             
                             if let date = gameData.releaseDate {
                                 if let platform = platformID {
                                 //we are only interested in certain reigions with the order of priority being North American, then European, and finally world wide releases.  If the game exists in multiple regions, go with the top priority.
                                 
-                                let naReleases = date.filter { $0.region == 2 && $0.platform == platformID }
-                                let euReleases = date.filter { $0.region == 1 && $0.platform == platformID }
-                                let wwReleases = date.filter { $0.region == 8 && $0.platform == platformID }
+//                                let naReleases = date.filter { $0.region == 2 && $0.platform == platformID }
+//                                let euReleases = date.filter { $0.region == 1 && $0.platform == platformID }
+//                                let wwReleases = date.filter { $0.region == 8 && $0.platform == platformID }
+                                    
+                                    
                                     addGameToArray(gameFromRegion: date, gameData: gameData, platform: platform)
 //                                if naReleases.count > 0 {
 //                                    print("na release", gameData.name, "count", naReleases.count)
@@ -2227,43 +2537,43 @@ class Networking {
                                 }
                             }
 
-                            self?.tempArray = array
-                        print("platforms downloaded")
+                            self.tempArray = array
+//                        print("platforms downloaded")
 
                     }
                         
                         
-                        print("temp array count is", self?.tempArray.count)
+//                        print("temp array count is", self.tempArray.count)
 
-                        for game in testArray {
-                            print("games in test array", game.title)
-                        }
-                        let newData = self?.tempArray
-                        var oldData = self?.gameArray
-                        print("previous data count",self!.previousDataCount)
-                        print("new data count", self!.newDataCount)
-                        self?.currentDataCount = self!.previousDataCount + self!.newDataCount
-                        self?.previousDataCount = self!.currentDataCount
+//                        for game in testArray {
+//                            print("games in test array", game.title)
+//                        }
+                        let newData = self.tempArray
+                        let oldData = self.gameArray
+//                        print("previous data count",self.previousDataCount)
+//                        print("new data count", self.newDataCount)
+                        self.currentDataCount = self.previousDataCount + self.newDataCount
+                        self.previousDataCount = self.currentDataCount
 //                        oldData?.append(contentsOf: newData!)
                         var mergedData = oldData
-                        mergedData?.append(contentsOf: newData!)
-                        print("currentOffset before = \(self?.currentOffset)")
-                        print("mergeddata count is \((self?.currentDataCount)!)")
+                        mergedData.append(contentsOf: newData)
+//                        print("currentOffset before = \(self.currentOffset)")
+//                        print("mergeddata count is \((self.currentDataCount))")
                         //think this is the one to work with**
-                        if self!.currentOffset < self!.currentDataCount {
-                            print("paginating")
-                            if !self!.endOfResults {
-                            self?.gameArray = mergedData!
-                            print("gamearray count \(self?.gameArray.count)")
+                        if self.currentOffset < self.currentDataCount {
+//                            print("paginating")
+                            if !self.endOfResults {
+                                self.gameArray = mergedData
+//                            print("gamearray count \(self.gameArray.count)")
 //                            currentOffset = mergedData.count
                             } else {
-                                self?.gameArray = mergedData!
+                                self.gameArray = mergedData
                             }
                
 
                         } else {
-                            print("not paginating")
-                            self?.gameArray = newData!
+//                            print("not paginating")
+                            self.gameArray = newData
                         }
                         //**
                         
@@ -2287,8 +2597,8 @@ class Networking {
                     
                 }
                 catch {
-                    self?.fetchingMore = false
-                    print("fetching more error \(self?.fetchingMore)")
+                    self.fetchingMore = false
+//                    print("fetching more error \(self.fetchingMore)")
                     print("error= \(error)")
                     DispatchQueue.main.async {
                         completed(error)
@@ -2325,8 +2635,9 @@ class Networking {
 
     }
     
-    func refreshSavedContentFrom(updatedGameData: GameObject, savedGameToUpdate: NSManagedObject) {
+    func refreshSavedContentFrom(updatedGameData: GameObject, savedGameToUpdate: NSManagedObject, isWishlistObject: Bool) {
         
+        if isWishlistObject == false {
         if let savedGame = savedGameToUpdate as? SavedGames {
             
             if savedGame.title != updatedGameData.title {
@@ -2401,6 +2712,9 @@ class Networking {
             }
             
         }
+        }
+        
+        if isWishlistObject == true {
         
         if let wishlistGame = savedGameToUpdate as? WishList {
             
@@ -2477,84 +2791,110 @@ class Networking {
             
             
         }
+        }
+        
         
         persistenceManager.save()
     }
     
-    func filterRegions(releaseDate: ReleaseDate, maxYear: Int,gameData: IGDBGame, platformID: Int) -> [GameObject] {
-        var game = GameObject()
+    func filterRegions(releaseDate: ReleaseDate, consoleReleaseYear: Int, maxYear: Int,gameData: IGDBGame, platformID: Int) -> [GameObject] {
+        var game : GameObject?
         var array : [GameObject] = []
-        let savedGames = persistenceManager.fetch(SavedGames.self)
-        let wishlistGames = persistenceManager.fetch(WishList.self)
+//        let savedGames = persistenceManager.fetch(SavedGames.self)
+//        let wishlistGames = persistenceManager.fetch(WishList.self)
         
-        print("About to filter by platforms release year, title is", gameData.name)
+//        print("About to filter by platforms release year, title is", gameData.name)
+//        let date = Date(timeIntervalSince1970: Double(gameData.firstReleaseDate!))
+//        let dateFormatter = DateFormatter()
+//        dateFormatter.dateFormat = "YYYY"
+//        let firstReleaseYear = dateFormatter.string(from: date)
+//        let firstyear = gameData.firstReleaseDate
+//
+//        print(firstyear)
+//        print(firstReleaseYear)
+//        print(date)
+        var firstReleaseYear : String?
         
-        if let releaseYear = releaseDate.y {
+        if let date = gameData.firstReleaseDate {
+            let releaseDate = NSDate(timeIntervalSince1970: TimeInterval(date))
+            
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateFormat = "YYYY"
+            let formattedDate = dateFormatter.string(from: releaseDate as Date)
+//            print("release date \(formattedDate)")
+            firstReleaseYear = "\(formattedDate)"
+        }
+        let releasePlatform = releaseDate.platform
+        if firstReleaseYear != nil {
+            if let releaseYear = releaseDate.y {
             let region = releaseDate.region
-            print("release year", releaseYear)
-            print("max year", maxYear)
-            print("region", region)
+//            print("release year", releaseYear)
+//            print("max year", maxYear)
+//            print("region", region)
 
 
-            if region == 2 && releaseYear < maxYear {
+            if region == 2 && releaseYear >= consoleReleaseYear && releaseYear < maxYear && releasePlatform == platformID {
             game = (self.createGameObject(data: gameData, platformID: platformID))
-                for savedGame in savedGames {
-                    if savedGame.gameID == Int32(game.id!){
-                        refreshSavedContentFrom(updatedGameData: game, savedGameToUpdate: savedGame)
-                    }
-                }
+//                for savedGame in savedGames {
+//                    if savedGame.gameID == Int32((game?.id!)!){
+//                        refreshSavedContentFrom(updatedGameData: game!, savedGameToUpdate: savedGame, isWishlistObject: false)
+//                    }
+//                }
+//
+//                for wishlistGame in wishlistGames {
+//                    if wishlistGame.gameID == Int32((game?.id!)!) {
+//                        refreshSavedContentFrom(updatedGameData: game!, savedGameToUpdate: wishlistGame, isWishlistObject: true)
+//                }
+//                }
                 
-                for wishlistGame in wishlistGames {
-                    if wishlistGame.gameID == Int32(game.id!) {
-                        refreshSavedContentFrom(updatedGameData: game, savedGameToUpdate: wishlistGame)
-                }
-                }
-                
-            array.append(game)
+                array.append(game!)
 
-        } else if region == 1 && releaseYear < maxYear {
+        } else if region == 1 && releaseYear >= consoleReleaseYear && releaseYear < maxYear && releasePlatform == platformID {
                 game = (self.createGameObject(data: gameData, platformID: platformID))
+//            let game = savedGames.filter { $0.gameID == (game?.id)! }
+//            for savedGame in savedGames {
+//                if savedGame.gameID == Int32((game?.id!)!){
+//                    refreshSavedContentFrom(updatedGameData: game!, savedGameToUpdate: savedGame, isWishlistObject: false)
+//
+//            }
+//            }
+//
+//            for wishlistGame in wishlistGames {
+//                if wishlistGame.gameID == Int32((game?.id!)!) {
+//                    refreshSavedContentFrom(updatedGameData: game!, savedGameToUpdate: wishlistGame, isWishlistObject: true)            }
+//            }
             
-            for savedGame in savedGames {
-                if savedGame.gameID == Int32(game.id!){
-                    refreshSavedContentFrom(updatedGameData: game, savedGameToUpdate: savedGame)
+                array.append(game!)
 
-            }
-            }
-            
-            for wishlistGame in wishlistGames {
-                if wishlistGame.gameID == Int32(game.id!) {
-                    refreshSavedContentFrom(updatedGameData: game, savedGameToUpdate: wishlistGame)            }
-            }
-            
-                array.append(game)
-
-            } else if region == 8 && releaseYear < maxYear {
+            } else if region == 8 && releaseYear >= consoleReleaseYear && releaseYear < maxYear && releasePlatform == platformID {
                 game = (self.createGameObject(data: gameData, platformID: platformID))
                 
+            
+//                for savedGame in savedGames {
+//                    if savedGame.gameID == Int32((game?.id!)!){
+//                        refreshSavedContentFrom(updatedGameData: game!, savedGameToUpdate: savedGame, isWishlistObject: false)
+//
+//                }
+//                }
+//                
+//                for wishlistGame in wishlistGames {
+//                    if wishlistGame.gameID == Int32((game?.id!)!) {
+//                        refreshSavedContentFrom(updatedGameData: game!, savedGameToUpdate: wishlistGame, isWishlistObject: true)
+//                        
+//                    }
+//                }
                 
-                for savedGame in savedGames {
-                    if savedGame.gameID == Int32(game.id!){
-                        refreshSavedContentFrom(updatedGameData: game, savedGameToUpdate: savedGame)
-
-                }
-                }
                 
-                for wishlistGame in wishlistGames {
-                    if wishlistGame.gameID == Int32(game.id!) {
-                        refreshSavedContentFrom(updatedGameData: game, savedGameToUpdate: wishlistGame)
-                        
-                    }
-                }
-                
-                
-                array.append(game)
+                array.append(game!)
                 
             }
+        }
         }
         
         return array
 
+    
+        
     }
     
     func createGameWithPlatformDateFiltered(releaseDates: [ReleaseDate], platformID: Int, gameData: IGDBGame) -> [GameObject] {
@@ -2571,7 +2911,7 @@ class Networking {
             case 50     :
             //"3DO Interactive Multiplayer"
                 
-               array = filterRegions(releaseDate: releaseDate, maxYear: 1997, gameData: gameData, platformID: platformID)
+                array = filterRegions(releaseDate: releaseDate, consoleReleaseYear: 1993, maxYear: 1997, gameData: gameData, platformID: platformID)
                 if array.count > 0 {
                 return array
                 }//                if let releaseYear = releaseDate.y {
@@ -2581,7 +2921,7 @@ class Networking {
 //                }
 //                }
             case 114    :   //return "Amiga CD32"
-                array = filterRegions(releaseDate: releaseDate, maxYear: 1997, gameData: gameData, platformID: platformID)
+                array = filterRegions(releaseDate: releaseDate, consoleReleaseYear: 1993, maxYear: 1997, gameData: gameData, platformID: platformID)
                 if array.count > 0 {
                 return array
                 }//                if let releaseYear = releaseDate.y {
@@ -2592,7 +2932,7 @@ class Networking {
 //                }
 //                }
             case 59     :   //return "Atari 2600"
-                array = filterRegions(releaseDate: releaseDate, maxYear: 1993, gameData: gameData, platformID: platformID)
+                array = filterRegions(releaseDate: releaseDate, consoleReleaseYear: 1977, maxYear: 1993, gameData: gameData, platformID: platformID)
                 if array.count > 0 {
                 return array
                 }//                if let releaseYear = releaseDate.y {
@@ -2604,7 +2944,7 @@ class Networking {
 //                }
             case 66                                   :   //return "Atari 5200"
                 
-                array = filterRegions(releaseDate: releaseDate, maxYear: 1987, gameData: gameData, platformID: platformID)
+                array = filterRegions(releaseDate: releaseDate, consoleReleaseYear: 1984, maxYear: 1987, gameData: gameData, platformID: platformID)
                 if array.count > 0 {
                 return array
                 }//                if let releaseYear = releaseDate.y {
@@ -2615,7 +2955,7 @@ class Networking {
 //                }
 //                }
             case 60:   //return "Atari 7800"
-                array = filterRegions(releaseDate: releaseDate, maxYear: 1992, gameData: gameData, platformID: platformID)
+                array = filterRegions(releaseDate: releaseDate, consoleReleaseYear: 1984, maxYear: 1992, gameData: gameData, platformID: platformID)
                 if array.count > 0 {
                 return array
                 }//                if let releaseYear = releaseDate.y {
@@ -2628,7 +2968,7 @@ class Networking {
 //                }
 //                }
             case 62                                 :   //return "Atari Jaguar"
-                array = filterRegions(releaseDate: releaseDate, maxYear: 1999, gameData: gameData, platformID: platformID)
+                array = filterRegions(releaseDate: releaseDate, consoleReleaseYear: 1993, maxYear: 1999, gameData: gameData, platformID: platformID)
                 if array.count > 0 {
                 return array
                 }//                if let releaseYear = releaseDate.y {
@@ -2641,7 +2981,7 @@ class Networking {
 //                }
 //                }
             case 61                                   :   //return "Atari Lynx"
-                array = filterRegions(releaseDate: releaseDate, maxYear: 1997, gameData: gameData, platformID: platformID)
+                array = filterRegions(releaseDate: releaseDate, consoleReleaseYear: 1989, maxYear: 1997, gameData: gameData, platformID: platformID)
                 if array.count > 0 {
                 return array
                 }//                if let releaseYear = releaseDate.y {
@@ -2654,7 +2994,7 @@ class Networking {
 //                }
 //                }
             case 68                                 :   //return "ColecoVision"
-                array = filterRegions(releaseDate: releaseDate, maxYear: 1987, gameData: gameData, platformID: platformID)
+                array = filterRegions(releaseDate: releaseDate, consoleReleaseYear: 1982, maxYear: 1987, gameData: gameData, platformID: platformID)
                 if array.count > 0 {
                 return array
                 }//                if let releaseYear = releaseDate.y {
@@ -2666,7 +3006,7 @@ class Networking {
 //                }
 //                }
             case 127                          :   //return "Fairchild Channel F"
-                array = filterRegions(releaseDate: releaseDate, maxYear: 1982, gameData: gameData, platformID: platformID)
+                array = filterRegions(releaseDate: releaseDate, consoleReleaseYear: 1976, maxYear: 1982, gameData: gameData, platformID: platformID)
                 if array.count > 0 {
                 return array
                 }//                if let releaseYear = releaseDate.y {
@@ -2678,7 +3018,7 @@ class Networking {
 //                }
 //                }
             case 67                                :   //return "Intellivision"
-                array = filterRegions(releaseDate: releaseDate, maxYear: 1990, gameData: gameData, platformID: platformID)
+                array = filterRegions(releaseDate: releaseDate, consoleReleaseYear: 1980, maxYear: 1990, gameData: gameData, platformID: platformID)
                 if array.count > 0 {
                 return array
                 }//                if let releaseYear = releaseDate.y {
@@ -2691,7 +3031,7 @@ class Networking {
 //                }
 //                }
             case 88                             :   //return "Magnavox Odyssey"
-                array = filterRegions(releaseDate: releaseDate, maxYear: 1980, gameData: gameData, platformID: platformID)
+                array = filterRegions(releaseDate: releaseDate, consoleReleaseYear: 1980, maxYear: 1985, gameData: gameData, platformID: platformID)
                 if array.count > 0 {
                 return array
                 }//                if let releaseYear = releaseDate.y {
@@ -2703,7 +3043,7 @@ class Networking {
 //                }
 //                }
             case 11                               :   //return "Microsoft Xbox"
-                array = filterRegions(releaseDate: releaseDate, maxYear: 2009, gameData: gameData, platformID: platformID)
+                array = filterRegions(releaseDate: releaseDate, consoleReleaseYear: 2001, maxYear: 2009, gameData: gameData, platformID: platformID)
                 if array.count > 0 {
                 return array
                 }//                if let releaseYear = releaseDate.y {
@@ -2715,7 +3055,7 @@ class Networking {
 //                }
 //                }
             case 12                           :   //return "Microsoft Xbox 360"
-                array = filterRegions(releaseDate: releaseDate, maxYear: 2019, gameData: gameData, platformID: platformID)
+                array = filterRegions(releaseDate: releaseDate, consoleReleaseYear: 2005, maxYear: 2019, gameData: gameData, platformID: platformID)
                 if array.count > 0 {
                 return array
                 }//                if let releaseYear = releaseDate.y {
@@ -2730,7 +3070,7 @@ class Networking {
      
 //                game = (self.createGameObject(data: gameData, platformID: platformID))
 //                array.append(game)
-                array = filterRegions(releaseDate: releaseDate, maxYear: 2050, gameData: gameData, platformID: platformID)
+                array = filterRegions(releaseDate: releaseDate, consoleReleaseYear: 2013, maxYear: 2050, gameData: gameData, platformID: platformID)
                 if array.count > 0 {
                 return array
                 }
@@ -2739,13 +3079,13 @@ class Networking {
             
 //                game = (self.createGameObject(data: gameData, platformID: platformID))
 //                array.append(game)
-                array = filterRegions(releaseDate: releaseDate, maxYear: 2050, gameData: gameData, platformID: platformID)
+                array = filterRegions(releaseDate: releaseDate, consoleReleaseYear: 2020, maxYear: 2050, gameData: gameData, platformID: platformID)
                 if array.count > 0 {
                 return array
                 }
 
             case 80                                  :   //return "Neo Geo AES"
-                array = filterRegions(releaseDate: releaseDate, maxYear: 2005, gameData: gameData, platformID: platformID)
+                array = filterRegions(releaseDate: releaseDate, consoleReleaseYear: 1991, maxYear: 2005, gameData: gameData, platformID: platformID)
                 if array.count > 0 {
                 return array
                 }//                if let releaseYear = releaseDate.y {
@@ -2757,7 +3097,7 @@ class Networking {
 //                }
 //                }
             case 136                                   :   //return "Neo Geo CD"
-                array = filterRegions(releaseDate: releaseDate, maxYear: 1997, gameData: gameData, platformID: platformID)
+                array = filterRegions(releaseDate: releaseDate, consoleReleaseYear: 1994, maxYear: 1997, gameData: gameData, platformID: platformID)
                 if array.count > 0 {
                 return array
                 }//                if let releaseYear = releaseDate.y {
@@ -2769,7 +3109,7 @@ class Networking {
 //                }
 //                }
             case 119                               :   //return "Neo Geo Pocket"
-                array = filterRegions(releaseDate: releaseDate, maxYear: 2001, gameData: gameData, platformID: platformID)
+                array = filterRegions(releaseDate: releaseDate, consoleReleaseYear: 1998, maxYear: 2001, gameData: gameData, platformID: platformID)
                 if array.count > 0 {
                 return array
                 }//                if let releaseYear = releaseDate.y {
@@ -2781,7 +3121,7 @@ class Networking {
 //                }
 //                }
             case 120                         :   //return "Neo Geo Pocket Color"
-                array = filterRegions(releaseDate: releaseDate, maxYear: 2002, gameData: gameData, platformID: platformID)
+                array = filterRegions(releaseDate: releaseDate, consoleReleaseYear: 1999, maxYear: 2002, gameData: gameData, platformID: platformID)
                 if array.count > 0 {
                 return array
                 }//                if let releaseYear = releaseDate.y {
@@ -2793,7 +3133,7 @@ class Networking {
 //                }
 //                }
             case 307                        :   //return "Nintendo Game & Watch"
-                array = filterRegions(releaseDate: releaseDate, maxYear: 1997, gameData: gameData, platformID: platformID)
+                array = filterRegions(releaseDate: releaseDate, consoleReleaseYear: 1980, maxYear: 1997, gameData: gameData, platformID: platformID)
                 if array.count > 0 {
                 return array
                 }//                if let releaseYear = releaseDate.y {
@@ -2805,7 +3145,7 @@ class Networking {
 //                }
 //                }
             case 18          :   //return "Nintendo Entertainment System (NES)"
-                array = filterRegions(releaseDate: releaseDate, maxYear: 1998, gameData: gameData, platformID: platformID)
+                array = filterRegions(releaseDate: releaseDate, consoleReleaseYear: 1985, maxYear: 1998, gameData: gameData, platformID: platformID)
                 if array.count > 0 {
                 return array
                 }//                if let releaseYear = releaseDate.y {
@@ -2817,7 +3157,7 @@ class Networking {
 //                }
 //                }
             case 19   :   //return "Super Nintendo Entertainment System (SNES)"
-                array = filterRegions(releaseDate: releaseDate, maxYear: 1997, gameData: gameData, platformID: platformID)
+                array = filterRegions(releaseDate: releaseDate, consoleReleaseYear: 1991, maxYear: 1997, gameData: gameData, platformID: platformID)
                 if array.count > 0 {
                 return array
                 }//                if let releaseYear = releaseDate.y {
@@ -2830,7 +3170,7 @@ class Networking {
 //                }
             case 87                         :   //return "Nintendo Virtual Boy"
             
-                array = filterRegions(releaseDate: releaseDate, maxYear: 1997, gameData: gameData, platformID: platformID)
+                array = filterRegions(releaseDate: releaseDate, consoleReleaseYear: 1995, maxYear: 1997, gameData: gameData, platformID: platformID)
                 if array.count > 0 {
                 return array
                 }//                if let releaseYear = releaseDate.y {
@@ -2842,7 +3182,7 @@ class Networking {
 //                }
 //                }
             case 4                                  :   //return "Nintendo 64"
-                array = filterRegions(releaseDate: releaseDate, maxYear: 2003, gameData: gameData, platformID: platformID)
+                array = filterRegions(releaseDate: releaseDate, consoleReleaseYear: 1996, maxYear: 2003, gameData: gameData, platformID: platformID)
                 if array.count > 0 {
                 return array
                 }//                if let releaseYear = releaseDate.y {
@@ -2854,7 +3194,7 @@ class Networking {
 //                }
 //                }
             case 21                            :   //return "Nintendo GameCube"
-                array = filterRegions(releaseDate: releaseDate, maxYear: 1997, gameData: gameData, platformID: platformID)
+                array = filterRegions(releaseDate: releaseDate, consoleReleaseYear: 2001, maxYear: 2008, gameData: gameData, platformID: platformID)
                 if array.count > 0 {
                 return array
                 }//                if let releaseYear = releaseDate.y {
@@ -2866,7 +3206,7 @@ class Networking {
 //                }
 //                }
             case 5                                 :   //return "Nintendo Wii"
-                array = filterRegions(releaseDate: releaseDate, maxYear: 2021, gameData: gameData, platformID: platformID)
+                array = filterRegions(releaseDate: releaseDate, consoleReleaseYear: 2006, maxYear: 2021, gameData: gameData, platformID: platformID)
                 if array.count > 0 {
                 return array
                 }//                if let releaseYear = releaseDate.y {
@@ -2878,7 +3218,7 @@ class Networking {
 //                }
 //                }
             case 41                               :   //return "Nintendo Wii U"
-                array = filterRegions(releaseDate: releaseDate, maxYear: 2021, gameData: gameData, platformID: platformID)
+                array = filterRegions(releaseDate: releaseDate, consoleReleaseYear: 2012, maxYear: 2021, gameData: gameData, platformID: platformID)
                 if array.count > 0 {
                 return array
                 }//                if let releaseYear = releaseDate.y {
@@ -2894,7 +3234,7 @@ class Networking {
               
 //                game = (self.createGameObject(data: gameData, platformID: platformID))
 //                array.append(game)
-                array = filterRegions(releaseDate: releaseDate, maxYear: 2050, gameData: gameData, platformID: platformID)
+                array = filterRegions(releaseDate: releaseDate, consoleReleaseYear: 2017, maxYear: 2050, gameData: gameData, platformID: platformID)
                 if array.count > 0 {
                 return array
                 }
@@ -2903,7 +3243,7 @@ class Networking {
             case 33                            :
                 
             //return "Nintendo Game Boy"
-                array = filterRegions(releaseDate: releaseDate, maxYear: 2021, gameData: gameData, platformID: platformID)
+                array = filterRegions(releaseDate: releaseDate, consoleReleaseYear: 1989, maxYear: 2021, gameData: gameData, platformID: platformID)
                 if array.count > 0 {
                 return array
                 }//                if let releaseYear = releaseDate.y {
@@ -2915,7 +3255,7 @@ class Networking {
 //                }
                     
             case 22     :   //return "Nintendo Game Boy Color"
-                array = filterRegions(releaseDate: releaseDate, maxYear: 2003, gameData: gameData, platformID: platformID)
+                array = filterRegions(releaseDate: releaseDate, consoleReleaseYear: 1998, maxYear: 2003, gameData: gameData, platformID: platformID)
                 if array.count > 0 {
                 return array
                 }//                if let releaseYear = releaseDate.y {
@@ -2928,7 +3268,7 @@ class Networking {
 //                }
 //                }
             case 24                    :   //return "Nintendo Game Boy Advance"
-                array = filterRegions(releaseDate: releaseDate, maxYear: 1997, gameData: gameData, platformID: platformID)
+                array = filterRegions(releaseDate: releaseDate, consoleReleaseYear: 2001, maxYear: 2009, gameData: gameData, platformID: platformID)
                 if array.count > 0 {
                 return array
                 }//                if let releaseYear = releaseDate.y {
@@ -2941,7 +3281,7 @@ class Networking {
 //                }
 //                }
             case 20                                  :   //return "Nintendo DS"
-                array = filterRegions(releaseDate: releaseDate, maxYear: 2015, gameData: gameData, platformID: platformID)
+                array = filterRegions(releaseDate: releaseDate, consoleReleaseYear: 2004, maxYear: 2015, gameData: gameData, platformID: platformID)
                 if array.count > 0 {
                 return array
                 }//                if let releaseYear = releaseDate.y {
@@ -2953,7 +3293,7 @@ class Networking {
 //                }
 //                }
             case 159                                 :   //return "Nintendo DSi"
-                array = filterRegions(releaseDate: releaseDate, maxYear: 2017, gameData: gameData, platformID: platformID)
+                array = filterRegions(releaseDate: releaseDate, consoleReleaseYear: 2009, maxYear: 2017, gameData: gameData, platformID: platformID)
                 if array.count > 0 {
                 return array
                 }//                if let releaseYear = releaseDate.y {
@@ -2965,7 +3305,7 @@ class Networking {
 //                }
 //                }
             case 37                                 :   //return "Nintendo 3DS"
-                array = filterRegions(releaseDate: releaseDate, maxYear: 2021, gameData: gameData, platformID: platformID)
+                array = filterRegions(releaseDate: releaseDate, consoleReleaseYear: 2011, maxYear: 2021, gameData: gameData, platformID: platformID)
                 if array.count > 0 {
                 return array
                 }//                if let releaseYear = releaseDate.y {
@@ -2977,7 +3317,7 @@ class Networking {
 //                }
 //                }
             case 137                             :   //return "New Nintendo 3DS"
-                array = filterRegions(releaseDate: releaseDate, maxYear: 2021, gameData: gameData, platformID: platformID)
+                array = filterRegions(releaseDate: releaseDate, consoleReleaseYear: 2014, maxYear: 2021, gameData: gameData, platformID: platformID)
                 if array.count > 0 {
                 return array
                 }//                if let releaseYear = releaseDate.y {
@@ -2989,7 +3329,7 @@ class Networking {
 //                }
 //                }
             case 166                        :   //return "Nintendo Pokémon Mini"
-                array = filterRegions(releaseDate: releaseDate, maxYear: 2003, gameData: gameData, platformID: platformID)
+                array = filterRegions(releaseDate: releaseDate, consoleReleaseYear: 2001, maxYear: 2003, gameData: gameData, platformID: platformID)
                 if array.count > 0 {
                 return array
                 }//                if let releaseYear = releaseDate.y {
@@ -3001,7 +3341,7 @@ class Networking {
 //                }
 //                }
             case 42                                 :   //return "Nokia N-Gage"
-                array = filterRegions(releaseDate: releaseDate, maxYear: 2007, gameData: gameData, platformID: platformID)
+                array = filterRegions(releaseDate: releaseDate, consoleReleaseYear: 2003, maxYear: 2007, gameData: gameData, platformID: platformID)
                 if array.count > 0 {
                 return array
                 }//                if let releaseYear = releaseDate.y {
@@ -3013,7 +3353,7 @@ class Networking {
 //                }
 //                }
             case 122                                         :   //return "Nuon"
-                array = filterRegions(releaseDate: releaseDate, maxYear: 2005, gameData: gameData, platformID: platformID)
+                array = filterRegions(releaseDate: releaseDate, consoleReleaseYear: 2000, maxYear: 2005, gameData: gameData, platformID: platformID)
                 if array.count > 0 {
                 return array
                 }//                if let releaseYear = releaseDate.y {
@@ -3025,7 +3365,7 @@ class Networking {
 //                }
 //                }
             case 86                      :   //return "TurboGrafx-16/PC Engine"
-                array = filterRegions(releaseDate: releaseDate, maxYear: 2000, gameData: gameData, platformID: platformID)
+                array = filterRegions(releaseDate: releaseDate, consoleReleaseYear: 1989, maxYear: 2000, gameData: gameData, platformID: platformID)
                 if array.count > 0 {
                 return array
                 }//                if let releaseYear = releaseDate.y {
@@ -3037,7 +3377,7 @@ class Networking {
 //                }
 //                }
             case 128                         :   //return "PC Engine SuperGrafx"
-                array = filterRegions(releaseDate: releaseDate, maxYear: 1995, gameData: gameData, platformID: platformID)
+                array = filterRegions(releaseDate: releaseDate, consoleReleaseYear: 1990, maxYear: 1995, gameData: gameData, platformID: platformID)
                 if array.count > 0 {
                 return array
                 }//                if let releaseYear = releaseDate.y {
@@ -3049,7 +3389,7 @@ class Networking {
 //                }
 //                }
             case 117                                 :   //return "Philips CD-i"
-                array = filterRegions(releaseDate: releaseDate, maxYear: 2000, gameData: gameData, platformID: platformID)
+                array = filterRegions(releaseDate: releaseDate, consoleReleaseYear: 1991, maxYear: 2000, gameData: gameData, platformID: platformID)
                 if array.count > 0 {
                 return array
                 }//                if let releaseYear = releaseDate.y {
@@ -3061,7 +3401,7 @@ class Networking {
 //                }
 //                }
             case 84                                 :   //return "Sega SG-1000"
-                array = filterRegions(releaseDate: releaseDate, maxYear: 1988, gameData: gameData, platformID: platformID)
+                array = filterRegions(releaseDate: releaseDate, consoleReleaseYear: 1983, maxYear: 1988, gameData: gameData, platformID: platformID)
                 if array.count > 0 {
                 return array
                 }//                if let releaseYear = releaseDate.y {
@@ -3073,7 +3413,7 @@ class Networking {
 //                }
 //                }
             case 64                           :   //return "Sega Master System"
-                array = filterRegions(releaseDate: releaseDate, maxYear: 1999, gameData: gameData, platformID: platformID)
+                array = filterRegions(releaseDate: releaseDate, consoleReleaseYear: 1986, maxYear: 1999, gameData: gameData, platformID: platformID)
                 if array.count > 0 {
                 return array
                 }//                if let releaseYear = releaseDate.y {
@@ -3085,7 +3425,7 @@ class Networking {
 //                }
 //                }
             case 29                      :   //return "Sega Genesis/Mega Drive"
-                array = filterRegions(releaseDate: releaseDate, maxYear: 1999, gameData: gameData, platformID: platformID)
+                array = filterRegions(releaseDate: releaseDate, consoleReleaseYear: 1989, maxYear: 1999, gameData: gameData, platformID: platformID)
                 if array.count > 0 {
                 return array
                 }//                if let releaseYear = releaseDate.y {
@@ -3098,7 +3438,7 @@ class Networking {
 //                }
             case 78                                      :   //return "Sega CD"
                 print("region before filter", region)
-                array = filterRegions(releaseDate: releaseDate, maxYear: 1997, gameData: gameData, platformID: platformID)
+                array = filterRegions(releaseDate: releaseDate, consoleReleaseYear: 1992, maxYear: 1997, gameData: gameData, platformID: platformID)
                  
                 if array.count > 0 {
                 return array
@@ -3127,7 +3467,7 @@ class Networking {
 
                 
             case 30                                     :   //return "Sega 32X"
-                array = filterRegions(releaseDate: releaseDate, maxYear: 1997, gameData: gameData, platformID: platformID)
+                array = filterRegions(releaseDate: releaseDate, consoleReleaseYear: 1994, maxYear: 1997, gameData: gameData, platformID: platformID)
                 if array.count > 0 {
                 return array
                 }//                if let releaseYear = releaseDate.y {
@@ -3146,7 +3486,7 @@ class Networking {
 //                    }
 //                }
             case 32                                  :   //return "Sega Saturn"
-                array = filterRegions(releaseDate: releaseDate, maxYear: 1999, gameData: gameData, platformID: platformID)
+                array = filterRegions(releaseDate: releaseDate, consoleReleaseYear: 1995, maxYear: 1999, gameData: gameData, platformID: platformID)
                 if array.count > 0 {
                 return array
                 }//                if let releaseYear = releaseDate.y {
@@ -3158,7 +3498,7 @@ class Networking {
 //                }
 //                }
             case 23                               :   //return "Sega Dreamcast"
-                array = filterRegions(releaseDate: releaseDate, maxYear: 2005, gameData: gameData, platformID: platformID)
+                array = filterRegions(releaseDate: releaseDate, consoleReleaseYear: 1999, maxYear: 2005, gameData: gameData, platformID: platformID)
                 if array.count > 0 {
                 return array
                 }//                if let releaseYear = releaseDate.y {
@@ -3170,7 +3510,7 @@ class Networking {
 //                }
 //                }
             case 35                               :   //return "Sega Game Gear"
-                array = filterRegions(releaseDate: releaseDate, maxYear: 1998, gameData: gameData, platformID: platformID)
+                array = filterRegions(releaseDate: releaseDate, consoleReleaseYear: 1991, maxYear: 1998, gameData: gameData, platformID: platformID)
                 if array.count > 0 {
                 return array
                 }//                if let releaseYear = releaseDate.y {
@@ -3182,7 +3522,7 @@ class Networking {
 //                }
 //                }
             case 339                                    :   //return "Sega Pico"
-                array = filterRegions(releaseDate: releaseDate, maxYear: 1999, gameData: gameData, platformID: platformID)
+                array = filterRegions(releaseDate: releaseDate, consoleReleaseYear: 1993, maxYear: 1999, gameData: gameData, platformID: platformID)
                 if array.count > 0 {
                 return array
                 }//                if let releaseYear = releaseDate.y {
@@ -3194,7 +3534,7 @@ class Networking {
 //                }
 //                }
             case 7                             :   //return "Sony PlayStation"
-                array = filterRegions(releaseDate: releaseDate, maxYear: 2006, gameData: gameData, platformID: platformID)
+                array = filterRegions(releaseDate: releaseDate, consoleReleaseYear: 1995, maxYear: 2006, gameData: gameData, platformID: platformID)
                 if array.count > 0 {
                 return array
                 }//                if let releaseYear = releaseDate.y {
@@ -3206,7 +3546,7 @@ class Networking {
 //                }
 //                }
             case 8                           :   //return "Sony PlayStation 2"
-                array = filterRegions(releaseDate: releaseDate, maxYear: 2014, gameData: gameData, platformID: platformID)
+                array = filterRegions(releaseDate: releaseDate, consoleReleaseYear: 2000, maxYear: 2014, gameData: gameData, platformID: platformID)
                 if array.count > 0 {
                 return array
                 }//                if let releaseYear = releaseDate.y {
@@ -3218,7 +3558,7 @@ class Networking {
 //                }
 //                }
             case 9                           :   //return "Sony PlayStation 3"
-                array = filterRegions(releaseDate: releaseDate, maxYear: 2021, gameData: gameData, platformID: platformID)
+                array = filterRegions(releaseDate: releaseDate, consoleReleaseYear: 2006, maxYear: 2021, gameData: gameData, platformID: platformID)
                 if array.count > 0 {
                 return array
                 }//                if let releaseYear = releaseDate.y {
@@ -3233,7 +3573,7 @@ class Networking {
           
 //                game = (self.createGameObject(data: gameData, platformID: platformID))
 //                array.append(game)
-                array = filterRegions(releaseDate: releaseDate, maxYear: 2050, gameData: gameData, platformID: platformID)
+                array = filterRegions(releaseDate: releaseDate, consoleReleaseYear: 2013, maxYear: 2050, gameData: gameData, platformID: platformID)
                 if array.count > 0 {
                 return array
                 }
@@ -3243,13 +3583,13 @@ class Networking {
             
 //                game = (self.createGameObject(data: gameData, platformID: platformID))
 //                array.append(game)
-                array = filterRegions(releaseDate: releaseDate, maxYear: 2050, gameData: gameData, platformID: platformID)
+                array = filterRegions(releaseDate: releaseDate, consoleReleaseYear: 2020, maxYear: 2050, gameData: gameData, platformID: platformID)
                 if array.count > 0 {
                 return array
                 }
                 
             case 38              :   //return "Sony PlayStation Portable (PSP)"
-                array = filterRegions(releaseDate: releaseDate, maxYear: 2017, gameData: gameData, platformID: platformID)
+                array = filterRegions(releaseDate: releaseDate, consoleReleaseYear: 2005, maxYear: 2017, gameData: gameData, platformID: platformID)
                 if array.count > 0 {
                 return array
                 }//                if let releaseYear = releaseDate.y {
@@ -3261,7 +3601,7 @@ class Networking {
 //                }
 //                }
             case 46                        :   //return "Sony PlayStation Vita"
-                array = filterRegions(releaseDate: releaseDate, maxYear: 2022, gameData: gameData, platformID: platformID)
+                array = filterRegions(releaseDate: releaseDate, consoleReleaseYear: 2012, maxYear: 2022, gameData: gameData, platformID: platformID)
                 if array.count > 0 {
                 return array
                 }//                if let releaseYear = releaseDate.y {
@@ -3273,7 +3613,7 @@ class Networking {
 //                }
 //                }
             case 70                                      :   //return "Vectrex"
-                array = filterRegions(releaseDate: releaseDate, maxYear: 1984, gameData: gameData, platformID: platformID)
+                array = filterRegions(releaseDate: releaseDate, consoleReleaseYear: 1982, maxYear: 1984, gameData: gameData, platformID: platformID)
                 if array.count > 0 {
                 return array
                 }//                if let releaseYear = releaseDate.y {
@@ -3284,8 +3624,8 @@ class Networking {
 //
 //                }
 //                }
-            case 57                                   :   //return "WonderSwan"
-                array = filterRegions(releaseDate: releaseDate, maxYear: 2002, gameData: gameData, platformID: platformID)
+            case 57                                   :   //return "WonderSwan"  JP
+                array = filterRegions(releaseDate: releaseDate, consoleReleaseYear: 1993, maxYear: 2002, gameData: gameData, platformID: platformID)
                 if array.count > 0 {
                 return array
                 }//                if let releaseYear = releaseDate.y {
@@ -3296,8 +3636,8 @@ class Networking {
 //
 //                }
 //                }
-            case 123                             :   //return "WonderSwan Color"
-                array = filterRegions(releaseDate: releaseDate, maxYear: 2005, gameData: gameData, platformID: platformID)
+            case 123                             :   //return "WonderSwan Color" JP
+                array = filterRegions(releaseDate: releaseDate, consoleReleaseYear: 2000, maxYear: 2005, gameData: gameData, platformID: platformID)
                 if array.count > 0 {
                 return array
                 }//                if let releaseYear = releaseDate.y {
@@ -3309,7 +3649,7 @@ class Networking {
 //                }
 //                }
             case 240                                        :   //return "Zeebo"
-                array = filterRegions(releaseDate: releaseDate, maxYear: 2011, gameData: gameData, platformID: platformID)
+                array = filterRegions(releaseDate: releaseDate, consoleReleaseYear: 2009, maxYear: 2011, gameData: gameData, platformID: platformID)
                 if array.count > 0 {
                 return array
                 }//                if let releaseYear = releaseDate.y {
@@ -3346,78 +3686,83 @@ class Networking {
 //            }
 //        }
 //         region = gameData.releaseDate?[0].region
-        let regionFilter = gameData.releaseDate?.contains {$0.region == 2}
-        let jpFilter = gameData.releaseDate?.contains {$0.region == 5}
-        let asiaFilter = gameData.releaseDate?.contains {$0.region == 7}
-        let chinaFilter = gameData.releaseDate?.contains {$0.region == 6}
-        print("about to look at filters, game name is", gameData.name)
-        switch (regionFilter, jpFilter, asiaFilter, chinaFilter) {
-        case (false, false, false, false):
-            //game doesnt exist in any of the regions
-            print("game doesnt exist in any of the regions")
-        
-        case(true, false, false, false):
-            //game was released in NA only
-            print("game was released in NA only")
-        case(false, true, true, true):
-            //game is asia only release
-            print("game is asia only release")
-        case(false, true, true, false):
-            //game is asia only release
-            print("game is asia only release")
-        case(false, true, false, false):
-            //game is asia only release
-            print("game is asia only release")
-        case(false, true, false, true):
-            //game is asia only release
-            print("game is asia only release")
-        case(false, false, true, true):
-            //game is asia only release
-            print("game is asia only release")
-        case(false, false, true, false):
-            //game is asia only release
-            print("game is asia only release")
-        case(false, false, false, true):
-            //game is asia only release
-            print("game is asia only release")
-        case(false, false, false, true):
-            //game is asia only release
-            print("game is asia only release")
-        case(true, true, false, false):
-            //game is na and japan only release
-            print("game is na and japan only release")
-        case(true, true, false, true):
-            //game is na, jp, and china only release
-            print("")
-        case(true, true, true, false):
-            //game is na, jp, asia only release
-            print("game is na, jp, and china only release")
-        case(true, false, true, true):
-            //game is na, asia, china only release
-            print("game is na, jp, and china only release")
-        case(true, false, true, false):
-            //game is na and asia only release
-            print("game is na and asia only release")
-        case(true, false, false, true):
-            //game is na and china only release
-            print("game is na and china only release")
-        
-
-        default:
-            print("game doesnt match test cases, results are", regionFilter, jpFilter, asiaFilter, chinaFilter)
-        }
+//        let regionFilter = gameData.releaseDate?.contains {$0.region == 2}
+//        let jpFilter = gameData.releaseDate?.contains {$0.region == 5}
+//        let asiaFilter = gameData.releaseDate?.contains {$0.region == 7}
+//        let chinaFilter = gameData.releaseDate?.contains {$0.region == 6}
+//        print("about to look at filters, game name is", gameData.name)
+//        switch (regionFilter, jpFilter, asiaFilter, chinaFilter) {
+//        case (false, false, false, false):
+//            //game doesnt exist in any of the regions
+//            print("game doesnt exist in any of the regions")
+//
+//        case(true, false, false, false):
+//            //game was released in NA only
+//            print("game was released in NA only")
+//        case(false, true, true, true):
+//            //game is asia only release
+//            print("game is asia only release")
+//        case(false, true, true, false):
+//            //game is asia only release
+//            print("game is asia only release")
+//        case(false, true, false, false):
+//            //game is asia only release
+//            print("game is asia only release")
+//        case(false, true, false, true):
+//            //game is asia only release
+//            print("game is asia only release")
+//        case(false, false, true, true):
+//            //game is asia only release
+//            print("game is asia only release")
+//        case(false, false, true, false):
+//            //game is asia only release
+//            print("game is asia only release")
+//        case(false, false, false, true):
+//            //game is asia only release
+//            print("game is asia only release")
+//        case(false, false, false, true):
+//            //game is asia only release
+//            print("game is asia only release")
+//        case(true, true, false, false):
+//            //game is na and japan only release
+//            print("game is na and japan only release")
+//        case(true, true, false, true):
+//            //game is na, jp, and china only release
+//            print("")
+//        case(true, true, true, false):
+//            //game is na, jp, asia only release
+//            print("game is na, jp, and china only release")
+//        case(true, false, true, true):
+//            //game is na, asia, china only release
+//            print("game is na, jp, and china only release")
+//        case(true, false, true, false):
+//            //game is na and asia only release
+//            print("game is na and asia only release")
+//        case(true, false, false, true):
+//            //game is na and china only release
+//            print("game is na and china only release")
+//
+//
+//        default:
+//            print("game doesnt match test cases, results are", regionFilter, jpFilter, asiaFilter, chinaFilter)
+//        }
     
       
         game.id = gameData.id
         game.title = gameData.name
-        if let date = gameData.firstReleaseDate {
+        for releaseDate in gameData.releaseDate! {
+    
+            if releaseDate.platform == platformID {
+                if let date = releaseDate.date {
             let releaseDate = NSDate(timeIntervalSince1970: TimeInterval(date))
             
             let dateFormatter = DateFormatter()
             dateFormatter.dateFormat = "MM-dd-yyyy"
             let formattedDate = dateFormatter.string(from: releaseDate as Date)
-            print("release date \(formattedDate)")
+//            print("release date \(formattedDate)")
             game.releaseDate = "\(formattedDate)"
+        }
+            }
         }
         
         var genreArray : [String] = []
@@ -3469,7 +3814,7 @@ class Networking {
             if esrbRatings.count > 0 {
                 
                 let rating = esrbRatings[0].rating!
-                print(esrbRatings)
+//                print(esrbRatings)
                 game.rating = self.fetchAgeRatingString(rating: rating)
 //                                    print("game rating in esrb rating count: \(game.rating)")
             } else {
@@ -3558,20 +3903,23 @@ class Networking {
     
     
     func fetchIGDBGenreData(completed: @escaping (Error?) -> () ) {
-        let url = URL(string: "https://30kn8ciec4.execute-api.us-west-2.amazonaws.com/production/v4/platforms")!
+        let url = URL(string: "https://30kn8ciec4.execute-api.us-west-2.amazonaws.com/production/v4/genres")!
         var requestHeader = URLRequest.init(url: url)
         requestHeader.httpBody = "fields *; limit 500;".data(using: .utf8, allowLossyConversion: false)
         requestHeader.httpMethod = "POST"
         URLSession.shared.dataTask(with: requestHeader) { (data, response, error) in
             
-            if error == nil {
+           
                 
                 do {
+                    guard let data = data else {
+                        return
+                    }
                     
                     
-//                    let json = String(data:data!, encoding: .utf8)
+//                    let json = String(data:data, encoding: .utf8)
 //                    print(json)
-                    if let decodedGenres = try JSONDecoder().decode(IGDBGenres?.self, from: data!) {
+                    if let decodedGenres = try JSONDecoder().decode(IGDBGenres?.self, from: data) {
                       
                         self.genres = decodedGenres
                         
@@ -3589,22 +3937,17 @@ class Networking {
                 }
                 
                 catch {
-                    print("failure")
+//                    print("failure")
                     print(error)
+                    self.genreFetchDidFail = true
+                    self.genreFetchSuccess = false
                     DispatchQueue.main.async {
                         completed(error)
                     }
                 }
                 
-            } else {
-                self.genreFetchDidFail = true
-                self.genreFetchSuccess = false
-                
-                
-                DispatchQueue.main.async {
-                    completed(error)
-                }
-            }
+        
+            
         
         } .resume()
         
@@ -3632,20 +3975,20 @@ class Networking {
                     if let decodedPlatforms = try JSONDecoder().decode(IGDBPlatforms?.self, from: data!) {
                         self.platforms = decodedPlatforms
                         
-                        print("Platform Information:")
+//                        print("Platform Information:")
                         for platform in decodedPlatforms {
                             
                             if platform.category == 1 {
                                 
                                 self.consolePlatforms.append(platform.name)
                                 
-                                print("IGDB CONSOLE PLATFORMS", platform.name, platform.id)
+//                                print("IGDB CONSOLE PLATFORMS", platform.name, platform.id)
                             }
                             
                             if platform.category == 5 {
                                 self.portablePlatforms.append(platform.name)
                                 
-                                print("IGDB PORTABLE PLATOFORMS", platform.name, platform.id)
+//                                print("IGDB PORTABLE PLATOFORMS", platform.name, platform.id)
                             }
                             
                             
@@ -3655,7 +3998,7 @@ class Networking {
                         self.portablePlatforms.sort()
                         
                         let consolesToRemove = ["1292 Advanced Programmable Video System", "AY-3-8603", "AY-3-8605", "AY-3-8606", "AY-3-8607", "AY-3-8710", "AY-3-8760", "Blu-ray Player", "DVD Player", "Epoch Cassette Vision", "Epoch Super Cassette Vision", "Evercade", "Family Computer (FAMICOM)", "Family Computer Disk System", "Nintendo PlayStation", "Ouya", "PC-50X Family", "Playdia", "Super Famicom", "Tapwave Zodiac"]
-                        print(self.consolePlatforms)
+//                        print(self.consolePlatforms)
                         for console in consolesToRemove {
                             if self.consolePlatforms.contains(console) {
                                 
@@ -3670,9 +4013,9 @@ class Networking {
                             
                         }
                         
-                        print(self.consolePlatforms)
-                        print(self.portablePlatforms)
-                        print("platforms downloaded")
+//                        print(self.consolePlatforms)
+//                        print(self.portablePlatforms)
+//                        print("platforms downloaded")
 
                     }
                     DispatchQueue.main.async {

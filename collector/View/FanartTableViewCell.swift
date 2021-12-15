@@ -10,10 +10,10 @@ import UIKit
 
 class FanartTableViewCell: UITableViewCell, UICollectionViewDelegate, UICollectionViewDataSource {
     
-    @IBOutlet var fanartCardView: UIView!
+    @IBOutlet weak var fanartCardView: UIView!
     
     @IBOutlet weak var fanartBackgroundView: UIView!
-    var parent: UIViewController?
+    weak var parent: UIViewController?
 
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return (images?.fanartArray!.count)!
@@ -65,7 +65,7 @@ class FanartTableViewCell: UITableViewCell, UICollectionViewDelegate, UICollecti
     }
 
     func setAppearance() {
-        print("setting appearance")
+//        print("setting appearance")
         
         let defaults = UserDefaults.standard
         let appearanceSelection = defaults.integer(forKey: "appearanceSelection")

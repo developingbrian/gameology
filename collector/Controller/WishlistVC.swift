@@ -10,6 +10,7 @@ import UIKit
 import SDWebImage
 import SPAlert
 import CoreData
+import SwiftUI
 
 protocol WishlistDelegate {
     func didPressManageButton(_ sender: WishlistCollectionViewCell)
@@ -26,6 +27,7 @@ class WishlistVC: UIViewController {
     @IBOutlet weak var noGamesInWishlistView: UIView!
     
 //    let network = Networking.shared
+    var fetchedResultsController : NSFetchedResultsController<NSFetchRequestResult>!
     let persistenceManager = PersistenceManager.shared
     var wishlist : [WishList] = []
     var network = Networking.shared
@@ -45,14 +47,34 @@ class WishlistVC: UIViewController {
     private var itemsPerRow = 3
     
     
+    override func viewWillDisappear(_ animated: Bool) {
+        clearImageCacheFromMemory()
+    }
+    
+    override func didReceiveMemoryWarning() {
+        clearImageCacheFromMemory()
+    }
+    
+    func clearImageCacheFromMemory() {
+        let imageCache = SDImageCache.shared
+        imageCache.clearMemory()
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        let entityName = String(describing: WishList.self)
+        let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: entityName)
+        fetchRequest.sortDescriptors = [
+        NSSortDescriptor(key: "title", ascending: true)
+        ]
+        fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: persistenceManager.context, sectionNameKeyPath: nil, cacheName: nil)
+        fetchedResultsController.delegate = self
 //        items = wishlist[0].platformName
 //        wishlistCollectionView.dataSource = self
 //        wishlistCollectionView.delegate = self
         setupCollectionView()
-        
+        reloadData()
         
 //        loadImages()
 
@@ -63,29 +85,22 @@ class WishlistVC: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(true)
-        print("viewwillappear")
+//        print("viewwillappear")
         collectionView.setNeedsLayout()
         collectionView.layoutIfNeeded()
         setAppearance()
-        wishlist = persistenceManager.fetch(WishList.self)
-        print(wishlist.count)
+        reloadData()
+//        wishlist = persistenceManager.fetch(WishList.self)
+//        print(wishlist.count)
 //        loadImages()
-        items = wishlist.map({$0.platformName!})
-        print("wishlist count \(wishlist.count)")
-        platforms = wishlist.map( {$0.platformName!} )
 
-        platforms.removeDuplicates()
-        platforms.sort {
-            
-            $0 < $1
-        }
-        createSectionData()
     
-        print("reloaded")
+//        print("reloaded")
+        ()
         self.collectionView.reloadData()
-        print ("****\(sectionArray)")
+//        print ("****\(sectionArray)")
 
-        print("platforms \(platforms)")
+//        print("platforms \(platforms)")
         
         
         toggleNoGamesView()
@@ -103,7 +118,29 @@ class WishlistVC: UIViewController {
     }
     */
     
-    
+    func reloadData() {
+        
+        do {
+            try fetchedResultsController.performFetch()
+        }
+        catch {
+            fatalError("Error fetching Wishlist objects")
+        }
+        wishlist = fetchedResultsController.fetchedObjects as! [WishList]
+        print("collectionview should reload, count is ", wishlist.count)
+        items = wishlist.map({$0.platformName!})
+//        print("wishlist count \(wishlist.count)")
+        platforms = wishlist.map( {$0.platformName!} )
+
+        platforms.removeDuplicates()
+        platforms.sort {
+            
+            $0 < $1
+        }
+        createSectionData()
+        
+        self.collectionView.reloadData()
+    }
 
     
 
@@ -112,9 +149,9 @@ class WishlistVC: UIViewController {
     func getPlatformImage(platformName: String, mode: UIUserInterfaceStyle) -> UIImage {
        
         let platformID = changePlatformNameToID(platformName: platformName)
-        print("platform id:", platformID)
+//        print("platform id:", platformID)
         let platformIcon = setPlatformIcon(platformID: platformID, mode: mode)
-        print("platformIcon \(platformIcon)")
+//        print("platformIcon \(platformIcon)")
         guard let platformImage = UIImage(named: platformIcon) else { fatalError("no platform icon was found") }
         
         return platformImage
@@ -133,7 +170,14 @@ class WishlistVC: UIViewController {
 }
 
 
-
+extension WishlistVC : NSFetchedResultsControllerDelegate {
+    
+    func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
+        
+        print("content did change")
+        reloadData()
+    }
+}
 
 extension WishlistVC: UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout {
   
@@ -142,11 +186,11 @@ extension WishlistVC: UICollectionViewDataSource, UICollectionViewDelegate, UICo
         var noOfCellsInRow = 0
         
         if UIDevice.current.userInterfaceIdiom == .pad {
-            print("iPad")
+//            print("iPad")
             noOfCellsInRow = 5
             
         }else{
-            print("not iPad")
+//            print("not iPad")
             noOfCellsInRow = 3
         }
 
@@ -196,10 +240,10 @@ extension WishlistVC: UICollectionViewDataSource, UICollectionViewDelegate, UICo
 //    }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        print("outside destination")
+//        print("outside destination")
         if let destination = segue.destination as? PagingDetailVC {
-            print("destination")
-            print(destination)
+//            print("destination")
+//            print(destination)
             
             guard let cell = sender as? WishlistCollectionViewCell else {
                 return // or fatalError() or whatever
@@ -210,7 +254,7 @@ extension WishlistVC: UICollectionViewDataSource, UICollectionViewDelegate, UICo
             if let selectedGame = cell.game {
             let game = fetchGameObject(wishlistObject: selectedGame)
                 
-            print("**GAME \(game)")
+//            print("**GAME \(game)")
             destination.game = game
             }
             
@@ -241,7 +285,7 @@ extension WishlistVC: UICollectionViewDataSource, UICollectionViewDelegate, UICo
 
 
     
-    print("number of items in section = \(sectionArray[section].game.count)")
+//    print("number of items in section = \(sectionArray[section].game.count)")
     if sectionArray[section].isOpen {
         
             return sectionArray[section].game.count
@@ -314,7 +358,7 @@ extension WishlistVC: SectionHeaderDelegate {
     
     
     func didPressButton(isOpen: Bool, section: Int) {
-        print("protocol working")
+//        print("protocol working")
 
         let open = sectionArray[section].isOpen
         sectionArray[section].isOpen = !open
@@ -336,7 +380,6 @@ extension WishlistVC {
         print(boxarturls)
         let imageData = wishlist.map( {$0.boxartImage})
         print(imageData)
-        let images: [UIImage?] = []
 //
         var imageArray : [UIImage] = []
         
@@ -354,7 +397,7 @@ extension WishlistVC {
             }
         }
         self.collectionView.reloadData()
-        print("images count is \(images.count)")
+//        print("images count is \(images.count)")
 
     }
     
@@ -377,7 +420,7 @@ extension WishlistVC {
 //        collectionView!.collectionViewLayout = layout
         
         self.title = "Wishlist"
-        let logo = UIImage(named: "glogo44")
+        let logo = UIImage(named: "gameologylogo44")
         let imageView = UIImageView(image:logo)
         imageView.contentMode = .scaleAspectFit
         self.navigationItem.titleView = imageView
@@ -413,10 +456,10 @@ extension WishlistVC {
             var gameSection = SectionData(isOpen: false, game: gamesByPlatform, platformName: platform)
             if sectionArray.contains(where: { $0.game == gamesByPlatform }) {
           
-                print("section exists")
+//                print("section exists")
                 
             } else {
-                print("section doesnt exist, adding")
+//                print("section doesnt exist, adding")
                 if openSections.contains(where: {$0.platformName == platform}) {
                         
                         gameSection = SectionData(isOpen: true, game: gamesByPlatform, platformName: platform)
@@ -429,7 +472,7 @@ extension WishlistVC {
             }
         
         }
-        print("*sectionArray \(sectionArray)")
+//        print("*sectionArray \(sectionArray)")
     }
     
     
@@ -561,7 +604,7 @@ func didPressManageButton(_ sender: WishlistCollectionViewCell) {
                 if savedPlatform.count >= 1 {
                     
                     if self.checkForPlatformInLibrary(name: platformName, id: platformID) {
-                        print("existing platform")
+//                        print("existing platform")
                         let existingPlatform = self.fetchCoreDataPlatformObject(id: platformID)
                         existingPlatform.addToGames(currentGame)
                         self.persistenceManager.save()
@@ -570,7 +613,7 @@ func didPressManageButton(_ sender: WishlistCollectionViewCell) {
                     
                         
                     } else {
-                        print("new platform")
+//                        print("new platform")
                         self.savePlatformToCoreData(platformID)
                         let newPlatform = self.fetchCoreDataPlatformObject(id: platformID)
                         newPlatform.addToGames(currentGame)
@@ -639,7 +682,7 @@ func didPressManageButton(_ sender: WishlistCollectionViewCell) {
 }
     
     func checkForGameInWishList(name: String, id: Int) -> Bool {
-        print("Checking for game in wishlist")
+//        print("Checking for game in wishlist")
         let savedGames = persistenceManager.fetch(WishList.self)
         
         for savedGame in savedGames {
@@ -652,7 +695,7 @@ func didPressManageButton(_ sender: WishlistCollectionViewCell) {
 
     }
         
-        print("Game is not in wishlist")
+//        print("Game is not in wishlist")
         return false
     
     }
@@ -793,12 +836,15 @@ func didPressManageButton(_ sender: WishlistCollectionViewCell) {
             collectionView.backgroundColor = lightGray
             view.backgroundColor = lightGray
             noGamesInWishlistView.backgroundColor = lightGray
+            navigationController?.view.backgroundColor = .white
 
         } else if traitCollection.userInterfaceStyle == .dark {
             let darkGray = UIColor(red: (18/255), green: (18/255), blue: (18/255), alpha: 1)
             collectionView.backgroundColor = darkGray
             view.backgroundColor = darkGray
             noGamesInWishlistView.backgroundColor = darkGray
+            navigationController?.view.backgroundColor = .black
+
         }
         
         

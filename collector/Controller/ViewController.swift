@@ -27,13 +27,14 @@ class ViewController: UIViewController, ViewControllerTableViewCellDelegate, Net
     @IBOutlet weak var progressCompleteLbl: UILabel!
     @IBOutlet weak var gameArrayCountLabel: UILabel!
     
+    @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     let network = Networking.shared
-    var wishList : [WishList] = [WishList]()
+
     var failureReason : failures?
     var topSection = 0
     let failLabel = UILabel()
     let failRefreshBtn = UIButton()
-    
+    var wishList : [WishList] = [WishList]()
     var savedGames: [SavedGames] = [SavedGames]()
     var savedPlatforms: [Platform] = [Platform]()
     var savedGenres: [GameGenre] = [GameGenre]()
@@ -42,7 +43,7 @@ class ViewController: UIViewController, ViewControllerTableViewCellDelegate, Net
     static var savedGame = GameObject()
     static var selectedGameIndex : IndexPath = IndexPath(row: 0, section: 0)
     var customButton = UIButton.init(frame: CGRect.init(x: 0, y: 0, width: 10, height: 5))
-    var sortBtn = UIButton()
+    var advancedSearchBtn = UIButton()
 
     var sortDirection : ComparisonResult = .orderedAscending
     var numericGames : [GameObject] = []
@@ -125,7 +126,7 @@ class ViewController: UIViewController, ViewControllerTableViewCellDelegate, Net
                 
                 let titleCleaned = removeLeadingArticle(fromString: game.title!)
             
-                print("titleCleaned is", titleCleaned)
+//                print("titleCleaned is", titleCleaned)
                 
                 if titleCleaned.first.flatMap({ Int(String($0)) }) != nil {
                     numericGames.append(game)
@@ -292,7 +293,7 @@ class ViewController: UIViewController, ViewControllerTableViewCellDelegate, Net
       
             
             gameArrayCountLabel.text = String(gameArray.count)
-            print("did set in game array test")
+//            print("did set in game array test")
             if network.endOfResults == true {
                 if gameArray.count > 0 {
                 let currentCount = Float(self.gameArray.count)
@@ -345,11 +346,22 @@ class ViewController: UIViewController, ViewControllerTableViewCellDelegate, Net
     var currentPlatformID = 18
     var currentPlatformName = ""
     let search = UISearchController(searchResultsController: nil)
-    let platforms = ["3DO Interactive Multiplayer", "Amiga CD32", "Atari 2600", "Atari 5200", "Atari 7800", "Atari Jaguar", "Atari Lynx", "ColecoVision", "Fairchild Channel F", "Intellivision", "Magnavox Odyssey", "Microsoft Xbox", "Microsoft Xbox 360", "Microsoft Xbox One", "Microsoft Xbox Series S|X", "Neo Geo AES", "Neo Geo CD", "Neo Geo Pocket", "Neo Geo Pocket Color", "Nintendo Game & Watch", "Nintendo Entertainment System (NES)", "Super Nintendo Entertainment System (SNES)", "Nintendo Virtual Boy", "Nintendo 64", "Nintendo GameCube", "Nintendo Wii", "Nintendo Wii U", "Nintendo Switch", "Nintendo Game Boy", "Nintendo Game Boy Color", "Nintendo Game Boy Advance", "Nintendo DS", "Nintendo DSi", "Nintendo 3DS", "New Nintendo 3DS", "Nintendo Pokémon Mini", "Nokia N-Gage", "Nuon", "TurboGrafx-16/PC Engine", "PC Engine SuperGrafx","Philips CD-i", "Sega SG-1000", "Sega Master System", "Sega Genesis/Mega Drive", "Sega CD", "Sega 32X", "Sega Saturn", "Sega Dreamcast", "Sega Game Gear", "Sega Pico", "Sony PlayStation", "Sony PlayStation 2", "Sony PlayStation 3", "Sony PlayStation 4", "Sony PlayStation 5", "Sony PlayStation Portable (PSP)", "Sony PlayStation Vita", "Vectrex", "WonderSwan", "WonderSwan Color", "Zeebo"]
+    let platforms = ["3DO Interactive Multiplayer", "Amiga CD32", "Atari 2600", "Atari 5200", "Atari 7800", "Atari Jaguar", "Atari Lynx", "ColecoVision", "Fairchild Channel F", "Intellivision", "Magnavox Odyssey", "Microsoft Xbox", "Microsoft Xbox 360", "Microsoft Xbox One", "Microsoft Xbox Series S|X", "Neo Geo AES", "Neo Geo CD", "Neo Geo Pocket", "Neo Geo Pocket Color", "Nintendo Game & Watch", "Nintendo Entertainment System (NES)", "Super Nintendo Entertainment System (SNES)", "Nintendo Virtual Boy", "Nintendo 64", "Nintendo GameCube", "Nintendo Wii", "Nintendo Wii U", "Nintendo Switch", "Nintendo Game Boy", "Nintendo Game Boy Color", "Nintendo Game Boy Advance", "Nintendo DS", "Nintendo DSi", "Nintendo 3DS", "New Nintendo 3DS", "Nokia N-Gage", "Nuon", "TurboGrafx-16/PC Engine", "PC Engine SuperGrafx","Philips CD-i", "Sega Master System", "Sega Genesis/Mega Drive", "Sega CD", "Sega 32X", "Sega Saturn", "Sega Dreamcast", "Sega Game Gear", "Sega Pico", "Sony PlayStation", "Sony PlayStation 2", "Sony PlayStation 3", "Sony PlayStation 4", "Sony PlayStation 5", "Sony PlayStation Portable (PSP)", "Sony PlayStation Vita", "Vectrex",  "Zeebo"]
     
     let sectionTitles = "0ABCDEFGHIJKLMNOPQRSTUVWXYZ".map(String.init)
     
-
+    override func viewWillDisappear(_ animated: Bool) {
+        clearImageCacheFromMemory()
+    }
+    
+    override func didReceiveMemoryWarning() {
+        clearImageCacheFromMemory()
+    }
+    
+    func clearImageCacheFromMemory() {
+        let imageCache = SDImageCache.shared
+        imageCache.clearMemory()
+    }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(true)
@@ -357,7 +369,7 @@ class ViewController: UIViewController, ViewControllerTableViewCellDelegate, Net
         
             if network.gameArray.count != 0 {
             gameArray = network.gameArray
-            print("gamearray counting", gameArray.count)
+//            print("gamearray counting", gameArray.count)
             self.tableView.reloadData()
 
             
@@ -367,7 +379,7 @@ class ViewController: UIViewController, ViewControllerTableViewCellDelegate, Net
             currentPlatformID = platformID
             }
             currentPlatformName = convertPlatformIDToName(PlatformID: currentPlatformID)
-            print("current platform is", currentPlatformName)
+//            print("current platform is", currentPlatformName)
             search.searchBar.placeholder = "Search within \(currentPlatformName)"
             
             
@@ -395,11 +407,13 @@ class ViewController: UIViewController, ViewControllerTableViewCellDelegate, Net
         super.viewDidLoad()
 
         
-        print("app started")
+//        print("app started")
         let currentCount = Float(gameArray.count)
         let totalCount = Float(network.totalRequestCount)
+        if totalCount != 0 {
         let progress = currentCount / totalCount
         self.progressIndicator.progress = progress
+        }
         let tableViewLoadingCellNib = UINib(nibName: "LoadingCell", bundle: nil)
                 self.tableView.register(tableViewLoadingCellNib, forCellReuseIdentifier: "loadingCellID")
 
@@ -407,10 +421,10 @@ class ViewController: UIViewController, ViewControllerTableViewCellDelegate, Net
         tableView.dataSource = self
         tableView.autoresizingMask = .flexibleWidth
         let lightBlue = UIColorFromRGB(0x2B95CE)
-        let lighterBlue = UIColorFromRGB(0x2ECAD5)
+//        let lighterBlue = UIColorFromRGB(0x2ECAD5)
         tableView.sectionIndexColor = lightBlue
 //        tableView.estimatedRowHeight = 178
-        let testBlue = UIColor(red: 43, green: 149, blue: 206, alpha: 1)
+//        let testBlue = UIColor(red: 43, green: 149, blue: 206, alpha: 1)
         network.delegate = self
         prepareData()
 
@@ -434,26 +448,26 @@ class ViewController: UIViewController, ViewControllerTableViewCellDelegate, Net
 //        let config = UIImage.SymbolConfiguration(scale: .large)
 //        let sortImage = UIImage(named: "atoz")
 //        customButton.imageView?.contentMode = .scaleToFill
-        sortBtn.frame = CGRect(x: 10, y: 20, width: 50, height: 50)
-        sortBtn.setTitle("Sort", for: .normal)
-        sortBtn.titleLabel?.font = UIFont.boldSystemFont(ofSize: 15)
-        sortBtn.setTitleColor(blueTint, for: .normal)
+        advancedSearchBtn.frame = CGRect(x: 10, y: 20, width: 50, height: 50)
+        advancedSearchBtn.setTitle("Adv. Search", for: .normal)
+        advancedSearchBtn.titleLabel?.font = UIFont.boldSystemFont(ofSize: 15)
+        advancedSearchBtn.setTitleColor(blueTint, for: .normal)
 //        sortBtn.contentVerticalAlignment = .center
 
 //        sortBtn.setTitleColor(scanButton.actualTintColor, for: .normal)
-        sortBtn.titleEdgeInsets = UIEdgeInsets(top: 5, left: 0, bottom: 5, right: 0)
-        self.sortBtn.setImage(UIImage(named:"atoz3")?.sd_resizedImage(with: CGSize(width: 20, height: 20), scaleMode: .aspectFit), for: .normal)
-        sortBtn.sizeToFit()
+        advancedSearchBtn.titleEdgeInsets = UIEdgeInsets(top: 5, left: 0, bottom: 5, right: 0)
+        self.advancedSearchBtn.setImage(UIImage(systemName: "magnifyingglass"), for: .normal)
+        advancedSearchBtn.sizeToFit()
 //        sortBtn.tintColor = colorLiteral
 //        sortBtn.setTitleColor(colorLiteral, for: .normal)
-        sortBtn.addTarget(self, action: #selector(sortButtonPressed), for: .touchUpInside)
+        advancedSearchBtn.addTarget(self, action: #selector(sortButtonPressed), for: .touchUpInside)
 //        customButton.setImage(UIImage.init(named:"atoz")?.withRenderingMode(.alwaysTemplate), for: .normal)
 //        customButton.tintColor = colorLiteral
 //        customButton.setTitle("Sort", for: .normal)
 //        customButton.setTitleColor(colorLiteral, for: .normal)
 //
 //        customButton.addTarget(self, action: #selector(sortButtonPressed), for: .touchUpInside)
-        self.navigationItem.leftBarButtonItem = UIBarButtonItem(customView: sortBtn)
+        self.navigationItem.leftBarButtonItem = UIBarButtonItem(customView: advancedSearchBtn)
         
         
 //        self.navigationItem.setLeftBarButton(UIBarButtonItem.init(title: "Sort",image: UIImage(named: "atoz"), style: .plain, target: self, action: #selector(sortButtonPressed)), animated: true)
@@ -468,269 +482,28 @@ class ViewController: UIViewController, ViewControllerTableViewCellDelegate, Net
         
     }
     
-    @objc func sortButtonPressed() {
-//        UIView.animate(withDuration: 0.5) {
-//            self.sortBtn.alpha = 0.5
-//        } completion: { complete in
-//            UIView.animate(withDuration: 0.5) {
-//                self.sortBtn.alpha = 1
-//            }
     
-//        }
-        let visibleCells = tableView.visibleCells
-        var middleCellIndex = Double((visibleCells.count / 2))
-        middleCellIndex.round(.down)
-        let index = Int(middleCellIndex)
-        let middleCell = visibleCells[index] as? ViewControllerTableViewCell
-        
-//        let indexPathAtCenter = self.tableView.indexPathForRow(at: CGPoint(x: self.tableView.bounds.size.width/2, y: self.tableView.bounds.size.height / 2))
-//        print("indexPAthAtCenter", indexPathAtCenter)
-//        let centerCell = self.tableView.cellForRow(at: indexPathAtCenter!) as! ViewControllerTableViewCell
-        let centerGame = (middleCell?.game)!
-        let centerGameID = middleCell?.game?.id
-        let centerSection = (middleCell?.game?.indexSection)!
-        let centerPrefix = middleCell?.game?.namePrefix
-        let centerName = middleCell?.game?.title
-        
-        print("center", centerName, centerPrefix, centerSection, centerGameID)
 
-        if sortDirection == .orderedAscending {
-            
-            sortDirection = .orderedDescending
-            self.sortBtn.setImage(UIImage(named:"ztoa3")?.sd_resizedImage(with: CGSize(width: 20, height: 20), scaleMode: .aspectFit), for: .normal)
-//            UIView.animate(withDuration: 0.75) {
-//                self.sortBtn.alpha = 0.5
-//            } completion: { complete in
-//                self.sortBtn.setImage(UIImage(named:"ztoa3")?.sd_resizedImage(with: CGSize(width: 20, height: 20), scaleMode: .aspectFit), for: .normal)
-//                UIView.animate(withDuration: 0.75) {
-//                    self.sortBtn.alpha = 1
-//                }
-//            }
-                    } else {
-            sortDirection = .orderedAscending
-                        self.sortBtn.setImage(UIImage(named:"atoz3")?.sd_resizedImage(with: CGSize(width: 20, height: 20), scaleMode: .aspectFit), for: .normal)
-//                        UIView.animate(withDuration: 0.75) {
-//                            self.sortBtn.alpha = 0.5
-//                        } completion: { complete in
-//                            self.sortBtn.setImage(UIImage(named:"atoz3")?.sd_resizedImage(with: CGSize(width: 20, height: 20), scaleMode: .aspectFit), for: .normal)
-//                            UIView.animate(withDuration: 0.75) {
-//                                self.sortBtn.alpha = 1
-//                            }
-//                        }
-        }
-        self.gameArray = network.gameArray
-//        let games = tableView.dataSource
-//
-//        for (index, value) in gameArray.enumerated() {
-//
-//            if value.id == centerGameID {
-//
-//            }
-//
-//        }
-        tableView.reloadData {
-            print("reloadData should be done,waiting 2 seconds then moving")
-//            let deadline = DispatchTime.now() + 0.5
-//            DispatchQueue.main.asyncAfter(deadline: deadline) {
-//                print("now moving")
-//                self.tableView.setContentOffset(CGPoint(x: 0, y: self.tableView.contentInset.top), animated: true)
-//
-//            }
-        }
-        
-        switch centerPrefix {
-        
-        case "A":
-            let indexTest = aGames.firstIndex(of: centerGame)
-            let sect = aGames[indexTest!]
-            let section = getSectionFrom(prefix: sect.namePrefix!)
-            tableView.scrollToRow(at: IndexPath(item: indexTest!, section: section), at: .middle, animated: false)
-        case "B":
-            let indexTest = bGames.firstIndex(of: centerGame)
-            let sect = bGames[indexTest!]
-            let section = getSectionFrom(prefix: sect.namePrefix!)
-            tableView.scrollToRow(at: IndexPath(item: indexTest!, section: section), at: .middle, animated: false)
-        case "C":
-            let indexTest = cGames.firstIndex(of: centerGame)
-            let sect = cGames[indexTest!]
-            let section = getSectionFrom(prefix: sect.namePrefix!)
-            tableView.scrollToRow(at: IndexPath(item: indexTest!, section: section), at: .middle, animated: false)
-            
-        case "D":
-            let indexTest = dGames.firstIndex(of: centerGame)
-            let sect = dGames[indexTest!]
-            let section = getSectionFrom(prefix: sect.namePrefix!)
-            tableView.scrollToRow(at: IndexPath(item: indexTest!, section: section), at: .middle, animated: false)
-        case "E":
-            let indexTest = eGames.firstIndex(of: centerGame)
-            let sect = eGames[indexTest!]
-            let section = getSectionFrom(prefix: sect.namePrefix!)
-            tableView.scrollToRow(at: IndexPath(item: indexTest!, section: section), at: .middle, animated: false)
-        case "F":
-            let indexTest = fGames.firstIndex(of: centerGame)
-            let sect = fGames[indexTest!]
-            let section = getSectionFrom(prefix: sect.namePrefix!)
-            tableView.scrollToRow(at: IndexPath(item: indexTest!, section: section), at: .middle, animated: false)
-            
-        case "G":
-            let indexTest = gGames.firstIndex(of: centerGame)
-            let sect = gGames[indexTest!]
-            let section = getSectionFrom(prefix: sect.namePrefix!)
-            tableView.scrollToRow(at: IndexPath(item: indexTest!, section: section), at: .middle, animated: false)
-        case "H":
-            let indexTest = hGames.firstIndex(of: centerGame)
-            let sect = hGames[indexTest!]
-            let section = getSectionFrom(prefix: sect.namePrefix!)
-            tableView.scrollToRow(at: IndexPath(item: indexTest!, section: section), at: .middle, animated: false)
-        case "I":
-            let indexTest = iGames.firstIndex(of: centerGame)
-            let sect = iGames[indexTest!]
-            let section = getSectionFrom(prefix: sect.namePrefix!)
-            tableView.scrollToRow(at: IndexPath(item: indexTest!, section: section), at: .middle, animated: false)
-            
-        case "J":
-            let indexTest = jGames.firstIndex(of: centerGame)
-            let sect = jGames[indexTest!]
-            let section = getSectionFrom(prefix: sect.namePrefix!)
-            tableView.scrollToRow(at: IndexPath(item: indexTest!, section: section), at: .middle, animated: false)
+    
+    @objc func sortButtonPressed() {
 
-        case "K":
-            let indexTest = kGames.firstIndex(of: centerGame)
-            let sect = kGames[indexTest!]
-            let section = getSectionFrom(prefix: sect.namePrefix!)
-            tableView.scrollToRow(at: IndexPath(item: indexTest!, section: section), at: .middle, animated: false)
-        case "L":
-            let indexTest = lGames.firstIndex(of: centerGame)
-            let sect = lGames[indexTest!]
-            let section = getSectionFrom(prefix: sect.namePrefix!)
-            tableView.scrollToRow(at: IndexPath(item: indexTest!, section: section), at: .middle, animated: false)
-            
-        case "M":
-            let indexTest = mGames.firstIndex(of: centerGame)
-            let sect = mGames[indexTest!]
-            let section = getSectionFrom(prefix: sect.namePrefix!)
-            tableView.scrollToRow(at: IndexPath(item: indexTest!, section: section), at: .middle, animated: false)
-        case "N":
-            let indexTest = nGames.firstIndex(of: centerGame)
-            let sect = nGames[indexTest!]
-            let section = getSectionFrom(prefix: sect.namePrefix!)
-            tableView.scrollToRow(at: IndexPath(item: indexTest!, section: section), at: .middle, animated: false)
-        case "O":
-            let indexTest = oGames.firstIndex(of: centerGame)
-            let sect = oGames[indexTest!]
-            let section = getSectionFrom(prefix: sect.namePrefix!)
-            tableView.scrollToRow(at: IndexPath(item: indexTest!, section: section), at: .middle, animated: false)
-            
-        case "P":
-            let indexTest = pGames.firstIndex(of: centerGame)
-            let sect = pGames[indexTest!]
-            let section = getSectionFrom(prefix: sect.namePrefix!)
-            tableView.scrollToRow(at: IndexPath(item: indexTest!, section: section), at: .middle, animated: false)
-        case "Q":
-            let indexTest = qGames.firstIndex(of: centerGame)
-            let sect = qGames[indexTest!]
-            let section = getSectionFrom(prefix: sect.namePrefix!)
-            tableView.scrollToRow(at: IndexPath(item: indexTest!, section: section), at: .middle, animated: false)
-        case "R":
-            let indexTest = rGames.firstIndex(of: centerGame)
-            let sect = rGames[indexTest!]
-            let section = getSectionFrom(prefix: sect.namePrefix!)
-            tableView.scrollToRow(at: IndexPath(item: indexTest!, section: section), at: .middle, animated: false)
-            
-        case "S":
-            let indexTest = sGames.firstIndex(of: centerGame)
-            let sect = sGames[indexTest!]
-            let section = getSectionFrom(prefix: sect.namePrefix!)
-            tableView.scrollToRow(at: IndexPath(item: indexTest!, section: section), at: .middle, animated: false)
-        case "T":
-            let indexTest = tGames.firstIndex(of: centerGame)
-            let sect = tGames[indexTest!]
-            let section = getSectionFrom(prefix: sect.namePrefix!)
-            tableView.scrollToRow(at: IndexPath(item: indexTest!, section: section), at: .middle, animated: false)
-        case "U":
-            let indexTest = uGames.firstIndex(of: centerGame)
-            let sect = uGames[indexTest!]
-            let section = getSectionFrom(prefix: sect.namePrefix!)
-            tableView.scrollToRow(at: IndexPath(item: indexTest!, section: section), at: .middle, animated: false)
-            
-        case "V":
-            let indexTest = vGames.firstIndex(of: centerGame)
-            let sect = vGames[indexTest!]
-            let section = getSectionFrom(prefix: sect.namePrefix!)
-            tableView.scrollToRow(at: IndexPath(item: indexTest!, section: section), at: .middle, animated: false)
-        case "W":
-            let indexTest = wGames.firstIndex(of: centerGame)
-            let sect = wGames[indexTest!]
-            let section = getSectionFrom(prefix: sect.namePrefix!)
-            tableView.scrollToRow(at: IndexPath(item: indexTest!, section: section), at: .middle, animated: false)
-        case "X":
-            let indexTest = xGames.firstIndex(of: centerGame)
-            let sect = xGames[indexTest!]
-            let section = getSectionFrom(prefix: sect.namePrefix!)
-            tableView.scrollToRow(at: IndexPath(item: indexTest!, section: section), at: .middle, animated: false)
-            
-        case "Y":
-            let indexTest = yGames.firstIndex(of: centerGame)
-            let sect = yGames[indexTest!]
-            let section = getSectionFrom(prefix: sect.namePrefix!)
-            tableView.scrollToRow(at: IndexPath(item: indexTest!, section: section), at: .middle, animated: false)
-        case "Z":
-            let indexTest = zGames.firstIndex(of: centerGame)
-            let sect = zGames[indexTest!]
-            let section = getSectionFrom(prefix: sect.namePrefix!)
-            tableView.scrollToRow(at: IndexPath(item: indexTest!, section: section), at: .middle, animated: false)
-        case "0":
-            let indexTest = numericGames.firstIndex(of: centerGame)
-            let sect = numericGames[indexTest!]
-            let section = getSectionFrom(prefix: sect.namePrefix!)
-            tableView.scrollToRow(at: IndexPath(item: indexTest!, section: section), at: .middle, animated: false)
-        
-        default:
-            print("invalid prefix")
-        }
+        let VC = storyboard?.instantiateViewController(identifier: "advancedSearch") as! AdvancedSearchVC
 
-        
-        
-//        tableTimer = Timer(timeInterval: 0.2, target: self, selector: #selector(automaticScroll), userInfo: nil, repeats: true)
-//
-//        if tableView.contentOffset == CGPoint.zero {
-//
-//            stopScroll()
-//
-//        }
-//                let animation = AnimationFactory.makeMoveUpWithFade(rowHeight: cell.frame.height / 2, duration: 0.2, delayFactor: 0.05)
-//                let animator = Animator(animation: animation)
-//        animator.animate(cell: tableView.cell, at: IndexPath(row: 0, section: 0), in: tableView)
-//            UIView.animate(withDuration: 4, delay: 0, options: .curveEaseInOut) {
-////                self.tableView.setContentOffset(CGPoint(x: 0, y: 0), animated: false)
-//
-//            } completion: { complete in
-//                print("tableView scroll complete", complete)
-//            }
-//        
-//        let numSections = tableView.section
-//        let numRowsInLastSection = tableView.numberOfRows(inSection: numSections)
-//        self.tableView.scrollToRow(at: IndexPath., at: <#T##UITableView.ScrollPosition#>, animated: <#T##Bool#>)
-//        self.tableView.scrollToRow(at: IndexPath(row: 0, section: getTopSection()), at: .top, animated: true)
-//        tableView.layoutIfNeeded()
-        
-        
-
-
+        navigationController?.pushViewController(VC, animated: true)
         }
 
     
     func removeLeadingArticle(fromString: String) -> String{
         let articles = ["a ", "an ", "the ", "The ", "A ", "An "]
-        var returnString : String?
+//        var returnString : String?
         
         for article in articles {
             if fromString.lowercased().hasPrefix(article.lowercased()) {
 //                return string.substring(from: string.index(string.startIndex, offsetBy: article.characters.count))
                 let articleLength = article.count
-                print("articleLength", articleLength)
+//                print("articleLength", articleLength)
                 let returnString = String(fromString[fromString.index(fromString.startIndex, offsetBy: articleLength)...])
-                print("correctedString", returnString)
+//                print("correctedString", returnString)
                return returnString
                 
             }
@@ -1119,35 +892,40 @@ class ViewController: UIViewController, ViewControllerTableViewCellDelegate, Net
 //            if self.network.currentOffset < self.network.gameArray.count {
     self.gameArray = self.network.gameArray
         self.network.currentOffset += 500
-                var currentCount = Float(self.gameArray.count)
-                print("current count", currentCount)
-                var totalCount = Float(self.network.totalRequestCount)
-                print("total count", totalCount)
-                var progress = currentCount / totalCount
-                print("progress is ", progress)
-                let progressFloat = Float(progress)
-                print("progress float is", progressFloat)
+//                var currentCount = Float(self.gameArray.count)
+//                print("current count", currentCount)
+//                var totalCount = Float(self.network.totalRequestCount)
+//                print("total count", totalCount)
+//                var progress = Float(0.0)
+//                print("progress is ", progress)
+//                let progressFloat = Float(progress)
+//                print("progress float is", progressFloat)
 //                self.progressIndicator.progress = progressFloat
 //            self.network.currentOffset = self.network.gameArray.count
-        print("offset after fetch = \(self.network.currentOffset)")
+//        print("offset after fetch = \(self.network.currentOffset)")
         self.network.fetchingMore = false
-        print("fetching more =", self.network.fetchingMore)
+//        print("fetching more =", self.network.fetchingMore)
         self.tableView.reloadData()
                 
-                print("dropdown endofresults", self.network.endOfResults)
+//                print("dropdown endofresults", self.network.endOfResults)
                 if self.network.endOfResults == true {
                     self.gameArrayCountLabel.text = String(self.gameArray.count)
 
-                    currentCount = Float(self.gameArray.count)
-                    totalCount = Float(self.gameArray.count)
-                    progress = currentCount / totalCount
+//                    currentCount = Float(self.gameArray.count)
+//                    totalCount = Float(self.gameArray.count)
+//                    progress = currentCount / totalCount
 //                    self.progressIndicator.progress = progress
-                    UIView.animate(withDuration: 3) {
+                    UIView.animate(withDuration: 1.5) {
                         self.progressIndicator.alpha = 0
                         self.progressCompleteLbl.alpha = 0
+                        self.activityIndicator.alpha = 0
+                        self.progressIndicator.isHidden = true
+                        self.progressCompleteLbl.isHidden = true
+                        self.activityIndicator.isHidden = true
                     } completion: { complete in
-                        UIView.animate(withDuration: 3) {
-                            
+                        UIView.animate(withDuration: 1.5) {
+                            self.gameArrayCountLabel.isHidden = false
+                            self.totalGamesDisplayedLbl.isHidden = false
                             self.gameArrayCountLabel.alpha = 1
                             self.totalGamesDisplayedLbl.alpha = 1
 
@@ -1161,11 +939,11 @@ class ViewController: UIViewController, ViewControllerTableViewCellDelegate, Net
 
                 
                     
-                    print("******************************")
-                    print("*      END OF RESULTS        *")
-                    print("*Fetched Games: \(self.network.currentDataCount)         *")
-                    print("*Displayed Games:\(self.gameArray.count)        *")
-                    print("******************************")
+//                    print("******************************")
+//                    print("*      END OF RESULTS        *")
+//                    print("*Fetched Games: \(self.network.currentDataCount)         *")
+//                    print("*Displayed Games:\(self.gameArray.count)        *")
+//                    print("******************************")
 
                 } else {
                     self.requestMoreGames()
@@ -1178,13 +956,14 @@ class ViewController: UIViewController, ViewControllerTableViewCellDelegate, Net
             
             self.gameArrayCountLabel.text = String(self.gameArray.count)
 
-           let currentCount = Float(self.gameArray.count)
-            let totalCount = Float(self.gameArray.count)
-            let progress = currentCount / totalCount
+//           let currentCount = Float(self.gameArray.count)
+//            let totalCount = Float(self.gameArray.count)
+//            let progress = currentCount / totalCount
 //                    self.progressIndicator.progress = progress
             UIView.animate(withDuration: 3) {
                 self.progressIndicator.alpha = 0
                 self.progressCompleteLbl.alpha = 0
+                self.activityIndicator.alpha = 0
             } completion: { complete in
                 UIView.animate(withDuration: 3) {
                     
@@ -1200,13 +979,13 @@ class ViewController: UIViewController, ViewControllerTableViewCellDelegate, Net
             }
 
         
-            
-            print("******************************")
-            print("*      END OF RESULTS        *")
-            print("*Fetched Games: \(self.network.currentDataCount)         *")
-            print("*Displayed Games:\(self.gameArray.count)        *")
-            print("******************************")
-            
+//
+//            print("******************************")
+//            print("*      END OF RESULTS        *")
+//            print("*Fetched Games: \(self.network.currentDataCount)         *")
+//            print("*Displayed Games:\(self.gameArray.count)        *")
+//            print("******************************")
+//
             
             
         }
@@ -1223,7 +1002,7 @@ class ViewController: UIViewController, ViewControllerTableViewCellDelegate, Net
     
     func createAppIcon() {
         
-        let logo = UIImage(named: "glogo44")
+        let logo = UIImage(named: "gameologylogo44")
         let imageView = UIImageView(image:logo)
         imageView.contentMode = .scaleAspectFit
         self.navigationItem.titleView = imageView
@@ -1249,14 +1028,14 @@ class ViewController: UIViewController, ViewControllerTableViewCellDelegate, Net
     func prepareData() {
         
         if network.gameArray.count != 0 {
-            print("network gamearray count is", network.gameArray.count)
+//            print("network gamearray count is", network.gameArray.count)
             self.gameArray = self.network.gameArray
-            for game in gameArray {
-//                print(game)
-                print(game.title)
-                print(game.platformID)
-            }
-            print("game array count is", gameArray.count)
+//            for game in gameArray {
+////                print(game)
+//                print(game.title)
+//                print(game.platformID)
+//            }
+//            print("game array count is", gameArray.count)
 //            print(gameArray)
             let platformImage = self.setPlatformIcon(platformID: self.gameArray[0].platformID!, mode: self.traitCollection.userInterfaceStyle)
             self.tableviewPlatformImage.image = UIImage(named: platformImage)
@@ -1305,7 +1084,7 @@ class ViewController: UIViewController, ViewControllerTableViewCellDelegate, Net
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         
-        print("prepare for segue")
+//        print("prepare for segue")
         
         if let destination = segue.destination as? PagingDetailVC {
             destination.game = segueObject!
@@ -1313,7 +1092,7 @@ class ViewController: UIViewController, ViewControllerTableViewCellDelegate, Net
 //                print("seguing image")
 //                destination.boxartImage = image
 //            }
-            print("destination.game \(destination.game)")
+//            print("destination.game \(destination.game)")
         }
     
     }
@@ -1465,7 +1244,7 @@ class ViewController: UIViewController, ViewControllerTableViewCellDelegate, Net
     }
     
     func addGameToLibraryPressed(_ sender: ViewControllerTableViewCell) {
-        print("owned button pressed")
+//        print("owned button pressed")
         let indexPath = tableView.indexPath(for: sender)
         ViewController.savedGameIndex = indexPath!
         
@@ -1486,7 +1265,7 @@ class ViewController: UIViewController, ViewControllerTableViewCellDelegate, Net
                     let deleteConfirmation = UIAlertAction(title: "Confirm", style: .default) { (action) in
                         
                     
-                    print("unownedImage is", unownedImage)
+//                    print("unownedImage is", unownedImage)
                     cell.addToLibraryButton.setImage(UIImage(named: unownedImage), for: UIControl.State.normal)
                     cell.game?.owned = false
                         self.gameArray[(indexPath?.row)!].owned = false
@@ -1498,8 +1277,8 @@ class ViewController: UIViewController, ViewControllerTableViewCellDelegate, Net
                             self.deleteGameFromCoreData()
 
                         
-                            let savedPlatforms = self.persistenceManager.fetch(Platform.self)
-                        print("saved platforms count = \(savedPlatforms.count)")
+//                            let savedPlatforms = self.persistenceManager.fetch(Platform.self)
+//                        print("saved platforms count = \(savedPlatforms.count)")
                        
                             let existingPlatforms = self.fetchCoreDataPlatformObject(id: cell.platformID!)
 //                        print("existingPlatforms count = \(existingPlatforms.games?.count)")
@@ -1526,17 +1305,17 @@ class ViewController: UIViewController, ViewControllerTableViewCellDelegate, Net
                     
             
             } else {
-                print("not owned")
+//                print("not owned")
 //                print(cell.platformName)
 //                print(cell.platformID)
                 guard let title = cell.game?.title, let id = cell.game?.id, let image = cell.tableViewCoverImage.image, let platformName = cell.platformName, let platformID = cell.platformID else {
-                    print("One of the following may be nil:")
+//                    print("One of the following may be nil:")
 //                    print("cell.game.title", cell.game?.title)
 //                    print("cell.game.id", cell.game?.id)
 //                    print("cell.tableviewcoverimage.image", cell.tableViewCoverImage.image)
 //                    print("cell.platformname", cell.platformName)
 //                    print("cell.platformid", cell.platformID)
-                    print("Bailing Out")
+//                    print("Bailing Out")
                     return }
                 
                 print(platformName)
@@ -1616,32 +1395,32 @@ class ViewController: UIViewController, ViewControllerTableViewCellDelegate, Net
                         
                         
                         
-                        print("platform CORE DATA \(platform)")
+//                        print("platform CORE DATA \(platform)")
                         let savedPlatform = persistenceManager.fetch(Platform.self)
 
                         if savedPlatform.count >= 1 {
-
-                        if checkForPlatformInLibrary(name: platformName, id: platformID) {
-                            print("Platform already exists--retreiving and adding game to platform")
-                            let existingPlatform = fetchCoreDataPlatformObject(id: platformID)
-                           
-                            existingPlatform.addToGames(currentGame)
-                            persistenceManager.save()
-//                            print("existing platform is \(existingPlatform.games)")
-                        }
-                        else {
-                            print("Platform doesnt exist--creating platform then adding game to platform")
-                           savePlatformToCoreData(platformID)
-                            let newPlatform = fetchCoreDataPlatformObject(id: platformID)
                             
-                            newPlatform.addToGames(currentGame)
-                            persistenceManager.save()
-                            
-//                            print("new platform is \(newPlatform.games)")
-                        }
-                            
-                        } else {
-                            print("Platform doesnt exist--creating platform then adding game to platform")
+                            if checkForPlatformInLibrary(name: platformName, id: platformID) {
+//                                print("Platform already exists--retreiving and adding game to platform")
+                                let existingPlatform = fetchCoreDataPlatformObject(id: platformID)
+                               
+                                existingPlatform.addToGames(currentGame)
+                                persistenceManager.save()
+    //                            print("existing platform is \(existingPlatform.games)")
+                            }
+                            else {
+//                                print("Platform doesnt exist--creating platform then adding game to platform")
+                               savePlatformToCoreData(platformID)
+                                let newPlatform = fetchCoreDataPlatformObject(id: platformID)
+                                
+                                newPlatform.addToGames(currentGame)
+                                persistenceManager.save()
+                                
+    //                            print("new platform is \(newPlatform.games)")
+                            }
+                                
+                            } else {
+//                            print("Platform doesnt exist--creating platform then adding game to platform")
                            savePlatformToCoreData(platformID)
                             let newPlatform = fetchCoreDataPlatformObject(id: platformID)
                             newPlatform.addToGames(currentGame)
@@ -1698,17 +1477,17 @@ class ViewController: UIViewController, ViewControllerTableViewCellDelegate, Net
     
     
     func convertPlatformNameToID(platformName: String) -> Int {
-        print("platformName is", platformName)
+//        print("platformName is", platformName)
         let allPlatforms = network.platforms
         var platformID = 0
         for platform in allPlatforms {
-            print("platform.name", platform.name, "platform.id", platform.id)
+//            print("platform.name", platform.name, "platform.id", platform.id)
             if platform.name == platformName {
                 platformID = platform.id
             }
             
         }
-        print("platformID is", platformID)
+//        print("platformID is", platformID)
       return platformID
     }
 
@@ -1815,7 +1594,7 @@ class ViewController: UIViewController, ViewControllerTableViewCellDelegate, Net
             dropDown.textColor = .black
             dropDown.shadowColor = .black
             dropDown.shadowOffset = CGSize(width: 3.0, height: 3.0)
-            
+            navigationController?.view.backgroundColor = .white
 
         } else if traitCollection.userInterfaceStyle == .dark {
             let darkGray = UIColor(red: (18/255), green: (18/255), blue: (18/255), alpha: 1)
@@ -1827,6 +1606,8 @@ class ViewController: UIViewController, ViewControllerTableViewCellDelegate, Net
             dropDown.textColor = .white
             dropDown.shadowOffset = CGSize(width: 3.0, height: 3.0)
             dropDown.shadowColor = .white
+            navigationController?.view.backgroundColor = .black
+
 
         }
         
@@ -1874,20 +1655,20 @@ class ViewController: UIViewController, ViewControllerTableViewCellDelegate, Net
     
     
     func checkForGameInWishList(name: String, id: Int) -> Bool {
-        print("Checking for game in wishlist")
+//        print("Checking for game in wishlist")
         let savedGames = persistenceManager.fetch(WishList.self)
         
         for savedGame in savedGames {
             
              if savedGame.title == name && savedGame.gameID == id {
-                print("Game is in wishlist")
+//                print("Game is in wishlist")
                 return true
         }
           
 
     }
         
-        print("Game is not in wishlist")
+//        print("Game is not in wishlist")
         return false
     
     }
@@ -2270,7 +2051,7 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
 
         
-        print("****DIDSELECTROW in main VC called****")
+//        print("****DIDSELECTROW in main VC called****")
         let cell = tableView.cellForRow(at: indexPath) as! ViewControllerTableViewCell
 //        print("test \(cell.frontImageName)")
         
@@ -2348,7 +2129,7 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
         
 //        segueObject = gameArray[indexPath.row]
         if let image = cell.tableViewCoverImage.image {
-            print("setting boxartimage")
+//            print("setting boxartimage")
             segueObject?.boxartImage = image
         }
 //        print(segueObject)
@@ -2358,7 +2139,7 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
-        print("trailingSwipeActions")
+//        print("trailingSwipeActions")
         let cell = tableView.cellForRow(at: indexPath) as? ViewControllerTableViewCell
         
         var title = ""
@@ -2395,7 +2176,7 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
                 
             }
             
-            print("Wishlist pressed")
+//            print("Wishlist pressed")
             completion(true)
 
         }
@@ -2469,11 +2250,11 @@ extension ViewController: UISearchResultsUpdating, UISearchBarDelegate {
         let searchBarText = text
 
         if searchBarText != "" {
-            let currentPlatformID = network.lastRequestedPlatformID
+//            let currentPlatformID = network.lastRequestedPlatformID
 
                 network.searchFilter = " platforms = "
                 
-                    print("search text ", searchBarText)
+//                    print("search text ", searchBarText)
                 network.searchText = searchBarText
                     
                 
@@ -2549,27 +2330,35 @@ extension ViewController: DropdownPickerViewDelegate {
         dropDown.width = dropDownView.frame.size.width
         
         dropDown.selectionAction = { [unowned self] (index: Int, item: String) in
+            network.currentTask?.cancel()
+
             self.network.searchIsActive = false
             self.progressCompleteLbl.text = "0%"
             self.progressIndicator.progress = 0
             self.gameArrayCountLabel.alpha = 0
             self.totalGamesDisplayedLbl.alpha = 0
+            self.totalGamesDisplayedLbl.isHidden = true
+            self.progressIndicator.isHidden = true
+            self.gameArrayCountLabel.isHidden = true
+            self.progressIndicator.isHidden = false
+            self.activityIndicator.isHidden = false
+            self.progressCompleteLbl.isHidden = false
             self.progressIndicator.progress = 0
             self.progressCompleteLbl.alpha = 1
             self.progressIndicator.alpha = 1
+            self.activityIndicator.alpha = 1
             
-            print("Selected item: \(item) at index: \(index)")
+//            print("Selected item: \(item) at index: \(index)")
             let selectedPlatformID = formatPrettyPlatformNameToID(platformName: item)
-            let igdbPlatformName = formatPrettyTitleToIGDB(platformName: item)
             network.lastRequestedPlatformID = selectedPlatformID
-            print("igdb name is", igdbPlatformName)
+//            print("igdb name is", igdbPlatformName)
 //            let selectedPlatformID = convertPlatformNameToID(platformName: igdbPlatformName)
             dropDownView.setTitle(item, for: .normal)
-            print("selected platform = ", selectedPlatformID)
+//            print("selected platform = ", selectedPlatformID)
             self.network.gameArray.removeAll()
-            
-            print("selectedPlatformID is", selectedPlatformID)
-            network.currentTask?.cancel()
+            self.tableView.reloadData()
+//            print("selectedPlatformID is", selectedPlatformID)
+//            network.currentTask?.cancel()
             self.network.previousDataCount = 0
             self.network.currentDataCount = 0
             self.network.currentOffset = 0
@@ -2581,15 +2370,16 @@ extension ViewController: DropdownPickerViewDelegate {
 
                 }, completion: nil)
             
+            
             network.fetchIGDBGamesData(filterBy: "platforms = ", platformID: selectedPlatformID, searchByName: nil, sortByField: "name", sortAscending: true, offset: 0, resultsPerPage: 500) { error in
                 
                 if error == nil {
                     network.currentOffset = 0
                     self.gameArray = network.gameArray
                     dropDownFetchSuccess(item: item, selectedPlatformID: selectedPlatformID)
-                    print("current offset drop down", network.currentOffset)
+//                    print("current offset drop down", network.currentOffset)
                 } else {
-                    print("drop down error is", error)
+//                    print("drop down error is", error)
                 }
           
      
@@ -2754,7 +2544,7 @@ extension ViewController: DropdownPickerViewDelegate {
     
     func dropDownFetchSuccess(item: String, selectedPlatformID: Int) {
         
-        print("network game array count", network.gameArray.count)
+//        print("network game array count", network.gameArray.count)
         
 
 
@@ -2770,7 +2560,7 @@ extension ViewController: DropdownPickerViewDelegate {
 
 //                print(self.gameArray)
 
-        print("tableview should reload")
+//        print("tableview should reload")
 
         
         
@@ -2781,19 +2571,19 @@ extension ViewController: DropdownPickerViewDelegate {
         self.tableView.scrollToRow(at: IndexPath(row: 0, section: getTopSection()), at: .top, animated: true)
 
         
-        print("dropdown fetch complete, offset is now", network.currentOffset)
+//        print("dropdown fetch complete, offset is now", network.currentOffset)
        
         
         if network.endOfResults != true {
-            
+//            print("requesting more games")
             requestMoreGames()
             
         } else {
             
             self.gameArray = self.network.gameArray
-            let currentCount = Float(self.gameArray.count)
-            let totalCount = Float(self.network.totalRequestCount)
-            let progress = currentCount / totalCount
+//            let currentCount = Float(self.gameArray.count)
+//            let totalCount = Float(self.network.totalRequestCount)
+//            let progress = currentCount / totalCount
 //            self.progressIndicator.progress = progress
             
             self.gameArrayCountLabel.text = String(self.gameArray.count)
@@ -2801,19 +2591,33 @@ extension ViewController: DropdownPickerViewDelegate {
             UIView.animate(withDuration: 1.5) {
                 self.progressIndicator.alpha = 0
                 self.progressCompleteLbl.alpha = 0
+                self.activityIndicator.alpha = 0
+
             } completion: { complete in
+                self.progressIndicator.isHidden = true
+                self.progressCompleteLbl.isHidden = true
+                self.activityIndicator.isHidden = true
+                
+                self.gameArrayCountLabel.isHidden = false
+                self.totalGamesDisplayedLbl.isHidden = false
+                
                 UIView.animate(withDuration: 1.5) {
                     self.gameArrayCountLabel.alpha = 1
                     self.totalGamesDisplayedLbl.alpha = 1
                   
 
                 } completion: { complete in
-            
-                    
+                    self.gameArrayCountLabel.isHidden = false
+                    self.totalGamesDisplayedLbl.isHidden = false
+                    self.gameArrayCountLabel.alpha = 1
+                    self.totalGamesDisplayedLbl.alpha = 1
+                  
                 }
+                
+//                print("game count label should be visible")
 
             }
-        print(" game array count", gameArray.count)
+//        print(" game array count", gameArray.count)
 
 
 

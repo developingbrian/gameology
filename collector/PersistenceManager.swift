@@ -17,19 +17,25 @@ final class PersistenceManager {
     // MARK: - Core Data stack
     
     
-    lazy var persistenceContainer: NSPersistentContainer = {
-        let container = NSPersistentContainer(name: "Collector")
+    lazy var persistenceContainer: NSPersistentCloudKitContainer = {
+        let container = NSPersistentCloudKitContainer(name: "Collector")
         container.loadPersistentStores(completionHandler: { (storedDescription, error) in
             if let error = error as NSError? {
                 fatalError("Unresolved error: \(error), \(error.userInfo)")
             }
         })
+        
+        
         return container
     }()
     
-
+    // MARK: - define
+      var context: NSManagedObjectContext {
+         let context = PersistenceManager.shared.persistenceContainer.viewContext
+        context.automaticallyMergesChangesFromParent = true
+        return context
+    }
     
-    lazy var context = persistenceContainer.viewContext // MARK: - define
     
     // MARK: - Core Data Saving Support
     
@@ -42,6 +48,10 @@ final class PersistenceManager {
             } catch {
                 
                 let nserror = error as NSError
+
+
+
+
                 fatalError("Unresolved error \(nserror), \(nserror.userInfo)")
             }
         }
@@ -49,6 +59,8 @@ final class PersistenceManager {
 
     
     func delete(_ object: NSManagedObject) {
+        let context = persistenceContainer.viewContext
+
         context.delete(object)
         do {
            try context.save()
@@ -61,6 +73,8 @@ final class PersistenceManager {
     
     func fetch<T: NSManagedObject>(_ objectType: T.Type) -> [T] {
         let entityName = String(describing: objectType)
+        let context = persistenceContainer.viewContext
+
         let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: entityName)
         
         do {
@@ -74,6 +88,8 @@ final class PersistenceManager {
     
     func fetchAscending<T: NSManagedObject>(_ objectType: T.Type) -> [T] {
         let entityName = String(describing: objectType)
+        let context = persistenceContainer.viewContext
+
         let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: entityName)
         let sortAscending = NSSortDescriptor(key: "title", ascending: true)
         fetchRequest.sortDescriptors = [sortAscending]
@@ -91,6 +107,8 @@ final class PersistenceManager {
     
     func fetchPlatformsAscending<T: NSManagedObject>(_ objectType: T.Type) -> [T] {
         let entityName = String(describing: objectType)
+        let context = persistenceContainer.viewContext
+
         let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: entityName)
         let sortAscending = NSSortDescriptor(key: "name", ascending: true)
         fetchRequest.sortDescriptors = [sortAscending]
@@ -107,6 +125,8 @@ final class PersistenceManager {
     
     func fetchFilteredByPlatform<T: NSManagedObject>(_ objectType: T.Type, platformID: Int) -> [T]{
         let entityName = String(describing: objectType)
+        let context = persistenceContainer.viewContext
+
         let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: entityName)
         let filterPredicate = NSPredicate(format: "id == \(Int64(platformID))")
         let sortAscending = NSSortDescriptor(key: "name", ascending: true)
@@ -128,6 +148,8 @@ final class PersistenceManager {
     
     func fetchFilteredByGenre<T: NSManagedObject>(_ objectType: T.Type, name: String) -> [T]{
         let entityName = String(describing: objectType)
+        let context = persistenceContainer.viewContext
+
         let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: entityName)
         let filterPredicate = NSPredicate(format: "name == %@", name)
         let sortAscending = NSSortDescriptor(key: "name", ascending: true)
@@ -147,6 +169,8 @@ final class PersistenceManager {
     }
     
     func fetchUserPhotos<T: NSManagedObject>(_ objectType: T.Type, category: String, gameTitle: String) -> [T] {
+        let context = persistenceContainer.viewContext
+
         let entityName = String(describing: objectType)
         let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: entityName)
         let filterPredicate = NSPredicate(format: "(category == %@) AND (gameTitle == %@)", category, gameTitle)
@@ -182,6 +206,8 @@ final class PersistenceManager {
 //    }
     
     func updateCompletedPercent<T: NSManagedObject>(objectType: T.Type, gameTitle: String, completedValue: Float) {
+        let context = persistenceContainer.viewContext
+
         let entityName = String(describing: objectType)
         let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: entityName)
         let filterPredicate = NSPredicate(format: "title == %@", gameTitle)
@@ -203,6 +229,8 @@ final class PersistenceManager {
     }
     
     func updateGameConditionPercent<T: NSManagedObject>(objectType: T.Type, gameTitle: String, gameCondition: Float) {
+        let context = persistenceContainer.viewContext
+
         let entityName = String(describing: objectType)
         let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: entityName)
         let filterPredicate = NSPredicate(format: "title == %@", gameTitle)
@@ -224,6 +252,8 @@ final class PersistenceManager {
     }
     
     func updateBoxConditionPercent<T: NSManagedObject>(objectType: T.Type, gameTitle: String, boxCondition: Float) {
+        let context = persistenceContainer.viewContext
+
         let entityName = String(describing: objectType)
         let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: entityName)
         let filterPredicate = NSPredicate(format: "title == %@", gameTitle)
@@ -246,6 +276,8 @@ final class PersistenceManager {
         
         
     func updateManualConditionPercent<T: NSManagedObject>(objectType: T.Type, gameTitle: String, manualCondition: Float) {
+        let context = persistenceContainer.viewContext
+
         let entityName = String(describing: objectType)
         let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: entityName)
         let filterPredicate = NSPredicate(format: "title == %@", gameTitle)
@@ -267,6 +299,8 @@ final class PersistenceManager {
     }
    
     func updateGameOwned<T: NSManagedObject>(objectType: T.Type, gameTitle: String, gameOwned: Bool) {
+        let context = persistenceContainer.viewContext
+
         
         let entityName = String(describing: objectType)
         let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: entityName)
@@ -289,7 +323,8 @@ final class PersistenceManager {
     }
     
     func updateBoxOwned<T: NSManagedObject>(objectType: T.Type, gameTitle: String, boxOwned: Bool) {
-        
+        let context = persistenceContainer.viewContext
+
         let entityName = String(describing: objectType)
         let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: entityName)
         let filterPredicate = NSPredicate(format: "title == %@", gameTitle)
@@ -311,7 +346,8 @@ final class PersistenceManager {
     }
     
     func updateManualOwned<T: NSManagedObject>(objectType: T.Type, gameTitle: String, manualOwned: Bool) {
-        
+        let context = persistenceContainer.viewContext
+
         let entityName = String(describing: objectType)
         let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: entityName)
         let filterPredicate = NSPredicate(format: "title == %@", gameTitle)
@@ -334,7 +370,8 @@ final class PersistenceManager {
     
     
     func updatePhysicalCopyOwned<T: NSManagedObject>(objectType: T.Type, gameTitle: String, physicalCopy: Bool) {
-        
+        let context = persistenceContainer.viewContext
+
         let entityName = String(describing: objectType)
         let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: entityName)
         let filterPredicate = NSPredicate(format: "title == %@", gameTitle)
@@ -356,7 +393,8 @@ final class PersistenceManager {
     }
     
     func updateDigitalCopyOwned<T: NSManagedObject>(objectType: T.Type, gameTitle: String, digitalCopy: Bool) {
-        
+        let context = persistenceContainer.viewContext
+
         let entityName = String(describing: objectType)
         let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: entityName)
         let filterPredicate = NSPredicate(format: "title == %@", gameTitle)
@@ -379,7 +417,8 @@ final class PersistenceManager {
     
     
     func updateBeatStatus<T: NSManagedObject>(objectType: T.Type, gameTitle: String, beat: Bool) {
-        
+        let context = persistenceContainer.viewContext
+
         let entityName = String(describing: objectType)
         let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: entityName)
         let filterPredicate = NSPredicate(format: "title == %@", gameTitle)
@@ -401,7 +440,8 @@ final class PersistenceManager {
     }
 
     func updateCompletedStatus<T: NSManagedObject>(objectType: T.Type, gameTitle: String, completed: Bool) {
-        
+        let context = persistenceContainer.viewContext
+
         let entityName = String(describing: objectType)
         let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: entityName)
         let filterPredicate = NSPredicate(format: "title == %@", gameTitle)
@@ -425,7 +465,8 @@ final class PersistenceManager {
     
     
     func updatePricePaid<T:NSManagedObject>(objectType: T.Type, gameTitle: String, pricePaid: String) {
-        
+        let context = persistenceContainer.viewContext
+
         let entityName = String(describing: objectType)
         let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: entityName)
         let filterPredicate = NSPredicate(format: "title == %@", gameTitle)
@@ -449,7 +490,8 @@ final class PersistenceManager {
     }
     
     func updateNotes<T:NSManagedObject>(objectType: T.Type, gameTitle: String, notes: String) {
-        
+        let context = persistenceContainer.viewContext
+
         let entityName = String(describing: objectType)
         let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: entityName)
         let filterPredicate = NSPredicate(format: "title == %@", gameTitle)
@@ -475,6 +517,8 @@ final class PersistenceManager {
     
     
     func fetchSingleGameObjectByName<T: NSManagedObject>(_ objectType: T.Type, name: String, platformID: Int) -> [T] {
+        let context = persistenceContainer.viewContext
+
         let entityName = String(describing: objectType)
         let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: entityName)
         var filterPredicate : NSPredicate?
@@ -492,6 +536,8 @@ final class PersistenceManager {
     
     
     func fetchFilteredByName<T: NSManagedObject>(_ objectType: T.Type, name: String, platformID: Int) -> [T]{
+        let context = persistenceContainer.viewContext
+
         let entityName = String(describing: objectType)
         let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: entityName)
         var filterPredicate : NSPredicate?
@@ -519,6 +565,8 @@ final class PersistenceManager {
     }
     
     func fetchFilteredByGenre<T: NSManagedObject>(_ objectType: T.Type, genres: [String]?) -> [T] {
+        let context = persistenceContainer.viewContext
+
         let entityName = String(describing: objectType)
         let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: entityName)
         
@@ -539,6 +587,8 @@ final class PersistenceManager {
     }
     
     func fetchFilteredByGenreByPlatform<T: NSManagedObject>(_ objectType: T.Type, genres: [String]?, platformID: Int) -> [T] {
+        let context = persistenceContainer.viewContext
+
         let entityName = String(describing: objectType)
         let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: entityName)
         var filterPredicates : [NSPredicate]?
@@ -579,6 +629,8 @@ final class PersistenceManager {
     
     
     func fetchSortByReleaseDate<T: NSManagedObject>(_ objectType: T.Type, platformID: Int) -> [T]{
+        let context = persistenceContainer.viewContext
+
         let entityName = String(describing: objectType)
         let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: entityName)
         let filterPredicate = NSPredicate(format: "releaseDate == \(Int32(platformID))")
@@ -598,6 +650,8 @@ final class PersistenceManager {
     }
     
     func fetchSortByReleaseDateByPlatform<T: NSManagedObject>(_ objectType: T.Type, platformID: Int) -> [T]{
+        let context = persistenceContainer.viewContext
+
         let entityName = String(describing: objectType)
         let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: entityName)
         let filterPredicate = NSPredicate(format: "releaseDate == \(Int32(platformID))")
@@ -624,6 +678,8 @@ final class PersistenceManager {
     
     
     func fetchGameFilteredByPlatform<T: NSManagedObject>(_ objectType: T.Type, platformID: Int) -> [T]{
+        let context = persistenceContainer.viewContext
+
         let entityName = String(describing: objectType)
         let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: entityName)
         let filterPredicate = NSPredicate(format: "platformID == \(Int32(platformID))")
@@ -647,7 +703,8 @@ final class PersistenceManager {
     
     
     func fetchFilteredByPlayers<T: NSManagedObject>(_ objectType: T.Type, platformID: Int?, playerRange: [Int]?) -> [T]{
-        
+        let context = persistenceContainer.viewContext
+
         let entityName = String(describing: objectType)
         let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: entityName)
         let filterPredicate : NSPredicate?
@@ -688,7 +745,8 @@ final class PersistenceManager {
     
     
     func fetchFilteredByReleaseDate<T: NSManagedObject>(_ objectType: T.Type, platformID: Int?, dateRange: [Int]?) -> [T]{
-        
+        let context = persistenceContainer.viewContext
+
         let entityName = String(describing: objectType)
         let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: entityName)
         let filterPredicate : NSPredicate?
@@ -724,6 +782,8 @@ final class PersistenceManager {
     }
     
     func fetchGenres<T: NSManagedObject>(_ objectType: T.Type, selectedGenres: [String]) -> [T] {
+        let context = persistenceContainer.viewContext
+
         let entityName = String(describing: objectType)
         let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: entityName)
         var filterPrediate: NSPredicate?
@@ -744,6 +804,8 @@ final class PersistenceManager {
     
     
     func fetchGame<T: NSManagedObject>(_ objectType: T.Type, byGameTitle: String?, platformID: Int?, selectedGenres: [String]?, selectedPlatforms: [Int]?, selectedDateRange: [Int]? ) -> [T]{
+        let context = persistenceContainer.viewContext
+
         let entityName = String(describing: objectType)
         let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: entityName)
         var filterPredicate : NSPredicate?

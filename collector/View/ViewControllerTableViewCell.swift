@@ -258,9 +258,9 @@ class ViewControllerTableViewCell: UITableViewCell {
 //
 //
 //                    }
-            print("test 1")
+//            print("test 1")
         } else {
-          print("Test 2")
+//          print("Test 2")
 //            backgroundCell.layer.shadowColor = UIColor.white.cgColor
 //            backgroundCell.layer.backgroundColor = eerieBlack.cgColor
             
@@ -329,7 +329,7 @@ class ViewControllerTableViewCell: UITableViewCell {
             landscapeCoverImageShadow.layer.cornerRadius = 10
             
             if let platform = game?.platformID {
-                print("platform is", platform)
+//                print("platform is", platform)
                 let platformObject = fetchPlatformObject(platformID: platform)
                 platformID = platformObject.id
                 platformName = platformObject.name
@@ -340,8 +340,8 @@ class ViewControllerTableViewCell: UITableViewCell {
                 guard let gameName = game?.title else { return }
                 guard let gamedID = game?.id else { return }
                 
-                print("ownedImage",ownedImage)
-                print("unownedImage", unownedImage)
+//                print("ownedImage",ownedImage)
+//                print("unownedImage", unownedImage)
                 
                 if checkForGameInLibrary(name: gameName, id: gamedID, platformID: platform) {
                     addToLibraryButton.setImage(UIImage(named: ownedImage), for: .normal)
@@ -376,15 +376,15 @@ class ViewControllerTableViewCell: UITableViewCell {
                     let imageURLString = baseURL.coverSmall.rawValue + imageFileName
                     let url = URL(string: imageURLString)!
                     
-                    print("game is", game?.title)
+//                    print("game is", game?.title)
                         if let width = game?.boxartWidth {
-                            print("width is", game?.boxartWidth)
+//                            print("width is", game?.boxartWidth)
                             if let height = game?.boxartHeight {
-                                print("height is", game?.boxartHeight)
-                                print("image info preloaded, game title is", game?.title)
+//                                print("height is", game?.boxartHeight)
+//                                print("image info preloaded, game title is", game?.title)
                                 if width > height {
                                     //image is landscape
-                                    print("landscape")
+//                                    print("landscape")
                                     landscapeCoverImage.sd_setImage(with: url) { image, error, cacheType, url in
                                         
                                         if let image = image {
@@ -405,7 +405,7 @@ class ViewControllerTableViewCell: UITableViewCell {
                                     landscapeCoverImageShadow.isHidden = false
                                 } else {
                                   //image is portrait
-                                    print("portrait")
+//                                    print("portrait")
 
                                     
                                     tableViewCoverImage.sd_setImage(with: url) { image, error, cacheType, url in
@@ -441,7 +441,7 @@ class ViewControllerTableViewCell: UITableViewCell {
                         }
                         
                         } else if game?.boxartFrontImage != nil {
-                            print("image info NOT preloaded, game title is", game?.title)
+//                            print("image info NOT preloaded, game title is", game?.title)
 
                             tableViewCoverImage.sd_setImage(with: url) { image, error, cacheType, url in
                                 
@@ -457,7 +457,7 @@ class ViewControllerTableViewCell: UITableViewCell {
                                         if let height = self.tableViewCoverImage.image?.size.height {
                                             
                                             if width > height {
-                                                print("not preloaded, height now is", height, "width now is", width, "width should be > height")
+//                                                print("not preloaded, height now is", height, "width now is", width, "width should be > height")
                                                 self.tableViewCoverImage.isHidden = true
                                                 self.coverImageShadow.isHidden = true
                                                 self.landscapeCoverImage.isHidden = false
@@ -467,7 +467,7 @@ class ViewControllerTableViewCell: UITableViewCell {
                                                 
                                                 
                                             } else {
-                                                print("not preloaded, height now is", height, "width now is", width, "height should be > width")
+//                                                print("not preloaded, height now is", height, "width now is", width, "height should be > width")
                                                 self.tableViewCoverImage.isHidden = false
                                                 self.coverImageShadow.isHidden = false
                                                 self.landscapeCoverImage.isHidden = false
@@ -565,7 +565,7 @@ class ViewControllerTableViewCell: UITableViewCell {
 extension ViewControllerTableViewCell {
     
     func checkForGameInLibrary(name: String, id: Int, platformID: Int) -> Bool {
-            print("checkforgame called")
+//            print("checkforgame called")
         let savedGames = persistenceManager.fetch(SavedGames.self)
         
         for savedGame in savedGames {

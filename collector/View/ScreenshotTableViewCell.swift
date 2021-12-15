@@ -9,7 +9,7 @@
 import UIKit
 
 class ScreenshotTableViewCell: UITableViewCell {
-    @IBOutlet var screenshotCardView: UIView!
+    @IBOutlet weak var screenshotCardView: UIView!
     
     @IBOutlet weak var screenshotBackgroundView: UIView!
     
@@ -19,7 +19,7 @@ class ScreenshotTableViewCell: UITableViewCell {
             self.configureCell()
         }
     }
-    var parent : UIViewController?
+   weak var parent : UIViewController?
     
     @IBOutlet weak var screenshotCollectionView: UICollectionView!
     
@@ -49,7 +49,7 @@ class ScreenshotTableViewCell: UITableViewCell {
 
     
     func setAppearance() {
-        print("setting appearance")
+//        print("setting appearance")
         
         let defaults = UserDefaults.standard
         let appearanceSelection = defaults.integer(forKey: "appearanceSelection")
@@ -103,9 +103,8 @@ extension ScreenshotTableViewCell: UICollectionViewDelegate, UICollectionViewDat
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        let screenshotURL = (game?.screenshots?[indexPath.item].imageID)! + ".jpg"
-        let imageURL = baseURL.screenshotLarge.rawValue + screenshotURL
-        print("testurl \(imageURL)")
+//        let screenshotURL = (game?.screenshots?[indexPath.item].imageID)! + ".jpg"
+//        print("testurl \(imageURL)")
         var imageURLs : [String] = []
         if let screenshots = game?.screenshots {
         for screenshot in screenshots {

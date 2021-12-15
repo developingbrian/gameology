@@ -90,7 +90,7 @@ class PlatformsVC: UIViewController {
     func createTitleViewImage() {
         
         self.title = "Library"
-        let logo = UIImage(named: "glogo44")
+        let logo = UIImage(named: "gameologylogo44")
         let imageView = UIImageView(image:logo)
         imageView.contentMode = .scaleAspectFit
         self.navigationItem.titleView = imageView

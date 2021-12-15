@@ -8,36 +8,74 @@
 
 import UIKit
 import SDWebImage
-import WebKit
+import YoutubePlayer
 
 class MediaVC: UIViewController {
+   
     
-    @IBOutlet var backgroundView: UIView!
+    
+
+    
+    deinit {
+        
+            print("MediaVC in paging detail vc is deallocated now")
+//        webView.stopLoading()
+//        webView.configuration.userContentController.removeScriptMessageHandler(forName: "dummy")
+        }
+    
+    
+        
+    @IBOutlet weak var youTubeView: YoutubePlayerView!
+    @IBOutlet weak var backgroundView: UIView!
     @IBOutlet weak var mediaTableView: UITableView!
 //    @IBOutlet var clearlogoImageView: UIImageView!
-    @IBOutlet var fanartImageView: UIImageView!
-    @IBOutlet var gameNameLabel: UILabel!
-    @IBOutlet var webView: WKWebView!
-    @IBOutlet var playButton: UIButton!
+    @IBOutlet weak var fanartImageView: UIImageView!
+    @IBOutlet weak var gameNameLabel: UILabel!
+    @IBOutlet weak var playButton: UIButton!
     let gradient = CAGradientLayer()
     @IBOutlet weak var viewForButton: UIView!
     var game = GameObject()
     var extraImages : Image?
     
 
+    override func viewWillDisappear(_ animated: Bool) {
+        clearImageCacheFromMemory()
+    }
+    
+    override func didReceiveMemoryWarning() {
+        clearImageCacheFromMemory()
+    }
+    
+    func clearImageCacheFromMemory() {
+        let imageCache = SDImageCache.shared
+        imageCache.clearMemory()
+    }
     
 
     override func viewDidLoad() {
         super.viewDidLoad()
         print("MEDIAVC LOADED")
-        configureInitialAppearance()
+        if game.youtubePath != nil {
+            loadYouTubeView()
+        }
         
+        configureInitialAppearance()
     }
-    
-    
+ 
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        youTubeView.stop()
+ 
+    }
+
+
     override func viewWillAppear(_ animated: Bool) {
         setAppearance()
-        webView.isHidden = true
+        fanartImageView.alpha = 1
+        playButton.alpha = 1
+        youTubeView.isHidden = true
+        youTubeView.alpha = 0
+        
         gradient.isHidden = false
         fanartImageView.isHidden = false
 //        clearlogoImageView.isHidden = false
@@ -59,8 +97,7 @@ class MediaVC: UIViewController {
         print("**Viewdidappear")
 
         
-        webView.layer.cornerRadius = 10
-        webView.layer.masksToBounds = false
+
 
         
         if let screenshots = game.screenshots {
@@ -96,33 +133,59 @@ class MediaVC: UIViewController {
     @IBAction func playButtonPressed(_ sender: Any) {
         print("playbutton pressed")
         
-        
-        webView.isHidden = false
+        youTubeView.isHidden = false
         gradient.isHidden = true
         gameNameLabel.isHidden = true
-        fanartImageView.isHidden = true
-//        clearlogoImageView.isHidden = true
-        playButton.isHidden = true
-                    let embedURLString = Constants.youtubeEmbedURL
-                var url : URL
-        if let youtubePath = game.youtubePath {
-            if (youtubePath.hasPrefix("https")) {
-                url = URL(string: (youtubePath))!
-                } else {
-                    url = URL(string: embedURLString + (youtubePath))!
-                }
-                print ("youtube URL = \(url)")
-                let request = URLRequest(url: url)
-                       webView.load(request)
-                } else {
-                    playButton.isHidden = true
-                    webView.isHidden = true
-                }
-        
+        self.playButton.isHidden = true
+
+        UIView.animate(withDuration: 2, delay: 0) {
+            
+            self.fanartImageView.alpha = 0
+            self.youTubeView.alpha = 1
+        } completion: { complete in
+            self.fanartImageView.isHidden = true
+            self.youTubeView.play()
+        }
+
+
         
     }
     
+    func loadYouTubeView() {
+    var url : URL
+if let youtubePath = game.youtubePath {
+if (youtubePath.hasPrefix("https")) {
+    url = URL(string: (youtubePath))!
+    do {
+       
+        
+        try self.youTubeView.loadVideo(withUrl: url, playerVars: .init(playsInline: .true))
+        
+    }
 
+    catch {
+
+        print("error loading video")
+    }
+    
+    
+    print("loading with url")
+    } else {
+       
+        do {
+            print("loading with video id ", youtubePath)
+
+            try self.youTubeView.loadVideo(withId: youtubePath, playerVars: .init(playsInline: .true))
+        }
+        catch {
+            print("error loading video")
+        }
+        
+    }
+
+    }
+        
+    }
     
     
     func configureInitialAppearance() {
@@ -131,6 +194,7 @@ class MediaVC: UIViewController {
 
         let lightBlue = UIColorFromRGB(0x2ECAD5)
         gameNameLabel.text = game.title
+        
         
         guard let symbol = UIImage(systemName: "play.circle") else { fatalError("No symbol by that name") }
         let mask = CALayer()
@@ -213,6 +277,8 @@ class MediaVC: UIViewController {
 
 
 
+
+
 extension MediaVC: UITableViewDelegate, UITableViewDataSource {
     
     func numberOfSections(in tableView: UITableView) -> Int {
@@ -282,6 +348,7 @@ extension MediaVC: UITableViewDelegate, UITableViewDataSource {
         return boxartCell
         
     }
+    
     
     
 }

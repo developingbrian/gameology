@@ -9,6 +9,8 @@
 import UIKit
 import MultiSlider
 
+
+
 class AgeRangeVC: UIViewController {
     @IBOutlet weak var sliderView: UIView!
     @IBOutlet var backgroundView: UIView!
@@ -22,10 +24,11 @@ class AgeRangeVC: UIViewController {
     var id: Int?
     var dateArray : [String] = []
     var delegate : AgeRangeDelegate?
+    var ageSearchDelegate : AgeSearchDelegate?
     let slider = MultiSlider()
     let lightGray = UIColor(red: 246/255, green: 246/255, blue: 246/255, alpha: 1)
     let darkGray = UIColor(red: (18/255), green: (18/255), blue: (18/255), alpha: 1)
-
+    var selectedDates : [Int] = []
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -113,6 +116,7 @@ class AgeRangeVC: UIViewController {
     }
     
     func configureMultiSlider() {
+ 
         
         let gameArray = persistenceManager.fetchGame(SavedGames.self, byGameTitle: nil, platformID: id, selectedGenres: nil, selectedPlatforms: nil, selectedDateRange: nil)
 //        let leftThumb = UIImage(named: "Switch_Left_Stick65")
@@ -128,15 +132,27 @@ class AgeRangeVC: UIViewController {
         dateArray = uniqueElementsFrom(array: array).sorted()
         print("dateArray = \(dateArray)")
         
-        
+            if network.sourceTag == 4 {
+                let currentYear = Calendar.current.component(.year, from: Date())
+                slider.minimumValue = CGFloat(1972)
+                slider.maximumValue = CGFloat(currentYear)            } else {
         slider.minimumValue = CGFloat(Int(dateArray.first!)!)
         slider.maximumValue = CGFloat(Int(dateArray.last!)!)
+            }
         
-        slider.value = [slider.minimumValue, slider.maximumValue]
+        if selectedDates.count >= 2 {
+            let firstDate = CGFloat(selectedDates.first!)
+            let lastDate = CGFloat(selectedDates.last!)
+        slider.value = [firstDate, lastDate]
+        }
+        else {
+            slider.value = [slider.minimumValue, slider.maximumValue]
+        }
         slider.addTarget(self, action: #selector(sliderChanged), for: .valueChanged) // continuous changes
         slider.thumbCount = 2
         
         slider.trackWidth = 1
+        
 
 //        print(" left right thumb", leftThumb, rightThumb)
 //        print("thumbs", slider.thumbViews[0].image, slider.thumbViews[1].image)
@@ -208,7 +224,23 @@ class AgeRangeVC: UIViewController {
         }
         print("dateRange = \(dateRange)")
 //        print("id == \(id)")
-        delegate?.changeDateRange(dateRange: dateRange, platformID: id!)
+        //if sourceTag == 4? then do this, this works with the owned games controller
+        if network.sourceTag == 4 {
+            
+            ageSearchDelegate?.updateSearchAges(yearRange: dateRange)
+            
+        }
+        
+        if network.sourceTag == 5 {
+            
+            delegate?.changeDateRange(dateRange: dateRange, platformID: id!)
+
+        }
+        //otherwise we need to implement delegate to pass to advanced search
+        
+        
+        
+        
         print("submit button pressed")
         self.presentingViewController?.dismiss(animated: true, completion: nil)
 

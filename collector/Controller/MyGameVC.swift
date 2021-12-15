@@ -28,6 +28,11 @@ class MyGameVC: UIViewController, PhotoCellDelegate, UINavigationControllerDeleg
     @IBOutlet weak var tableView: UITableView!
     
     
+    deinit {
+        
+        print("mygamevc is now deallocated")
+    }
+    
     
     
     override func viewDidLoad() {

@@ -31,12 +31,19 @@ class FilterVC: UIViewController {
     @IBOutlet weak var bottomStackView: UIStackView!
     let persistenceManager = PersistenceManager.shared
     let network = Networking.shared
+    var genres : [String] = []
+
     var gameArray : [SavedGames] = []
     var genreArray : [String] = []
     var platformArray : [IGDBPlatform] = []
     var selectedItems : [String] = []
     var delegate: ModalDelegate?
     var platformFilterDelegate: SearchFilterDelegate?
+
+    var genreSearchDelegate : GenreSearchDelegate?
+    var platformSearchDelegate : PlatformSearchDelegate?
+    var ageSearchDelegate : AgeSearchDelegate?
+    
     var id : Int?
     var dataSource : [String] = []
     var consoleArray: [String] = []
@@ -45,8 +52,8 @@ class FilterVC: UIViewController {
     var selectedGenres: [String] = []
     var genreBackup : [String] = []
     var platformBackup : [String] = []
-    let masterConsoles = ["3DO Interactive Multiplayer", "Amiga CD32", "Atari 2600", "Atari 5200", "Atari 7800", "Atari Jaguar", "ColecoVision", "Fairchild Channel F", "Intellivision", "Magnavox Odyssey", "Microsoft Xbox", "Microsoft Xbox 360", "Microsoft Xbox One", "Microsoft Xbox Series S|X", "Neo Geo AES", "Neo Geo CD", "Nintendo Entertainment System (NES)", "Super Nintendo Entertainment System (SNES)", "Nintendo Virtual Boy", "Nintendo 64", "Nintendo GameCube", "Nintendo Wii", "Nintendo Wii U", "Nintendo Switch", "Nuon", "TurboGrafx-16/PC Engine", "PC Engine SuperGrafx","Philips CD-i", "Sega SG-1000", "Sega Master System", "Sega Genesis/Mega Drive", "Sega CD", "Sega 32X", "Sega Saturn", "Sega Dreamcast", "Sega Pico", "Sony PlayStation", "Sony PlayStation 2", "Sony PlayStation 3", "Sony PlayStation 4", "Sony PlayStation 5", "Vectrex", "Zeebo"]
-    let masterPortables = ["Atari Lynx", "Neo Geo Pocket", "Neo Geo Pocket Color", "Nintendo Game & Watch", "Nintendo Game Boy", "Nintendo Game Boy Advance", "Nintendo DS", "Nintendo DSi", "Nintendo 3DS", "New Nintendo 3DS", "Nintendo Pokémon Mini", "Nokia N-Gage", "Sega Game Gear", "Sony PlayStation Portable (PSP)", "Sony PlayStation Vita", "WonderSwan", "WonderSwan Color" ]
+    let masterConsoles = ["3DO Interactive Multiplayer", "Amiga CD32", "Atari 2600", "Atari 5200", "Atari 7800", "Atari Jaguar", "ColecoVision", "Fairchild Channel F", "Intellivision", "Magnavox Odyssey", "Microsoft Xbox", "Microsoft Xbox 360", "Microsoft Xbox One", "Microsoft Xbox Series S|X", "Neo Geo AES", "Neo Geo CD", "Nintendo Entertainment System (NES)", "Super Nintendo Entertainment System (SNES)", "Nintendo Virtual Boy", "Nintendo 64", "Nintendo GameCube", "Nintendo Wii", "Nintendo Wii U", "Nintendo Switch", "Nuon", "TurboGrafx-16/PC Engine", "PC Engine SuperGrafx","Philips CD-i", "Sega Master System", "Sega Genesis/Mega Drive", "Sega CD", "Sega 32X", "Sega Saturn", "Sega Dreamcast", "Sega Pico", "Sony PlayStation", "Sony PlayStation 2", "Sony PlayStation 3", "Sony PlayStation 4", "Sony PlayStation 5", "Vectrex", "Zeebo"]
+    let masterPortables = ["Atari Lynx", "Neo Geo Pocket", "Neo Geo Pocket Color", "Nintendo Game & Watch", "Nintendo Game Boy", "Nintendo Game Boy Color", "Nintendo Game Boy Advance", "Nintendo DS", "Nintendo DSi", "Nintendo 3DS", "New Nintendo 3DS", "Nokia N-Gage", "Sega Game Gear", "Sony PlayStation Portable (PSP)", "Sony PlayStation Vita", "WonderSwan", "WonderSwan Color" ]
 //    var platformDelegate : SearchFilterDelegate?
     
     override func viewDidLoad() {
@@ -59,9 +66,9 @@ class FilterVC: UIViewController {
         self.tableView.allowsMultipleSelection = true
         self.tableView.allowsMultipleSelectionDuringEditing = true
 //        backgroundView.layer.shadowOpacity = 0.8
-        backgroundView.layer.shadowRadius = 10
+//        backgroundView.layer.shadowRadius = 10
 //        backgroundView.layer.shadowColor = UIColor.gray.cgColor
-        backgroundView.layer.shadowOffset = CGSize(width: 0, height: 0)
+//        backgroundView.layer.shadowOffset = CGSize(width: 0, height: 0)
         cancelButton.layer.cornerRadius = 5
         cancelButton.layer.maskedCorners = [ .layerMinXMaxYCorner]
         cancelButton.clipsToBounds = true
@@ -114,6 +121,24 @@ class FilterVC: UIViewController {
         print("network sourcetag is 1")
         platformFilterDelegate?.updatePlatformsFilter(platformSelections: selectedPlatforms )
         }
+        
+
+        if network.sourceTag == 2 {
+            print("network sourcetag is 2")
+
+            genreSearchDelegate?.updateSearchGenres(genres: selectedGenres)
+        }
+
+        if network.sourceTag == 3 {
+            print("network sourcetag is 3")
+            print("count", selectedPlatforms.count)
+            for platform in selectedPlatforms {
+                print(platform)
+            }
+//            print("platformsearchdelegate", platformSearchDelegate)
+            platformSearchDelegate?.updateSearchPlatforms(platforms: selectedPlatforms)
+        }
+      
         self.presentingViewController?.dismiss(animated: true, completion: nil)
         
 //        self.navigationController?.popViewController(animated: true)
@@ -176,12 +201,64 @@ class FilterVC: UIViewController {
         dataSource = genreArray
             
             
-        } else {
+        } else if network.sourceTag == 2 {
+            filterByLbl.text = "Select Genre(s)"
+            platformSegmentedControl.isHidden = true
+
+            let genreArray = uniqueElementsFrom(array: genres)
+            
+            dataSource = genreArray
+            
+        } else if network.sourceTag == 3 {
+            var consoles : [String] = []
+            var portables : [String] = []
+        
+            for platform in network.platforms {
+                if network.consolePlatforms.contains(platform.name) {
+                    consoles.append(platform.name)
+                } else {
+                    
+                    portables.append(platform.name)
+                }
+                
+
+            }
+            
+            
+            
+            var prettyConsoles : [String] = []
+            var prettyPortables : [String] = []
+
+            for console in consoles {
+                
+                let title = formatIGDBToPrettyTitle(platformName: console)
+                prettyConsoles.append(title)
+            }
+            
+            for portable in portables {
+                let title = formatIGDBToPrettyTitle(platformName: portable)
+                prettyPortables.append(title)
+            }
+            
+            
+            let tempConsole = masterConsoles.filter { prettyConsoles.contains($0) }
+            let tempPortable = masterPortables.filter { prettyPortables.contains($0) }
+            consoleArray = uniqueElementsFrom(array: tempConsole)
+            
+            portableArray = uniqueElementsFrom(array: tempPortable)
+            
+            
+            dataSource = consoleArray
+            platformSegmentedControl.isHidden = false
+
+            
+        }else {
             filterByLbl.text = "Select Platform(s)"
 
             let gameArray = persistenceManager.fetchGame(SavedGames.self, byGameTitle: nil, platformID: 0, selectedGenres:  nil, selectedPlatforms: nil, selectedDateRange: nil)
             var consoles : [String] = []
             var portables : [String] = []
+            
 
             for game in gameArray {
                 if let platformName = game.platformName {
@@ -289,12 +366,12 @@ class FilterVC: UIViewController {
     
     @IBAction func didPressRemoveFilter(_ sender: Any) {
         
-        if network.sourceTag == 0 {
+        if network.sourceTag == 0 || network.sourceTag == 2 {
             genreBackup = selectedGenres
             selectedGenres.removeAll()
         }
         
-        if network.sourceTag == 1 {
+        if network.sourceTag == 1 || network.sourceTag == 3{
             platformBackup = selectedPlatforms
             selectedPlatforms.removeAll()
             
@@ -322,7 +399,7 @@ extension FilterVC: UITableViewDelegate, UITableViewDataSource {
         cell.filterChoice = dataSource[indexPath.row]
         
         
-        if network.sourceTag == 0 {
+        if network.sourceTag == 0 || network.sourceTag == 2 {
         
         for item in selectedGenres {
             if cell.filterChoice == item {
@@ -337,7 +414,7 @@ extension FilterVC: UITableViewDelegate, UITableViewDataSource {
         }
         
         
-        if network.sourceTag == 1 {
+        if network.sourceTag == 1 || network.sourceTag == 3 {
             for item in selectedPlatforms {
                 if cell.filterChoice == item {
                     print("\(item) is already selected")
@@ -359,13 +436,13 @@ extension FilterVC: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let cell = tableView.cellForRow(at: indexPath) as! FilterVCTableViewCell
         if cell.isSelected {
-            if network.sourceTag == 0 {
+            if network.sourceTag == 0 || network.sourceTag == 2 {
                 selectedGenres.append(cell.filterChoiceLbl.text!)
                 print(selectedGenres)
 
             }
             
-            if network.sourceTag == 1 {
+            if network.sourceTag == 1 || network.sourceTag == 3 {
                 
                 selectedPlatforms.append(cell.filterChoiceLbl.text!)
                 print(selectedPlatforms)
@@ -382,13 +459,13 @@ extension FilterVC: UITableViewDelegate, UITableViewDataSource {
         let cell = tableView.cellForRow(at: indexPath) as! FilterVCTableViewCell
         if cell.isSelected == false {
             
-            if network.sourceTag == 0 {
+            if network.sourceTag == 0 || network.sourceTag == 2 {
             selectedGenres.removeAll { $0 == "\(cell.filterChoiceLbl.text!)" }
                 print(selectedGenres)
 
             }
             
-            if network.sourceTag == 1 {
+            if network.sourceTag == 1 || network.sourceTag == 3 {
                 selectedPlatforms.removeAll { $0 == "\(cell.filterChoiceLbl.text!)" }
                 print(selectedPlatforms)
 

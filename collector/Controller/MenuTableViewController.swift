@@ -23,10 +23,10 @@ class MenuTableViewController: UITableViewController, SFSafariViewControllerDele
        /// CUSTOMIZE TO YOUR OWN APP/LINKS
     let appStoreURLStringForRating = "itms-apps://apple.com/app/id1534974973"
     let appStoreURLStringForShareSheet = "https://apps.apple.com/us/app/id1534974973"
-    let twitterURLString = "https://twitter.com/davejacobseniOS"
+    let twitterURLString = "https://twitter.com/brianarenddev"
     let igdbURLString = "https://igdb.com"
     let neorameURLString = "https://www.deviantart.com/neorame"
-    let supportEmail = "marketcapp.app@gmail.com"
+    let supportEmail = "gameologyapp@gmail.com"
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -37,7 +37,7 @@ class MenuTableViewController: UITableViewController, SFSafariViewControllerDele
 //        }
         vesionLabel.text = "gameology"
         
-        let logo = UIImage(named: "glogo44")
+        let logo = UIImage(named: "gameologylogo44")
         let imageView = UIImageView(image:logo)
         imageView.contentMode = .scaleAspectFit
         self.navigationItem.titleView = imageView
@@ -79,11 +79,15 @@ class MenuTableViewController: UITableViewController, SFSafariViewControllerDele
         if traitCollection.userInterfaceStyle == .light {
             let lightGray = UIColor(red: 246/255, green: 246/255, blue: 246/255, alpha: 1)
             tableView.backgroundColor = lightGray
+            navigationController?.view.backgroundColor = .white
+
 //            tabBarController?.tabBar.backgroundColor = lightGray
 
         } else if traitCollection.userInterfaceStyle == .dark {
            let darkGray = UIColor(red: (18/255), green: (18/255), blue: (18/255), alpha: 1)
             tableView.backgroundColor = darkGray
+            navigationController?.view.backgroundColor = .black
+
 //            tabBarController?.tabBar.backgroundColor = darkGray
 
         }
@@ -109,7 +113,7 @@ class MenuTableViewController: UITableViewController, SFSafariViewControllerDele
             defaults.setValue(2, forKey: "appearanceSelection")
             setAppearance()
         } else {
-            print("selection error")
+//            print("selection error")
         }
     }
     

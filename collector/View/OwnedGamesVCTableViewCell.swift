@@ -293,7 +293,7 @@ extension OwnedGamesVCTableViewCell {
                         if let height = self.boxartImageView.image?.size.height {
                             
                             if width > height {
-                                print("landscape image")
+//                                print("landscape image")
                                 self.boxartImageView.isHidden = true
                                 self.boxartShadowImageView.isHidden = true
                                 self.landscapeBoxart.isHidden = false
@@ -301,7 +301,7 @@ extension OwnedGamesVCTableViewCell {
                             
                                 
                             } else {
-                                print("portrait image")
+//                                print("portrait image")
                                 self.boxartImageView.isHidden = false
                                 self.boxartShadowImageView.isHidden = false
                                 self.landscapeBoxart.isHidden = true
@@ -311,10 +311,7 @@ extension OwnedGamesVCTableViewCell {
                             
                         }
                         
-                    } else {
-                        print("image is nil")
-                        
-                    }
+                    } 
                     
                     
                     
@@ -344,7 +341,7 @@ extension OwnedGamesVCTableViewCell {
         }
         
         if let developer = game?.developerName {
-        developerLabel.text = game?.developerName
+        developerLabel.text = developer
         } else {
             developerLabel.text = " "
         }

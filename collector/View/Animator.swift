@@ -22,9 +22,10 @@ final class Animator {
         }
 
         animation(cell, indexPath, tableView)
-        if let lastCell = tableView.visibleCells.last {
+        if cell == tableView.visibleCells.last {
         hasAnimatedAllCells = true
         }
+        
         
        
         hasAnimatedAllCells = tableView.isLastVisibleCell(at: indexPath)

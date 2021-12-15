@@ -10,7 +10,7 @@ import UIKit
 
 class BoxartTableViewCell: UITableViewCell, UICollectionViewDelegate, UICollectionViewDataSource {
     var images : Image?
-    var parent: UIViewController?
+    weak var parent: UIViewController?
     var game : GameObject?
     
     @IBOutlet var boxartCardView: UIView!
@@ -59,7 +59,7 @@ class BoxartTableViewCell: UITableViewCell, UICollectionViewDelegate, UICollecti
     
     
     func setAppearance() {
-        print("setting appearance")
+//        print("setting appearance")
         
         let defaults = UserDefaults.standard
         let appearanceSelection = defaults.integer(forKey: "appearanceSelection")

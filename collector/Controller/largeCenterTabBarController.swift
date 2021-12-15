@@ -107,13 +107,13 @@ var middleBtn = UIButton()
         }
         
         if traitCollection.userInterfaceStyle == .light {
-            let lightGray = UIColor(red: 246/255, green: 246/255, blue: 246/255, alpha: 1)
+//            let lightGray = UIColor(red: 246/255, green: 246/255, blue: 246/255, alpha: 1)
             
 //            self.tabBar.backgroundColor = lightGray
             
 
         } else if traitCollection.userInterfaceStyle == .dark {
-            let darkGray = UIColor(red: (18/255), green: (18/255), blue: (18/255), alpha: 1)
+//            let darkGray = UIColor(red: (18/255), green: (18/255), blue: (18/255), alpha: 1)
 //            self.tabBar.backgroundColor = darkGray
         }
     

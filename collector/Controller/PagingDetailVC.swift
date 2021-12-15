@@ -35,6 +35,10 @@ class PagingDetailVC: UIViewController {
     var gameID = 0
     let buttonImgView = UIImageView()
 
+    
+    deinit {
+//        print("paging vc deallocated")
+    }
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(true)
@@ -53,7 +57,7 @@ class PagingDetailVC: UIViewController {
         self.navigationController?.navigationBar.isTranslucent = false
         self.tabBarController?.tabBar.isTranslucent = false
         
-        print("pagingVC gameObject = \(game)")
+//        print("pagingVC gameObject = \(game)")
         pagingViewController.delegate = self
         pagingViewController.dataSource = self
         
@@ -66,7 +70,7 @@ class PagingDetailVC: UIViewController {
         viewControllers = [firstViewController, secondViewController, thirdViewController]
  
         let detailVC = firstViewController as? DetailViewController
-        let mediaVC = secondViewController as? MediaVC
+        weak var mediaVC = secondViewController as? MediaVC
         let myGameVC = thirdViewController as? MyGameVC
         
         detailVC?.game = self.game
@@ -92,7 +96,7 @@ class PagingDetailVC: UIViewController {
         
         pagingViewController.view.translatesAutoresizingMaskIntoConstraints = false
         
-        let logo = UIImage(named: "glogo44")
+        let logo = UIImage(named: "gameologylogo44")
         let imageView = UIImageView(image:logo)
         imageView.contentMode = .scaleAspectFit
         self.navigationItem.titleView = imageView
@@ -124,7 +128,7 @@ class PagingDetailVC: UIViewController {
     
     
     func setAppearance() {
-        print("setting appearance in pagingVC")
+//        print("setting appearance in pagingVC")
         
         let defaults = UserDefaults.standard
         let appearanceSelection = defaults.integer(forKey: "appearanceSelection")
@@ -156,6 +160,8 @@ class PagingDetailVC: UIViewController {
             pagingViewController.selectedBackgroundColor = color1
             pagingViewController.selectedTextColor = .white
             pagingViewController.reloadData()
+            navigationController?.view.backgroundColor = .white
+
 
         } else if traitCollection.userInterfaceStyle == .dark {
            let color1 = UIColorFromRGB(0x2B95CE)
@@ -166,6 +172,8 @@ class PagingDetailVC: UIViewController {
             pagingViewController.selectedBackgroundColor = color1
             pagingViewController.borderColor = .tertiarySystemBackground
             pagingViewController.reloadData()
+            navigationController?.view.backgroundColor = .black
+
         }
     }
     
@@ -197,7 +205,7 @@ class PagingDetailVC: UIViewController {
     func createAddToLibraryButton() {
         let screenWidth = screenSize.width
         
-        button = UIButton(frame: CGRect(x: 100, y: 100, width: 430, height: 60))
+        button = UIButton(frame: CGRect(x: 100, y: 100, width: 310, height: 60))
         button.backgroundColor = UIColor(red: 121/255, green: 121/255, blue: 121/255, alpha: 1)
 //        button.layer.shadowRadius = 5
 //        button.layer.shadowOpacity = 0.35
@@ -207,7 +215,7 @@ class PagingDetailVC: UIViewController {
         button.setTitleColor(UIColor.white, for: .normal)
         button.contentHorizontalAlignment = .center
         button.contentVerticalAlignment = .center
-        button.titleLabel?.font = UIFont.preferredFont(forTextStyle: .headline)
+//        button.titleLabel?.font = UIFont.preferredFont(forTextStyle: .headline)
    
         
         var platformID = 0
@@ -237,7 +245,7 @@ class PagingDetailVC: UIViewController {
             buttonImgView.widthAnchor.constraint(equalToConstant: 76)
 
         ])
-        print("buttonImage = \(buttonImage)")
+//        print("buttonImage = \(buttonImage)")
         if checkForGameInLibrary(name: titled, id: gameID) {
 
             button.setTitle("Remove from Library", for: .normal)
@@ -255,7 +263,7 @@ class PagingDetailVC: UIViewController {
             button.bottomAnchor.constraint(equalTo: pagingViewController.view.bottomAnchor, constant: -5),
             button.leadingAnchor.constraint(equalTo: pagingViewController.view.leadingAnchor, constant: 5),
             button.trailingAnchor.constraint(equalTo: pagingViewController.view.trailingAnchor, constant: -5),
-            button.heightAnchor.constraint(equalToConstant: 60)
+            button.heightAnchor.constraint(equalToConstant: 55)
         
         ])
         
@@ -263,6 +271,7 @@ class PagingDetailVC: UIViewController {
         let color1 = UIColorFromRGB(0x2B95CE)
         button.layer.cornerRadius = 6
         button.backgroundColor = .red
+        button.layoutIfNeeded()
         gradientLayer.colors = [color2.cgColor
                                 ,color1.cgColor]
         gradientLayer.startPoint = CGPoint(x: 0, y: 0)
@@ -314,11 +323,11 @@ class PagingDetailVC: UIViewController {
         let platformName = platform.name
         let platformID = platform.id
         
-        print("Add to Library Button Pressed")
+//        print("Add to Library Button Pressed")
         guard let gameTitle = game.title else { return }
         guard let id = game.id else { return }
-        let test = checkForGameInLibrary(name: gameTitle, id: id)
-        print("game in library = \(test)")
+//        let test = checkForGameInLibrary(name: gameTitle, id: id)
+//        print("game in library = \(test)")
         if checkForGameInLibrary(name: gameTitle, id: id) {
             
             let cancel = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
@@ -329,10 +338,9 @@ class PagingDetailVC: UIViewController {
                 self.button.setTitle("Add to Library", for: .normal)
 
                 self.game.owned = false
-                let test2 = self.checkForPlatformInLibrary(name: platformName, id: platformID)
-            print("platform in library = \(test2)")
+//            print("platform in library = \(test2)")
                 if self.checkForPlatformInLibrary(name: platformName, id: platformID) {
-                print("Game in library, deleting")
+//                print("Game in library, deleting")
                     self.deleteGameFromCoreData()
  
                     let existingPlatform = self.fetchCoreDataPlatformObject(id: platformID)
@@ -363,24 +371,22 @@ class PagingDetailVC: UIViewController {
             button.setTitle("Remove from Library", for: .normal)
             game.owned = true
     guard let gameTitle = game.title, let gameID = game.id else {
-                print("One of the following may be nil:")
-                print("game.title", game.title)
-                print("game.id", game.id)
+           
                 return }
 //            print("imageData \(imageData)")
             
                 
            saveGameToCoreData(gameTitle, gameID , platform)
     
-                print("Paging VC saving game")
+//                print("Paging VC saving game")
             
             
             let savedGames = persistenceManager.fetch(SavedGames.self)
             
             for currentGame in savedGames {
-                print("starting loop")
+//                print("starting loop")
 //                print("title", currentGame.title, gameTitle)
-                print("game.id", currentGame.gameID, gameID)
+//                print("game.id", currentGame.gameID, gameID)
                 if currentGame.title == gameTitle && currentGame.gameID == Int32(gameID) {
                     
                     if let genres = currentGame.genres {
@@ -425,13 +431,13 @@ class PagingDetailVC: UIViewController {
                     
                     
                     
-                    print("testing for platform")
+//                    print("testing for platform")
                     let savedPlatform = persistenceManager.fetch(Platform.self)
                     
                     if savedPlatform.count >= 1 {
                         
                         if checkForPlatformInLibrary(name: platformName, id: platformID) {
-                            print("existing platform")
+//                            print("existing platform")
                             let existingPlatform = fetchCoreDataPlatformObject(id: platformID)
                             existingPlatform.addToGames(currentGame)
                             persistenceManager.save()
@@ -440,10 +446,10 @@ class PagingDetailVC: UIViewController {
                         
                             
                         } else {
-                            print("new platform")
+//                            print("new platform")
                             savePlatformToCoreData(platformID)
                             persistenceManager.save()
-                            print("newplatform platform id = \(platformID)")
+//                            print("newplatform platform id = \(platformID)")
                             let newPlatform = fetchCoreDataPlatformObject(id: platformID)
                             newPlatform.addToGames(currentGame)
                             persistenceManager.save()
@@ -594,15 +600,15 @@ extension PagingDetailVC : PagingViewControllerDataSource, PagingViewControllerD
         guard let title = game.title else { return 2 }
         guard let gameID = game.id else { return 2 }
         
-        print(title)
-        print(gameID)
-        
-        print("numberofViewControllers \(title) \(gameID)")
+//        print(title)
+//        print(gameID)
+//
+//        print("numberofViewControllers \(title) \(gameID)")
         if checkForGameInLibrary(name: title, id: gameID) {
-            print("returning 3")
+//            print("returning 3")
             return 3
         } else {
-            print("returning 2")
+//            print("returning 2")
 
             return 2
         }

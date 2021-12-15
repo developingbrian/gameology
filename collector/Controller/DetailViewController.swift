@@ -7,16 +7,67 @@
 //
 
 import UIKit
+import SDWebImage
 
 
 class DetailViewController: UIViewController, PriceChartPresentationProtocol {
 
 
     @IBOutlet weak var tableView: UITableView!
-    var game = GameObject()
+    var gameTitle : String?
+    var game = GameObject() {
+        didSet {
+//            print("game.title is", game.title)
+            gameTitle = game.title
+            gameTitle = gameTitle?.replacingOccurrences(of: "Expansion Pass", with: "")
+            gameTitle = gameTitle?.replacingOccurrences(of: "Special Edition", with: "")
+            gameTitle = gameTitle?.replacingOccurrences(of: "Game of the Year Edition", with: "")
+            gameTitle = gameTitle?.replacingOccurrences(of: "Game Of The Year Edition", with: "")
+            gameTitle = gameTitle?.replacingOccurrences(of: "Premium Online Edition", with: "")
+            gameTitle = gameTitle?.replacingOccurrences(of: "Gold Edition", with: "")
+            gameTitle = gameTitle?.replacingOccurrences(of: "Complete Edition", with: "")
+            gameTitle = gameTitle?.replacingOccurrences(of: "Deluxe Edition", with: "")
+            gameTitle = gameTitle?.replacingOccurrences(of: "Directors Cut", with: "")
+            
+
+
+            gameTitle = (gameTitle?.removingPercentEncoding)!
+            gameTitle = gameTitle?.replacingOccurrences(of: "'", with: "")
+            gameTitle = gameTitle?.replacingOccurrences(of: ":", with: "")
+            gameTitle = gameTitle?.replacingOccurrences(of: " & ", with: "+")
+            gameTitle = gameTitle?.replacingOccurrences(of: ".", with: "")
+            gameTitle = gameTitle?.replacingOccurrences(of: "!", with: "")
+            gameTitle = gameTitle?.replacingOccurrences(of: "?", with: "")
+            gameTitle = gameTitle?.replacingOccurrences(of: "/", with: "")
+            gameTitle = gameTitle?.replacingOccurrences(of: "-", with: "+")
+            gameTitle = gameTitle?.replacingOccurrences(of: "³", with: "+3")
+            gameTitle = gameTitle?.replacingOccurrences(of: " ", with: "+")
+            
+//            print("gameTitle is", gameTitle)
+            
+        }
+    }
     var network = Networking.shared
+    var priceInfo : PriceInfo?
     
 
+    deinit {
+        
+//        print("DetailVC in paging detail vc is deallocated now")
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        clearImageCacheFromMemory()
+    }
+    
+    override func didReceiveMemoryWarning() {
+        clearImageCacheFromMemory()
+    }
+    
+    func clearImageCacheFromMemory() {
+        let imageCache = SDImageCache.shared
+        imageCache.clearMemory()
+    }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
@@ -32,8 +83,48 @@ class DetailViewController: UIViewController, PriceChartPresentationProtocol {
         tableView.delegate = self
         
         setAppearance()
+//        var title = game.title
+//        title = title?.replacingOccurrences(of: "Expansion Pass", with: "")
+//        title = title?.replacingOccurrences(of: "Special Edition", with: "")
+//        title = title?.replacingOccurrences(of: "Game of the Year Edition", with: "")
+//        title = title?.replacingOccurrences(of: "Game Of The Year Edition", with: "")
+//        title = title?.replacingOccurrences(of: "Premium Online Edition", with: "")
+//        title = title?.replacingOccurrences(of: "Gold Edition", with: "")
+//        title = title?.replacingOccurrences(of: "Complete Edition", with: "")
+//        title = title?.replacingOccurrences(of: "Deluxe Edition", with: "")
+//        title = title?.replacingOccurrences(of: "Directors Cut", with: "")
+//
+//
+//
+//        title = (title?.removingPercentEncoding)!
+//        title = title?.replacingOccurrences(of: "'", with: "")
+//        title = title?.replacingOccurrences(of: ":", with: "")
+//        title = title?.replacingOccurrences(of: " & ", with: "+")
+//        title = title?.replacingOccurrences(of: ".", with: "")
+//        title = title?.replacingOccurrences(of: "!", with: "")
+//        title = title?.replacingOccurrences(of: "?", with: "")
+//        title = title?.replacingOccurrences(of: "/", with: "")
+//        title = title?.replacingOccurrences(of: "-", with: "+")
+//        title = title?.replacingOccurrences(of: "³", with: "+3")
+//        title = title?.replacingOccurrences(of: " ", with: "+")
+        
+        
+//        print("title is", title)
+        DispatchQueue.global().async {
+            
+            guard let gameName = self.gameTitle else { return }
+//            print("gameName is", gameName)
+            self.network.scrapePriceCharting(platformID: self.game.platformID!, gameName: gameName, uneditedGameName: self.game.title!) {
+            self.priceInfo = self.network.priceInfo
+//                print("price info object is", self.priceInfo?.title)
 
-        beginAppearanceTransition(true, animated: false)
+                let indexPath = IndexPath(row: 3, section: 0)
+                self.tableView.reloadRows(at: [indexPath], with: .automatic)
+//            self.tableView.reloadData()
+//            print("tableview in detail should have reset")
+        }
+        }
+//        beginAppearanceTransition(true, animated: false)
 
         self.edgesForExtendedLayout = UIRectEdge.init(rawValue: 0)
  
@@ -66,7 +157,7 @@ class DetailViewController: UIViewController, PriceChartPresentationProtocol {
 
     
     func setAppearance() {
-        print("setting appearance")
+//        print("setting appearance")
         
         let defaults = UserDefaults.standard
         let appearanceSelection = defaults.integer(forKey: "appearanceSelection")
@@ -127,11 +218,11 @@ extension DetailViewController : UITableViewDelegate, UITableViewDataSource {
         if let frontBoxArtImage = game.boxartFrontImage {
             boxartURL += frontBoxArtImage
         }
-        print("indexPath Section = \(indexPath.section)")
+//        print("indexPath Section = \(indexPath.section)")
         switch indexPath.row {
 
         case 0:
-            print(indexPath.row)
+//            print(indexPath.row)
             let cell = tableView.dequeueReusableCell(withIdentifier: "boxartCell", for: indexPath) as! BoxartCell
             
             cell.game = game
@@ -139,7 +230,7 @@ extension DetailViewController : UITableViewDelegate, UITableViewDataSource {
             return cell
             
         case 1:
-            print(indexPath.section)
+//            print(indexPath.row)
 
             let cell = tableView.dequeueReusableCell(withIdentifier: "titleCell", for: indexPath) as! TitleCell
             
@@ -147,24 +238,44 @@ extension DetailViewController : UITableViewDelegate, UITableViewDataSource {
         
             return cell
         case 2:
-            print(indexPath.section)
-            
-            let cell = tableView.dequeueReusableCell(withIdentifier: "valueCell", for: indexPath) as! ValueCell
-            
-            cell.game = game
-            cell.delegate = self
-            return cell
-            
-        case 3:
-            print(indexPath.section)
-
+//            print(indexPath.row)
+//            print("info cell")
             let cell = tableView.dequeueReusableCell(withIdentifier: "infoCell", for: indexPath) as! InfoCell
             
             cell.game = game
 
             return cell
+            
+            
+        case 3:
+//            print(indexPath.row)
+            
+            let cell = tableView.dequeueReusableCell(withIdentifier: "valueCell", for: indexPath) as! ValueCell
+            
+            cell.game = game
+            if let priceInfo = priceInfo {
+            cell.priceInfo = priceInfo
+            }
+            cell.delegate = self
+//            print("cell.valuetitle is, ", cell.valueTitle.text)
+            if cell.valueTitle.text != "" {
+//                print("hiding activity indicators")
+                cell.valueTitle.isHidden = false
+                cell.newPrice.isHidden = false
+                cell.loosePrice.isHidden = false
+                cell.cibPrice.isHidden = false
+                cell.visitPCLabel.isHidden = false
+                cell.priceChartingButton.isHidden = false
+                cell.valueActivityIndicator.isHidden = true
+                cell.cibActivityIndicator.isHidden = true
+                cell.looseActivityIndicator.isHidden = true
+                cell.newActivityIndicator.isHidden = true
+            }
+            
+            
+            return cell
         case 4:
-            print(indexPath.section)
+//            print(indexPath.row)
 
             let cell = tableView.dequeueReusableCell(withIdentifier: "summaryCell", for: indexPath) as! SummaryCell
             
@@ -174,7 +285,7 @@ extension DetailViewController : UITableViewDelegate, UITableViewDataSource {
             
         
         default:
-            print(indexPath.section)
+//            print(indexPath.row)
 
             return initialCell
         

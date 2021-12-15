@@ -48,12 +48,12 @@ extension PlatformsTableViewCell {
 //        print(platform.games?.count)
 
         if game.name == "0All Games" {
-            print("All games")
+//            print("All games")
             for platform in savedPlatforms {
 //                print(platform.games?.count)
                 count += platform.games!.count
             }
-            print("count \(count)")
+//            print("count \(count)")
             for platform in savedPlatforms {
                 if platform.id == 0 {
                     ownedTotalLbl.isHidden = true
@@ -76,7 +76,7 @@ extension PlatformsTableViewCell {
     func fetchCoreDataPlatformObject(id: Int) -> Platform {
         
         let platform = persistenceManager.fetchFilteredByPlatform(Platform.self, platformID: id)
-        print(platform)
+//        print(platform)
         let platformobj = platform[0]
         
         return platformobj

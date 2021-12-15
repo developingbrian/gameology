@@ -6,8 +6,8 @@
         "repositoryURL": "https://github.com/vtourraine/AcknowList",
         "state": {
           "branch": null,
-          "revision": "d0e560cccc39d07598ad3032c701a0e77eaacbe5",
-          "version": "2.0.1"
+          "revision": "dbd9a618e56045ee216ff7f87387d6bd434e5db3",
+          "version": "2.0.3"
         }
       },
       {
@@ -60,8 +60,8 @@
         "repositoryURL": "https://github.com/rechsteiner/Parchment",
         "state": {
           "branch": null,
-          "revision": "af4c9773ad7833df93b3f6226ccd78acad6f5735",
-          "version": "2.4.0"
+          "revision": "2b1a370e71480cb1a95dd56ef8bddc2e0a45e033",
+          "version": "3.1.0"
         }
       },
       {
@@ -69,8 +69,8 @@
         "repositoryURL": "https://github.com/SDWebImage/SDWebImage.git",
         "state": {
           "branch": null,
-          "revision": "ae3d0a7703eb883a876864f17a4591158199e9f2",
-          "version": "5.9.0"
+          "revision": "a72df4849408da7e5d3c1b586797b7c601c41d1b",
+          "version": "5.12.1"
         }
       },
       {
@@ -107,6 +107,15 @@
           "branch": null,
           "revision": "02c63b7be50bda384f22c56c64d347231754a07e",
           "version": "2.3.3"
+        }
+      },
+      {
+        "package": "YoutubePlayer",
+        "repositoryURL": "https://github.com/NicholasMata/YoutubePlayer",
+        "state": {
+          "branch": null,
+          "revision": "7e22c09b4b6d9e9ba905c5e8757ecad400cf870a",
+          "version": "0.5.5"
         }
       }
     ]

@@ -7,16 +7,27 @@
 //
 
 import UIKit
+import SDWebImage
+import CoreData
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
 
+    
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
 
-        
+        SDImageCache.shared.config.maxDiskAge = 3600 * 24 * 7 //1 Week
+                
+        SDImageCache.shared.config.maxMemoryCost = 1024 * 1024 * 20 //Aprox 20 images
+        //SDImageCache.shared().config.shouldCacheImagesInMemory = false //Default True => Store images in RAM cache for Fast performance
+//        SDImageCache.shared.config.shouldDecompressImages = false
+                
+//        SDWebImageDownloader.shared.shouldDecompressImages = false
+                
+        SDImageCache.shared.config.diskCacheReadingOptions = NSData.ReadingOptions.mappedIfSafe
         
         return true
     }

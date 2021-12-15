@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="18154" systemVersion="20G71" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="19461" systemVersion="20G221" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
     <entity name="GameGenre" representedClassName="GameGenre" syncable="YES">
         <attribute name="name" optional="YES" attributeType="String"/>
         <relationship name="ofGame" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="SavedGames" inverseName="genreType" inverseEntity="SavedGames"/>
@@ -12,8 +12,8 @@
     </entity>
     <entity name="Platform" representedClassName="Platform" syncable="YES">
         <attribute name="id" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
-        <attribute name="name" attributeType="String"/>
-        <relationship name="games" optional="YES" toMany="YES" deletionRule="Deny" destinationEntity="SavedGames" inverseName="platform" inverseEntity="SavedGames"/>
+        <attribute name="name" optional="YES" attributeType="String"/>
+        <relationship name="games" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="SavedGames" inverseName="platform" inverseEntity="SavedGames"/>
     </entity>
     <entity name="SavedGames" representedClassName="SavedGames" syncable="YES">
         <attribute name="boxartHeight" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
@@ -44,19 +44,19 @@
         <attribute name="percentComplete" optional="YES" attributeType="Float" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="physicalCopy" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="platformID" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
-        <attribute name="platformName" attributeType="String"/>
+        <attribute name="platformName" optional="YES" attributeType="String"/>
         <attribute name="pricePaid" optional="YES" attributeType="String"/>
         <attribute name="rating" optional="YES" attributeType="String"/>
         <attribute name="releaseDate" optional="YES" attributeType="String"/>
         <attribute name="releaseYear" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="screenshotImageIDs" optional="YES" attributeType="Transformable" valueTransformerName="NSSecureUnarchiveFromDataTransformer" customClassName="Array&lt;String&gt;"/>
-        <attribute name="title" attributeType="String"/>
+        <attribute name="title" optional="YES" attributeType="String"/>
         <attribute name="totalRating" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="userRating" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="youtubeURL" optional="YES" attributeType="String"/>
         <relationship name="genreType" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="GameGenre" inverseName="ofGame" inverseEntity="GameGenre"/>
         <relationship name="photo" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Photos" inverseName="games" inverseEntity="Photos"/>
-        <relationship name="platform" optional="YES" maxCount="1" deletionRule="Deny" destinationEntity="Platform" inverseName="games" inverseEntity="Platform"/>
+        <relationship name="platform" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Platform" inverseName="games" inverseEntity="Platform"/>
     </entity>
     <entity name="WishList" representedClassName="WishList" syncable="YES">
         <attribute name="boxartHeight" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>

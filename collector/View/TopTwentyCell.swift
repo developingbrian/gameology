@@ -80,11 +80,11 @@ extension TopTwentyCell {
         shadowView.contentMode = .scaleAspectFill
         shadowView.layer.cornerRadius = 10
                 if let boxartURL = game?.boxartFrontImage {
-            let gameURL = baseURL.hd.rawValue + boxartURL
-            print("gameurl", gameURL)
+            let gameURL = baseURL.coverSmall.rawValue + boxartURL
+//            print("gameurl", gameURL)
             let url = URL(string: gameURL)!
             imageView.setImageAnimated(imageUrl: url, placeholderImage: nil) {
-                print("new release image loaded")
+//                print("new release image loaded")
                 let blurredImage = self.imageView.image?.getImageWithBlur(blurAmount: 10)
                 self.shadowView.image = blurredImage
             }

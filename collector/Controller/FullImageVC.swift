@@ -23,7 +23,7 @@ class FullImageVC: UIViewController {
         super.viewDidLoad()
         scrollView.delegate = self
         if let imgURL = imageURL {
-            print("imgurl\(imgURL)")
+//            print("imgurl\(imgURL)")
             
             let url = URL(string: "\(imgURL)")!
 
@@ -33,7 +33,7 @@ class FullImageVC: UIViewController {
         }
         
         if let image = image {
-            print("should be setting image")
+//            print("should be setting image")
             zoomedImageView.image = image
         }
     }
@@ -43,8 +43,8 @@ class FullImageVC: UIViewController {
     
     
     @IBAction func imageDoubleTapped(_ sender: UITapGestureRecognizer) {
-        print("DOUBLE TAP")
-        print("sender.location", sender.location(in: sender.view))
+//        print("DOUBLE TAP")
+//        print("sender.location", sender.location(in: sender.view))
         
         if scrollView.zoomScale == scrollView.minimumZoomScale {
             

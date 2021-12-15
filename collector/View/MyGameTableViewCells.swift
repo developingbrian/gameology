@@ -59,9 +59,9 @@ class PhotoCell: UITableViewCell {
     
 
     @objc func deleteGamePhoto(sender:UIButton) {
-        print("Delete game photo button pressed")
+//        print("Delete game photo button pressed")
         let imageCell = sender.tag
-        print(sender.tag)
+//        print(sender.tag)
         guard let image = gamePhotos[imageCell].photo else { return }
         guard let category = gamePhotos[imageCell].category else { return }
         deletePhotoFromCoreData(image: image, category: category)
@@ -71,10 +71,10 @@ class PhotoCell: UITableViewCell {
     
     
     @objc func deleteBoxPhoto(sender:UIButton) {
-        print("Delete box photo button pressed")
+//        print("Delete box photo button pressed")
         
         let imageCell = sender.tag
-        print(sender.tag)
+//        print(sender.tag)
         guard let image = boxPhotos[imageCell].photo else { return }
         guard let category = boxPhotos[imageCell].category else { return }
         deletePhotoFromCoreData(image: image, category: category)
@@ -83,12 +83,12 @@ class PhotoCell: UITableViewCell {
     }
     
     @objc func deleteManualPhoto(sender:UIButton) {
-        print("Delete manual button pressed")
+//        print("Delete manual button pressed")
         let imageCell = sender.tag
-        print(sender.tag)
+//        print(sender.tag)
         guard let image = manualPhotos[imageCell].photo else { return }
         guard let category = manualPhotos[imageCell].category else { return }
-        print(category)
+//        print(category)
         deletePhotoFromCoreData(image: image, category: category)
         manualPhotos.remove(at: imageCell)
         collectionReloadData()
@@ -150,7 +150,7 @@ class PhotoCell: UITableViewCell {
     func collectionReloadData(){
          DispatchQueue.main.async(execute: {
 
-            print("collectionView Reloaded")
+//            print("collectionView Reloaded")
 
             self.photoCollectionView.reloadData()
          })
@@ -169,7 +169,7 @@ class PhotoCell: UITableViewCell {
     func setupCollectionViewLayout() -> UICollectionViewLayout {
         let layout = UICollectionViewCompositionalLayout { (sectionIndex: Int, layoutEnvironment: NSCollectionLayoutEnvironment) -> NSCollectionLayoutSection? in
             let photoSections = PhotoSection.allCases[sectionIndex]
-            print("setup collection view")
+//            print("setup collection view")
             switch photoSections {
             case .game:
                 return self.createGamePhotoSection()
@@ -288,7 +288,7 @@ extension PhotoCell : UICollectionViewDelegate, UICollectionViewDataSource {
         case .game:
             vc.images = gameImages
             vc.selectedIndex = indexPath.item
-            print("game photo should be pushed")
+//            print("game photo should be pushed")
             parent?.navigationController?.pushViewController(vc, animated: true)
             
         case .manual:
@@ -328,16 +328,16 @@ extension PhotoCell : UICollectionViewDelegate, UICollectionViewDataSource {
         let photoSections = PhotoSection.allCases[section]
         
         if photoSections == .game {
-            print("COLLECTION gamephotos \(gamePhotos.count)")
+//            print("COLLECTION gamephotos \(gamePhotos.count)")
             return gamePhotos.count
             
         } else if photoSections == .manual {
-                        print("COLLECTION manualPhotos \(manualPhotos.count)")
+//                        print("COLLECTION manualPhotos \(manualPhotos.count)")
 
                         return manualPhotos.count
         } else {
 
-                print("COLLECTION boxPhotos \(boxPhotos.count)")
+//                print("COLLECTION boxPhotos \(boxPhotos.count)")
                 return boxPhotos.count
             
         }
@@ -348,7 +348,7 @@ extension PhotoCell : UICollectionViewDelegate, UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         
         
-        print("cell for item at")
+//        print("cell for item at")
 
         
         let photoSections = PhotoSection.allCases[indexPath.section]
@@ -360,7 +360,7 @@ extension PhotoCell : UICollectionViewDelegate, UICollectionViewDataSource {
             
             guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: MyPhotoCell.cellIdentifier, for: indexPath) as? MyPhotoCell else { return MyPhotoCell() }
             
-            print("cell for item at .game")
+//            print("cell for item at .game")
             cell.photo = gamePhotos[indexPath.item]
             cell.deleteButton.tag = indexPath.item
             cell.deleteButton.addTarget(self, action: #selector(deleteGamePhoto), for: .touchUpInside)
@@ -412,10 +412,8 @@ class CopyCell : UITableViewCell {
     
     override func awakeFromNib() {
         super.awakeFromNib()
-        // Initialization code
         
 
-        
         
     }
 
@@ -432,7 +430,7 @@ class CopyCell : UITableViewCell {
         let savedGames = persistenceManager.fetch(SavedGames.self)
         for savedGame in savedGames {
             if savedGame.title == title {
-                print("physicalcopy \(savedGame.physicalCopy)")
+//                print("physicalcopy \(savedGame.physicalCopy)")
                 if savedGame.physicalCopy == true {
                     physicalCopySwitch.setOn(true, animated: false)
                 } else {
@@ -623,7 +621,6 @@ class NotesCell : UITableViewCell, UITextViewDelegate {
     
     override func awakeFromNib() {
         super.awakeFromNib()
-        // Initialization code
         notesTextView.delegate = self
         
     }
@@ -710,7 +707,7 @@ class CompletionCell : UITableViewCell {
         let savedGames = persistenceManager.fetch(SavedGames.self)
         for savedGame in savedGames {
             if savedGame.title == title{
-                print("physicalcopy \(savedGame.physicalCopy)")
+//                print("physicalcopy \(savedGame.physicalCopy)")
                 if savedGame.hasCompleted == true {
                     completeSwitch.setOn(true, animated: false)
                 } else {

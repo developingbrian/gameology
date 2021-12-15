@@ -30,21 +30,7 @@ class BoxartCell: UITableViewCell {
         super.awakeFromNib()
         
         
-//        portraitBoxartImageView.layer.cornerRadius = 12
-//        portraitBoxartImageView.layer.shadowOffset = CGSize(width: 3.0, height: 3.0)
-//        portraitBoxartImageView.layer.shadowRadius = 5
-//        portraitBoxartImageView.layer.shadowOpacity = 0.75
-//        portraitBoxartImageView.layer.shadowPath = UIBezierPath(roundedRect: portraitBoxartImageView.bounds, cornerRadius: 12).cgPath
-//        portraitBoxartImageView.translatesAutoresizingMaskIntoConstraints = false
-//        portraitBoxartImageView.clipsToBounds = false
-//        landscapeBoxartImageView.layer.cornerRadius = 12
-//        landscapeBoxartImageView.layer.shadowOffset = CGSize(width: 3.0, height: 3.0)
-//        landscapeBoxartImageView.layer.shadowRadius = 5
-//        landscapeBoxartImageView.layer.shadowOpacity = 0.75
-//        landscapeBoxartImageView.clipsToBounds = false
-//        landscapeBoxartImageView.translatesAutoresizingMaskIntoConstraints = false
-//        landscapeBoxartImageView.layer.shadowPath = UIBezierPath(roundedRect: landscapeBoxartImageView.bounds, cornerRadius: 12).cgPath
-        // Initialization code
+
     }
 
     override func setSelected(_ selected: Bool, animated: Bool) {
@@ -107,7 +93,7 @@ extension BoxartCell {
         
         //setting the image
         if let boxartURL = game?.boxartFrontImage {
-            let gameURL = baseURL.fullHD.rawValue + boxartURL
+            let gameURL = baseURL.hd.rawValue + boxartURL
             
             let url = URL(string: gameURL)!
             boxartImageView.setImageAnimated(imageUrl: url, placeholderImage: nil) {
@@ -363,6 +349,10 @@ class ValueCell:UITableViewCell {
     @IBOutlet weak var cibPrice: UILabel!
     @IBOutlet weak var newPrice: UILabel!
     @IBOutlet weak var valueTitle: UILabel!
+    @IBOutlet weak var valueActivityIndicator: UIActivityIndicatorView!
+    @IBOutlet weak var looseActivityIndicator: UIActivityIndicatorView!
+    @IBOutlet weak var cibActivityIndicator: UIActivityIndicatorView!
+    @IBOutlet weak var newActivityIndicator: UIActivityIndicatorView!
     @IBOutlet weak var priceChartingButton: UIButton!
     @IBOutlet weak var visitPCLabel: UILabel!
     let pricechartURL : String? = nil
@@ -373,8 +363,16 @@ class ValueCell:UITableViewCell {
         }
     }
     
+    var priceInfo : PriceInfo? {
+        didSet {
+            setPriceLabels()
+        }
+    }
+    
     override func awakeFromNib() {
         super.awakeFromNib()
+        
+
     }
     
     
@@ -393,38 +391,40 @@ class ValueCell:UITableViewCell {
 
 extension ValueCell {
     
-    func configureCell() {
-        setAppearance()
-        var title = game?.title
-        title = title?.replacingOccurrences(of: "Expansion Pass", with: "")
-        title = title?.replacingOccurrences(of: "Special Edition", with: "")
-        title = title?.replacingOccurrences(of: "Game of the Year Edition", with: "")
-        title = title?.replacingOccurrences(of: "Game Of The Year Edition", with: "")
-        title = title?.replacingOccurrences(of: "Premium Online Edition", with: "")
-        title = title?.replacingOccurrences(of: "Gold Edition", with: "")
-        title = title?.replacingOccurrences(of: "Complete Edition", with: "")
-        title = title?.replacingOccurrences(of: "Deluxe Edition", with: "")
-        title = title?.replacingOccurrences(of: "Directors Cut", with: "")
-        
+    func setPriceLabels() {
+//        var title = game?.title
+//        title = title?.replacingOccurrences(of: "Expansion Pass", with: "")
+//        title = title?.replacingOccurrences(of: "Special Edition", with: "")
+//        title = title?.replacingOccurrences(of: "Game of the Year Edition", with: "")
+//        title = title?.replacingOccurrences(of: "Game Of The Year Edition", with: "")
+//        title = title?.replacingOccurrences(of: "Premium Online Edition", with: "")
+//        title = title?.replacingOccurrences(of: "Gold Edition", with: "")
+//        title = title?.replacingOccurrences(of: "Complete Edition", with: "")
+//        title = title?.replacingOccurrences(of: "Deluxe Edition", with: "")
+//        title = title?.replacingOccurrences(of: "Directors Cut", with: "")
+//        
+//
+//
+//        title = title?.removingPercentEncoding
+//        title = title?.replacingOccurrences(of: "'", with: "")
+//        title = title?.replacingOccurrences(of: ":", with: "")
+//        title = title?.replacingOccurrences(of: " & ", with: "+")
+//        title = title?.replacingOccurrences(of: ".", with: "")
+//        title = title?.replacingOccurrences(of: "!", with: "")
+//        title = title?.replacingOccurrences(of: "?", with: "")
+//        title = title?.replacingOccurrences(of: "/", with: "")
+//        title = title?.replacingOccurrences(of: "-", with: "+")
+//        title = title?.replacingOccurrences(of: "³", with: "+3")
+//        title = title?.replacingOccurrences(of: " ", with: "+")
+//        
+//        
+//        print("title is", title)
 
-
-        title = title?.removingPercentEncoding
-        title = title?.replacingOccurrences(of: "'", with: "")
-        title = title?.replacingOccurrences(of: ":", with: "")
-        title = title?.replacingOccurrences(of: " & ", with: "+")
-        title = title?.replacingOccurrences(of: ".", with: "")
-        title = title?.replacingOccurrences(of: "!", with: "")
-        title = title?.replacingOccurrences(of: "?", with: "")
-        title = title?.replacingOccurrences(of: "/", with: "")
-        title = title?.replacingOccurrences(of: "-", with: "+")
-        title = title?.replacingOccurrences(of: "³", with: "+3")
-        title = title?.replacingOccurrences(of: " ", with: "+")
-        
-        
-        print("title is", title)
-
-        let priceInfo = network.scrapePriceCharting(platformID: (game?.platformID)!, gameName: title!, uneditedGameName: (game?.title)!)
-        print(priceInfo.loosePrice, priceInfo.cibPrice, priceInfo.newPrice)
+//        let priceInfo = network.scrapePriceCharting(platformID: (game?.platformID)!, gameName: title!, uneditedGameName: (game?.title)!)
+//        print("price info object", priceInfo)
+        if let priceInfo = priceInfo {
+//            print("price info is")
+//        print(priceInfo.loosePrice, priceInfo.cibPrice, priceInfo.newPrice)
         valueTitle.text = priceInfo.title
         loosePrice.text = priceInfo.loosePrice
         cibPrice.text = priceInfo.cibPrice
@@ -434,6 +434,21 @@ extension ValueCell {
             visitPCLabel.isHidden = true
             priceChartingButton.isHidden = true
         }
+        }
+        
+    }
+    
+    func configureCell() {
+        setAppearance()
+        valueActivityIndicator.isHidden = false
+        valueActivityIndicator.startAnimating()
+        cibActivityIndicator.isHidden = false
+        cibActivityIndicator.startAnimating()
+        looseActivityIndicator.isHidden = false
+        looseActivityIndicator.startAnimating()
+        newActivityIndicator.isHidden = false
+        newActivityIndicator.startAnimating()
+
     }
     
     func setAppearance() {
@@ -502,6 +517,8 @@ extension InfoCell {
     
     func configureCell() {
         setAppearance()
+        
+        print("")
         
         
         if let genres = game?.genreDescriptions {

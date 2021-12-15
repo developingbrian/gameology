@@ -27,17 +27,7 @@ class SpotlightHeaderView: UICollectionReusableView {
 
     extension SpotlightHeaderView {
       func configure() {
-        if traitCollection.userInterfaceStyle == .light {
-            let lightGray = UIColor(red: 246/255, green: 246/255, blue: 246/255, alpha: 1)
-            backgroundColor = lightGray
 
-        } else if traitCollection.userInterfaceStyle == .dark {
-            let darkGray = UIColor(red: 18/255, green: 18/255, blue: 18/255, alpha: 1)
-           backgroundColor = darkGray
-
-
-        }
-//        backgroundColor = .tertiarySystemBackground
 
         addSubview(label)
         addSubview(platformLabel)

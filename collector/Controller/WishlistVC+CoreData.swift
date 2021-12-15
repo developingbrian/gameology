@@ -13,7 +13,7 @@ import CoreData
 extension WishlistVC {
     func printSavedGenres() {
         savedGenres.forEach{ (genre) in
-            print("genre core data")
+//            print("genre core data")
 //            print(genre.name)
             
         }
@@ -37,7 +37,7 @@ extension WishlistVC {
             }
             
         }
-        print("genre is not saved")
+//        print("genre is not saved")
         return false
     }
     
@@ -66,7 +66,7 @@ extension WishlistVC {
     }
     
     func checkForPlatformInLibrary(name: String, id:Int) -> Bool {
-        print("checkforPlatform called")
+//        print("checkforPlatform called")
         
         let savedPlatforms = persistenceManager.fetch(Platform.self)
         
@@ -78,7 +78,7 @@ extension WishlistVC {
             }
             
         }
-        print("Platform is not in library")
+//        print("Platform is not in library")
         return false
         
         

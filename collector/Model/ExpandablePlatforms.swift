@@ -16,3 +16,11 @@ struct SectionData {
     var platformName : String
     
 }
+
+
+struct AdvancedSearchSection {
+    
+    var sectionDataSource : [String]
+    var sectionIndex : Int
+    
+}

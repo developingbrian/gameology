@@ -23,14 +23,14 @@ class BarCodeVC: UIViewController, BarcodeScannerCodeDelegate, BarcodeScannerErr
     }
     
     func scanner(_ controller: BarcodeScannerViewController, didCaptureCode code: String, type: String) {
-        print(code)
-        print(type)
-        
-        let intCode = Int(code)
-        print(intCode)
+//        print(code)
+//        print(type)
+//
+//        let intCode = Int(code)
+//        print(intCode)
         
         lookupUPC(upc: code) { response in
-            print("scanner should reset")
+//            print("scanner should reset")
 //            controller.reset()
             
             
@@ -38,8 +38,8 @@ class BarCodeVC: UIViewController, BarcodeScannerCodeDelegate, BarcodeScannerErr
 
                 
                 if httpResponse.statusCode == 200 {
-                        print("Couldnt find a match to that UPC at all.")
-                        print("status code is 200, should do manual search by name")
+//                        print("Couldnt find a match to that UPC at all.")
+//                        print("status code is 200, should do manual search by name")
                         
                         
     //                    while self.network.scannedGameResults.count == 0 {
@@ -153,7 +153,7 @@ class BarCodeVC: UIViewController, BarcodeScannerCodeDelegate, BarcodeScannerErr
 
                 
             } else {
-                print("newValue is", newValue)
+//                print("newValue is", newValue)
             }
         }
     }
@@ -174,7 +174,7 @@ class BarCodeVC: UIViewController, BarcodeScannerCodeDelegate, BarcodeScannerErr
         animationView.play()
         let color2 = UIColorFromRGB(0x2ECAD5)
         let color1 = UIColorFromRGB(0x2B95CE)
-
+        scanButton.layoutIfNeeded()
         gradientLayer.colors = [color2.cgColor
                                 ,color1.cgColor]
         
@@ -183,7 +183,7 @@ class BarCodeVC: UIViewController, BarcodeScannerCodeDelegate, BarcodeScannerErr
         gradientLayer.frame = scanButton.bounds
         gradientLayer.cornerRadius = 6
         gradientLayer.masksToBounds = false
-        scanButton.layer.addSublayer(gradientLayer)
+        scanButton.layer.insertSublayer(gradientLayer, at: 0)
         scanButton.layer.cornerRadius = 6
         
         
@@ -221,7 +221,7 @@ class BarCodeVC: UIViewController, BarcodeScannerCodeDelegate, BarcodeScannerErr
                 let firstMatch = match.range(at: 1)
                 if let firstRange = Range(firstMatch, in: url) {
                     let platformSS = url[firstRange]
-                    var platform = String(platformSS)
+                    let platform = String(platformSS)
 //                     platform = platform.replacingOccurrences(of: "-", with: " ")
                     let pID = convertPriceChartingNameToPlatformID(name: platform)
                     print("platform id is", pID)
@@ -285,9 +285,9 @@ class BarCodeVC: UIViewController, BarcodeScannerCodeDelegate, BarcodeScannerErr
 
 
             }
-            print("data is here")
+//            print("data is here")
 //            print(String(data: data!, encoding: .utf8))
-            print(response?.url)
+//            print(response?.url)
             DispatchQueue.main.async {
                 completed(response!)
 
@@ -386,7 +386,7 @@ class BarCodeVC: UIViewController, BarcodeScannerCodeDelegate, BarcodeScannerErr
        
         
         
-        let okAction = UIAlertAction(title: "Yes", style: .default) { [weak self, weak alert] action in
+        let okAction = UIAlertAction(title: "Yes", style: .default) { [weak self] action in
             
             print("ok pressed")
             
@@ -402,7 +402,7 @@ class BarCodeVC: UIViewController, BarcodeScannerCodeDelegate, BarcodeScannerErr
                     self?.gameArray = (self?.network.scannedGameResults)!
                     print("fetch complete")
                     if self?.network.scannedGameResults.count == 0 {
-                        print("scannedGameResults count is", self?.network.scannedGameResults.count)
+//                        print("scannedGameResults count is", self?.network.scannedGameResults.count)
                         print("scanSuccess false")
                         self?.animationView.alpha = 1
                         self?.animationView.isHidden = false
@@ -412,7 +412,7 @@ class BarCodeVC: UIViewController, BarcodeScannerCodeDelegate, BarcodeScannerErr
                         self?.scanSuccess = false
                         
                     } else {
-                        print("scannedGameResults count is", self?.network.scannedGameResults.count)
+//                        print("scannedGameResults count is", self?.network.scannedGameResults.count)
                         print("scanSuccess true")
 
                         
@@ -521,11 +521,11 @@ extension BarCodeVC: URLSessionTaskDelegate, URLSessionDelegate, URLSessionDataD
     
     
     func urlSession(_ session: URLSession, task: URLSessionTask, willPerformHTTPRedirection response: HTTPURLResponse, newRequest request: URLRequest, completionHandler: @escaping (URLRequest?) -> Void) {
-        print("stop redirect")
-        print(response.allHeaderFields)
-        print(response.url)
-        print(request.url)
-        
+//        print("stop redirect")
+//        print(response.allHeaderFields)
+//        print(response.url)
+//        print(request.url)
+//        
         let requestString = (request.url?.absoluteString)!
         let platformInfo = extractTitle(requestType: .title,url: requestString)
         let platformID = platformInfo.0

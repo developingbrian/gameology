@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import SDWebImage
 
 class SpotlightVC: UIViewController {
     
@@ -21,7 +22,8 @@ class SpotlightVC: UIViewController {
     let label = UILabel()
     let refreshButton = GradientButton(gradientStartColor: .red, gradientEndColor: .orange)
     var dataFetchComplete = false
-    
+    let appearance = UINavigationBarAppearance()
+
     @IBOutlet weak var spinview: UIView!
     var top20MenuPlatforms : [String] {
         var platforms : [String] = []
@@ -690,16 +692,29 @@ class SpotlightVC: UIViewController {
     let network = Networking.shared
     
     
+    override func viewWillDisappear(_ animated: Bool) {
+        clearImageCacheFromMemory()
+    }
+    
+    override func didReceiveMemoryWarning() {
+        clearImageCacheFromMemory()
+    }
+    
+    func clearImageCacheFromMemory() {
+        let imageCache = SDImageCache.shared
+        imageCache.clearMemory()
+    }
+    
     override func viewWillAppear(_ animated: Bool) {
 
         setAppearance()
         comingSoonPlatforms.removeAll()
         recentlyReleasedPlatforms.removeAll()
         top20Platforms.removeAll()
-        
-        
+
+
         for platformName in platformNames {
-        
+
             let platform = Platforms()
             platform.platformName = platformName
             platform.isSelected = false
@@ -708,11 +723,9 @@ class SpotlightVC: UIViewController {
             top20Platforms.append(platform)
         }
         
-        self.spotlightCollectionView.reloadData()
-
-    
         registerVC()
 
+//        spotlightCollectionView.reloadData()
     }
     
     
@@ -723,10 +736,12 @@ class SpotlightVC: UIViewController {
         setAppearance()
         setupLabel()
         self.navigationController?.navigationBar.isTranslucent = false
+      
+        
 
         spotlightCollectionView.collectionViewLayout = setupCollectionViewLayout()
 
-        let logo = UIImage(named: "glogo44")
+        let logo = UIImage(named: "gameologylogo44")
         let imageView = UIImageView(image:logo)
         imageView.contentMode = .scaleAspectFit
         self.navigationItem.titleView = imageView
@@ -748,7 +763,9 @@ class SpotlightVC: UIViewController {
         spotlightCollectionView.register(TopTwentyCell.self, forCellWithReuseIdentifier: TopTwentyCell.cellIdentifier)
         spotlightCollectionView.register(SpotlightHeaderView.self, forSupplementaryViewOfKind: SpotlightVC.sectionHeaderElementKind, withReuseIdentifier: SpotlightHeaderView.reuseIdentifier)
 
-        prepareData()
+        
+        altPrepareData()
+//        prepareData()
 //        spinview.isHidden = false
 //        self.showSpinner(onView: spinview, userInterfaceStyle: traitCollection.userInterfaceStyle)
 //        tabBarController?.view.isUserInteractionEnabled = false
@@ -767,11 +784,37 @@ class SpotlightVC: UIViewController {
     }
     
 
-
+    func altPrepareData() {
+        if network.comingSoonArray.count > 0 {
+            comingSoonGames = network.comingSoonArray
+            if let platformID = self.comingSoonGames[0].platformID {
+                self.comingSoonPlatformID = platformID
+            }
+            print("coming soon games", comingSoonGames)
+        }
+        
+        if network.topTwentyArray.count > 0 {
+            topTwentyGames = network.topTwentyArray
+            if let platformID = self.topTwentyGames[0].platformID {
+                self.top20PlatformID = platformID
+            }
+        }
+        
+        if network.recentlyReleasedArray.count > 0 {
+            
+            recentlyReleasedGames = network.recentlyReleasedArray
+            if let platformID = self.recentlyReleasedGames[0].platformID {
+                self.recentlyReleasedPlatformID = platformID
+        }
+        }
+        spotlightCollectionView.isHidden = false
+        spotlightCollectionView.reloadData()
+        
+    }
     
     func prepareData() {
-        let priceObject = network.scrapePriceCharting(platformID: 48, gameName: "grand-theft-auto-v", uneditedGameName: "Grand Theft Auto V")
-        print("priceObject is", priceObject.title, priceObject.loosePrice, priceObject.cibPrice, priceObject.newPrice)
+//        let priceObject = network.scrapePriceCharting(platformID: 48, gameName: "grand-theft-auto-v", uneditedGameName: "Grand Theft Auto V")
+//        print("priceObject is", priceObject.title, priceObject.loosePrice, priceObject.cibPrice, priceObject.newPrice)
         
         label.isHidden = true
         refreshButton.isHidden = true
@@ -901,11 +944,11 @@ class SpotlightVC: UIViewController {
                 
         
         self.network.fetchIGDBGenreData { error in
-            print("attempting to fetch genre data")
+//            print("attempting to fetch genre data")
             if error == nil {
-            print("success fetching genre data")
+//            print("success fetching genre data")
             
-        self.network.fetchIGDBPlatformData { error in
+                self.network.fetchIGDBPlatformData { error in
 //            UserDefaults.standard.setValue(nil, forKey: "lastFetchedPlatform")
             if error == nil {
                  var lastFetchedPlatform = UserDefaults.standard.value(forKey: "lastFetchedPlatform")
@@ -914,18 +957,18 @@ class SpotlightVC: UIViewController {
                     lastFetchedPlatform = 18
                 }
 //                let currentPlatform = UserDefaults.standard.integer(forKey:"lastFetchedPlatform")
-                print("user defaults current platform ", lastFetchedPlatform)
+//                print("user defaults current platform ", lastFetchedPlatform)
                 self.network.lastRequestedPlatformID = lastFetchedPlatform as! Int
                 
-                self.network.fetchIGDBGamesData(filterBy: "platforms = ", platformID: lastFetchedPlatform as! Int, searchByName: nil, sortByField: "name", sortAscending: true, offset: self.network.currentOffset, resultsPerPage: 500, completed: { error in
+                self.network.fetchIGDBGamesData(filterBy: "platforms = ", platformID: self.network.lastRequestedPlatformID, searchByName: nil, sortByField: "name", sortAscending: true, offset: self.network.currentOffset, resultsPerPage: 500, completed: { error in
                 
-                print("error is", error)
+//                print("error is", error)
                 
                 if error == nil {
                     
                     if self.network.initialFetchComplete == true {
                         
-                        print("all data downloaded")
+//                        print("all data downloaded")
                         self.network.currentOffset += 500
 //                        self.network.currentOffset = self.network.gameArray.count
                         self.removeSpinner()
@@ -948,15 +991,9 @@ class SpotlightVC: UIViewController {
                     self.tabBarController?.view.isUserInteractionEnabled = true
                 }
                 
-          
+    
 
-
-                
-
-                
-
-
-            })
+                })
             } else {
                 self.network.genreFetchDidFail = false
                 self.network.platformFetchDidFail = true
@@ -975,7 +1012,7 @@ class SpotlightVC: UIViewController {
         
             } else {
                 
-                print("error is", error)
+//                print("error is", error)
                 self.network.genreFetchDidFail = true
                 self.network.platformFetchDidFail = true
                 self.network.gameFetchDidFail = true
@@ -990,9 +1027,9 @@ class SpotlightVC: UIViewController {
                 
             }
             
-            
-            
         }
+        
+        
     }
     
     func fetchPlatformName(platformID: Int) -> String {
@@ -1102,7 +1139,7 @@ class SpotlightVC: UIViewController {
        let sectionHeader = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: headerSize, elementKind: SpotlightVC.sectionHeaderElementKind, alignment: .top)
        
        let section = NSCollectionLayoutSection(group: group)
-        section.orthogonalScrollingBehavior = .paging
+        section.orthogonalScrollingBehavior = .continuousGroupLeadingBoundary
        section.boundarySupplementaryItems = [sectionHeader]
         section.contentInsets = NSDirectionalEdgeInsets(top: 30, leading: 0, bottom: 30, trailing: 0)
        return section
@@ -1149,7 +1186,7 @@ class SpotlightVC: UIViewController {
        
         let darkBlue = UIColorFromRGB(0x2ECAD5)
         let blue = UIColorFromRGB(0x2B95CE)
-        let colors = [blue.cgColor, darkBlue.cgColor]
+//        let colors = [blue.cgColor, darkBlue.cgColor]
         view.addSubview(label)
         view.addSubview(refreshButton)
         refreshButton.translatesAutoresizingMaskIntoConstraints = false
@@ -1223,18 +1260,48 @@ class SpotlightVC: UIViewController {
 
         }
         
+        let firstSection = IndexPath(row: 0, section: 0)
+        let secondSection = IndexPath(row: 0, section: 1)
+        let thirdSection = IndexPath(row: 0, section: 2)
+        
         if traitCollection.userInterfaceStyle == .light {
             let lightGray = UIColor(red: 246/255, green: 246/255, blue: 246/255, alpha: 1)
             spotlightCollectionView.backgroundColor = lightGray
             self.view.backgroundColor = lightGray
-
+            navigationController?.view.backgroundColor = .white
+            if let comingSoonHeader = spotlightCollectionView.supplementaryView(forElementKind: SpotlightVC.sectionHeaderElementKind, at: firstSection) as? SpotlightHeaderView {
+                comingSoonHeader.backgroundColor = lightGray
+            }
+            
+            if let newReleasesHeader = spotlightCollectionView.supplementaryView(forElementKind: SpotlightVC.sectionHeaderElementKind, at: secondSection) as? SpotlightHeaderView {
+                newReleasesHeader.backgroundColor = lightGray
+            }
+            
+            if let top20Header = spotlightCollectionView.supplementaryView(forElementKind: SpotlightVC.sectionHeaderElementKind, at: thirdSection) as? SpotlightHeaderView {
+                top20Header.backgroundColor = lightGray
+            }
+//            navigationController?.navigationBar.backgroundColor = .white
             
 
         } else if traitCollection.userInterfaceStyle == .dark {
             let darkGray = UIColor(red: (18/255), green: (18/255), blue: (18/255), alpha: 1)
             spotlightCollectionView.backgroundColor = darkGray
             self.view.backgroundColor = darkGray
-
+            navigationController?.view.backgroundColor = .black
+            
+            if let comingSoonHeader = spotlightCollectionView.supplementaryView(forElementKind: SpotlightVC.sectionHeaderElementKind, at: firstSection) as? SpotlightHeaderView {
+                comingSoonHeader.backgroundColor = darkGray
+            }
+            
+            if let newReleasesHeader = spotlightCollectionView.supplementaryView(forElementKind: SpotlightVC.sectionHeaderElementKind, at: secondSection) as? SpotlightHeaderView {
+                newReleasesHeader.backgroundColor = darkGray
+            }
+            
+            if let top20Header = spotlightCollectionView.supplementaryView(forElementKind: SpotlightVC.sectionHeaderElementKind, at: thirdSection) as? SpotlightHeaderView {
+                top20Header.backgroundColor = darkGray
+            }
+//            navigationController?.navigationBar.backgroundColor = .black
+            
         }
     }
     
@@ -1258,22 +1325,30 @@ extension SpotlightVC : UICollectionViewDataSource, UICollectionViewDelegate {
         case .comingSoon:
             let cell = collectionView.cellForItem(at: indexPath) as? ComingSoonCell
             viewController.game = comingSoonGames[indexPath.item]
-//            print("segue", cell?.imageView.image)
             viewController.boxartImage = cell?.imageView.image
-            self.navigationController?.pushViewController(viewController, animated: true)
+            DispatchQueue.main.async {
+                self.navigationController?.pushViewController(viewController, animated: true)
+
+            }
         case .recentlyReleased:
             let cell = collectionView.cellForItem(at: indexPath) as? NewReleasesCell
 
             viewController.game = recentlyReleasedGames[indexPath.item]
             viewController.boxartImage = cell?.boxartImageView.image
             print("gameitem", viewController.game)
-            self.navigationController?.pushViewController(viewController, animated: true)
+            DispatchQueue.main.async {
+                self.navigationController?.pushViewController(viewController, animated: true)
+
+            }
 
         case .top20:
             let cell = collectionView.cellForItem(at: indexPath) as? TopTwentyCell
             viewController.game = topTwentyGames[indexPath.item]
             viewController.boxartImage = cell?.imageView.image
-            self.navigationController?.pushViewController(viewController, animated: true)
+            DispatchQueue.main.async {
+                self.navigationController?.pushViewController(viewController, animated: true)
+
+            }
 
         }
         

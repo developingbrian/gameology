@@ -59,7 +59,7 @@ extension MyPhotoCell {
             let myGameImage = UIImage(data: image)
                 imageView.image = myGameImage
                 
-                print("image set")
+//                print("image set")
             
         }
         

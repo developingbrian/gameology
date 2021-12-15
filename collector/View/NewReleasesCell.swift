@@ -51,7 +51,7 @@ extension NewReleasesCell {
         
         if let boxartURL = game?.boxartFrontImage {
             let gameURL = baseURL.hd.rawValue + boxartURL
-            print("gameurl", gameURL)
+//            print("gameurl", gameURL)
             let url = URL(string: gameURL)!
             boxartImageView.setImageAnimated(imageUrl: url, placeholderImage: nil) {
             }
@@ -59,10 +59,10 @@ extension NewReleasesCell {
         
         if let screenshotURL = game?.screenshots?[0].imageID {
             let gameURL = baseURL.screenshotMedium.rawValue + screenshotURL + ".jpg"
-            print("gameurl", gameURL)
+//            print("gameurl", gameURL)
             let url = URL(string: gameURL)!
             imageView.setImageAnimated(imageUrl: url, placeholderImage: nil) {
-                print("new release image loaded")
+//                print("new release image loaded")
                 let blurredImage = self.imageView.image?.getImageWithBlur(blurAmount: 4)
                 self.shadowView.image = blurredImage
             }
@@ -70,10 +70,10 @@ extension NewReleasesCell {
         
         else if let boxartURL = game?.boxartFrontImage {
             let gameURL = baseURL.screenshotMedium.rawValue + boxartURL
-            print("gameurl", gameURL)
+//            print("gameurl", gameURL)
             let url = URL(string: gameURL)!
             imageView.setImageAnimated(imageUrl: url, placeholderImage: nil) {
-                print("new release image loaded")
+//                print("new release image loaded")
                 let blurredImage = self.imageView.image?.getImageWithBlur(blurAmount: 4)
                 self.shadowView.image = blurredImage
 //                game?.boxartImage = self.imageView.image
@@ -191,7 +191,7 @@ extension NewReleasesCell {
         imageView.addSubview(genreLabel)
         
         let height = (contentView.frame.height / 4)
-        print("height", height)
+//        print("height", height)
         NSLayoutConstraint.activate([
             container.topAnchor.constraint(equalTo: contentView.topAnchor),
             
