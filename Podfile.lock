@@ -1,0 +1,16 @@
+PODS:
+  - SOTabBar (1.1.3)
+
+DEPENDENCIES:
+  - SOTabBar
+
+SPEC REPOS:
+  trunk:
+    - SOTabBar
+
+SPEC CHECKSUMS:
+  SOTabBar: 27aea95bd6b39d1be3535c867a2cd3b5adc172e6
+
+PODFILE CHECKSUM: 8bb8ee4b4f73c99e432b729abe25ba89e0b12ccf
+
+COCOAPODS: 1.9.3
