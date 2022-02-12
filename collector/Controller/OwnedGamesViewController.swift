@@ -25,17 +25,12 @@ protocol SearchFilterDelegate {
     func updatePlatformsFilter(platformSelections: [String])
 }
 
-class OwnedGamesViewController: UIViewController, OwnedGameDelegate, ModalDelegate, AgeRangeDelegate, SearchFilterDelegate {
-
-
+class OwnedGamesViewController: UIViewController, ModalDelegate, AgeRangeDelegate, SearchFilterDelegate {
     
+    
+    @IBOutlet var collectionView: UICollectionView!
     @IBOutlet weak var filteredGameCountLbl: UILabel!
     @IBOutlet weak var totalGameCountLbl: UILabel!
-    
-  
-    
-    @IBOutlet weak var tableView: UITableView!
-    
     @IBOutlet weak var platformFilterImg: UIImageView!
     @IBOutlet weak var genreFilterImg: UIImageView!
     @IBOutlet weak var releaseDateFilterImg: UIImageView!
@@ -45,8 +40,12 @@ class OwnedGamesViewController: UIViewController, OwnedGameDelegate, ModalDelega
     @IBOutlet weak var gameLibraryImage: UIImageView!
     
     var fetchedResultsController : NSFetchedResultsController<NSFetchRequestResult>!
+   
+    var altLayout = true
     var sortDirection : ComparisonResult = .orderedAscending
     var sortBtn = UIButton()
+    var segueObject : GameObject?
+    let layoutButton = UIButton(type: .system)
     var numericGames : [SavedGames] = []
     var aGames : [SavedGames] = []
     var bGames : [SavedGames] = []
@@ -109,15 +108,12 @@ class OwnedGamesViewController: UIViewController, OwnedGameDelegate, ModalDelega
             
             for game in ownedGames {
                 
-                
                 let titleCleaned = removeLeadingArticle(fromString: game.title!)
-            
-//                print("titleCleaned is", titleCleaned)
                 
                 if titleCleaned.first.flatMap({ Int(String($0)) }) != nil {
                     numericGames.append(game)
                 }
-
+                
                 
                 if titleCleaned.hasPrefix("A") || titleCleaned.hasPrefix("a") {
                     aGames.append(game)
@@ -223,45 +219,15 @@ class OwnedGamesViewController: UIViewController, OwnedGameDelegate, ModalDelega
                     zGames.append(game)
                 }
                 
-                
-            
-                
             }
             
             sortGameArrays()
             
-//            numericGames = ownedGames.filter { $0.title?.first.flatMap { Int(String($0)) } != nil }
-//            aGames = ownedGames.filter { ($0.title?.hasPrefix("A"))! || ($0.title?.hasPrefix("a"))!  }
-//            bGames = ownedGames.filter { ($0.title?.hasPrefix("B"))! || ($0.title?.hasPrefix("b"))!  }
-//            cGames = ownedGames.filter { ($0.title?.hasPrefix("C"))! || ($0.title?.hasPrefix("c"))!  }
-//            dGames = ownedGames.filter { ($0.title?.hasPrefix("D"))! || ($0.title?.hasPrefix("d"))!  }
-//            eGames = ownedGames.filter { ($0.title?.hasPrefix("E"))! || ($0.title?.hasPrefix("e"))!  }
-//            fGames = ownedGames.filter { ($0.title?.hasPrefix("F"))! || ($0.title?.hasPrefix("f"))!  }
-//            gGames = ownedGames.filter { ($0.title?.hasPrefix("G"))! || ($0.title?.hasPrefix("g"))!  }
-//            hGames = ownedGames.filter { ($0.title?.hasPrefix("H"))! || ($0.title?.hasPrefix("h"))!  }
-//            iGames = ownedGames.filter { ($0.title?.hasPrefix("I"))! || ($0.title?.hasPrefix("i"))!  }
-//            jGames = ownedGames.filter { ($0.title?.hasPrefix("J"))! || ($0.title?.hasPrefix("j"))!  }
-//            kGames = ownedGames.filter { ($0.title?.hasPrefix("K"))! || ($0.title?.hasPrefix("k"))!  }
-//            lGames = ownedGames.filter { ($0.title?.hasPrefix("L"))! || ($0.title?.hasPrefix("l"))!  }
-//            mGames = ownedGames.filter { ($0.title?.hasPrefix("M"))! || ($0.title?.hasPrefix("m"))!  }
-//            nGames = ownedGames.filter { ($0.title?.hasPrefix("N"))! || ($0.title?.hasPrefix("n"))!  }
-//            oGames = ownedGames.filter { ($0.title?.hasPrefix("O"))! || ($0.title?.hasPrefix("o"))!  }
-//            pGames = ownedGames.filter { ($0.title?.hasPrefix("P"))! || ($0.title?.hasPrefix("p"))!  }
-//            qGames = ownedGames.filter { ($0.title?.hasPrefix("Q"))! || ($0.title?.hasPrefix("q"))!  }
-//            rGames = ownedGames.filter { ($0.title?.hasPrefix("R"))! || ($0.title?.hasPrefix("r"))!  }
-//            sGames = ownedGames.filter { ($0.title?.hasPrefix("S"))! || ($0.title?.hasPrefix("s"))!  }
-//            tGames = ownedGames.filter { ($0.title?.hasPrefix("T"))! || ($0.title?.hasPrefix("t"))!  }
-//            uGames = ownedGames.filter { ($0.title?.hasPrefix("U"))! || ($0.title?.hasPrefix("u"))!  }
-//            vGames = ownedGames.filter { ($0.title?.hasPrefix("V"))! || ($0.title?.hasPrefix("v"))!  }
-//            wGames = ownedGames.filter { ($0.title?.hasPrefix("W"))! || ($0.title?.hasPrefix("w"))!  }
-//            xGames = ownedGames.filter { ($0.title?.hasPrefix("X"))! || ($0.title?.hasPrefix("x"))!  }
-//            yGames = ownedGames.filter { ($0.title?.hasPrefix("Y"))! || ($0.title?.hasPrefix("y"))!  }
-//            zGames = ownedGames.filter { ($0.title?.hasPrefix("Z"))! || ($0.title?.hasPrefix("z"))!  }
         }
         
         
     }
-
+    
     var persistedGame : SavedGames?
     var indexPath: IndexPath?
     var selectedGameID: String?
@@ -283,80 +249,70 @@ class OwnedGamesViewController: UIViewController, OwnedGameDelegate, ModalDelega
     let search = UISearchController(searchResultsController: nil)
     let sectionTitles = "0ABCDEFGHIJKLMNOPQRSTUVWXYZ".map(String.init)
     var allGames : [SavedGames] = []
-    
-    
-
     var totalGameCount : Int {
         
         allGames = persistenceManager.fetchGame(SavedGames.self, byGameTitle: nil, platformID: nil, selectedGenres: nil, selectedPlatforms: nil, selectedDateRange: nil)
         return allGames.count
     }
     
-    override func viewWillDisappear(_ animated: Bool) {
-        clearImageCacheFromMemory()
-    }
-    
-    override func didReceiveMemoryWarning() {
-        clearImageCacheFromMemory()
-    }
-    
-    func clearImageCacheFromMemory() {
-        let imageCache = SDImageCache.shared
-        imageCache.clearMemory()
-    }
-    
     
     override func viewDidLoad() {
         super.viewDidLoad()
-//        print("platformID \(platformID)")
-        
-        
+        altLayout = UserDefaults.standard.bool(forKey: "ownedAltLayout")
+
         setAppearance()
-//        fetchData()
         setNavigationLogoImage()
         configureNavigationController()
         createSearchController()
-
+        
+        let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(tap))
+        tapGestureRecognizer.cancelsTouchesInView = false
+        view.addGestureRecognizer(tapGestureRecognizer)
+        
+        collectionView.register(VCHeaderView.self, forSupplementaryViewOfKind: ViewController.sectionHeaderElementKind, withReuseIdentifier: VCHeaderView.reuseIdentifier)
+        collectionView.register(ViewControllerCVTableCell.self  , forCellWithReuseIdentifier: ViewControllerCVTableCell.cellIdentifier)
+        collectionView.register(ViewControllerCVCell.self, forCellWithReuseIdentifier: ViewControllerCVCell.cellIdentifier)
+        collectionView.delegate = self
+        collectionView.dataSource = self
+        collectionView.collectionViewLayout = setupCollectionViewLayout()
+        
+        
         if totalGameCount < 1 {
             
             noGamesInLibraryView.isHidden = false
             noGamesInLibraryView.backgroundColor = .red
             toggleNavigationControllerItems(isGameLibraryEmpty: true)
-
+            
         } else {
             toggleNavigationControllerItems(isGameLibraryEmpty: false)
-
+            
             noGamesInLibraryView.isHidden = true
         }
-
+        
         let entityName = String(describing: SavedGames.self)
         let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: entityName)
         fetchRequest.sortDescriptors = [
-        NSSortDescriptor(key: "title", ascending: true)
+            NSSortDescriptor(key: "title", ascending: true)
         ]
         fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: persistenceManager.context, sectionNameKeyPath: nil, cacheName: nil)
         fetchedResultsController.delegate = self
-        tableView.dataSource = self
-        tableView.delegate = self
         let lightBlue = UIColorFromRGB(0x2B95CE)
-        tableView.sectionIndexColor = lightBlue
-        
         let searchText = search.searchBar.text
         
         if searchText == "" {
             reloadData(byGameTitle: nil, platformID: nil, selectedGenres: genreSelections, selectedPlatforms: platformsToFilter, selectedDateRange: dateSelections)
         } else {
             reloadData(byGameTitle: searchText, platformID: nil, selectedGenres: genreSelections, selectedPlatforms: platformsToFilter, selectedDateRange: dateSelections)
-
+            
         }
-        self.tableView.reloadData()
+        self.collectionView.reloadData()
     }
     
     
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-//        print("filterSelects \(genreSelections)")
+        
         setAppearance()
         let searchText = search.searchBar.text
         
@@ -364,40 +320,34 @@ class OwnedGamesViewController: UIViewController, OwnedGameDelegate, ModalDelega
             reloadData(byGameTitle: nil, platformID: nil, selectedGenres: genreSelections, selectedPlatforms: platformsToFilter, selectedDateRange: dateSelections)
         } else {
             reloadData(byGameTitle: searchText, platformID: nil, selectedGenres: genreSelections, selectedPlatforms: platformsToFilter, selectedDateRange: dateSelections)
-
+            
         }
-        //        fetchData()
+        
         if totalGameCount < 1 {
-
+            
             noGamesInLibraryView.isHidden = false
-
+            
             toggleNavigationControllerItems(isGameLibraryEmpty: true)
-
+            
         } else {
             toggleNavigationControllerItems(isGameLibraryEmpty: false)
-
+            
             noGamesInLibraryView.isHidden = true
-          
+            
         }
-//        print(platformID)
-//        print(traitCollection.userInterfaceStyle.rawValue)
         
         setFilterIndicators()
-//        setSortLabels()
         filteredGameCountLbl.text = "\(ownedGames.count)"
         totalGameCountLbl.text = "\(totalGameCount)"
-
-        self.tableView.reloadData()
-//        print("tableview reloaded")
+        self.collectionView.reloadData()
+        
     }
-    
-    
-    
     
     override func viewDidAppear(_ animated: Bool) {
         self.tabBarController?.tabBar.isHidden = false
-//        tableView.reloadData()
+        
     }
+    
     
     func reloadData(byGameTitle: String?, platformID: Int?, selectedGenres: [String]?, selectedPlatforms: [Int]?, selectedDateRange: [Int]?) {
         var filterPredicate : NSPredicate?
@@ -409,7 +359,7 @@ class OwnedGamesViewController: UIViewController, OwnedGameDelegate, ModalDelega
         var endYear = 0
         
         if let platform = selectedPlatforms{
-        platforms = platform
+            platforms = platform
         }
         if let genre = selectedGenres {
             genres = genre
@@ -417,7 +367,7 @@ class OwnedGamesViewController: UIViewController, OwnedGameDelegate, ModalDelega
         
         if let date = selectedDateRange {
             dates = date
-
+            
         }
         if dates.count > 0 {
             startYear = dates.first!
@@ -431,116 +381,116 @@ class OwnedGamesViewController: UIViewController, OwnedGameDelegate, ModalDelega
         
         
         switch (dates.isEmpty, platforms.isEmpty, genres.isEmpty, byGameTitle == nil) {
+            
+        case (true, true, true, true):
+            // all arrays are empty so we don't filter anything and return all SavedGame objects
+
+            filterPredicate = NSPredicate(value: true)
+            
+        case (true ,true, false, true):
+            // only filter genres
+
+            
+            filterPredicate = NSPredicate(format: "SUBQUERY(%K, $genre, $genre.name IN %@).@count > 0", #keyPath(SavedGames.genreType), genres)
+            
+        case (true, false, true, true):
+            // only filter platforms
+
+            
+            filterPredicate = NSPredicate(format: "%K in %@", argumentArray: [#keyPath(SavedGames.platformID), platforms])
+            
+        case (true, false, false, true):
+            // filter both genres and platforms
+
+            
+            filterPredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [
+                NSPredicate(format: "SUBQUERY(%K, $genre, $genre.name IN %@).@count > 0", #keyPath(SavedGames.genreType), genres),
+                NSPredicate(format: "%K IN %@", argumentArray: [#keyPath(SavedGames.platformID), platforms])
+            ])
+            
+            
+        case (true, true, true, false):
+            //Filtering by name only
+            filterPredicate = NSPredicate(format: "%K CONTAINS [c] %@", argumentArray: [#keyPath(SavedGames.title), title])
+            
+            
+        case (true, true, false, false):
+            //filtering by name and genre
+            filterPredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [
+                NSPredicate(format: "%K CONTAINS [c] %@", argumentArray: [#keyPath(SavedGames.title), title]),
+                NSPredicate(format: "SUBQUERY(%K, $genre, $genre.name IN %@).@count > 0", #keyPath(SavedGames.genreType), genres)
+            ])
+            
+        case (true, false, true, false):
+            //filtering by name and platform
+            filterPredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [
+                NSPredicate(format: "%K CONTAINS [c] %@", argumentArray: [#keyPath(SavedGames.title), title]),
+                NSPredicate(format: "%K in %@", argumentArray: [#keyPath(SavedGames.platformID), platforms])
+            ])
+            
+        case (true, false, false, false):
+            //filtering by name, genre, and platform
+            
+            filterPredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [
+                NSPredicate(format: "%K CONTAINS [c] %@", argumentArray: [#keyPath(SavedGames.title), title]),
+                NSPredicate(format: "SUBQUERY(%K, $genre, $genre.name IN %@).@count > 0", #keyPath(SavedGames.genreType), genres),
+                NSPredicate(format: "%K IN %@", argumentArray: [#keyPath(SavedGames.platformID), platforms])
                 
-                case (true, true, true, true):
-                    // all arrays are empty so we don't filter anything and return all SavedGame objects
-                    print("all arrays are empty so we don't filter anything and return all SavedGame objects")
-                    filterPredicate = NSPredicate(value: true)
-                    
-                case (true ,true, false, true):
-                    // only filter genres
-                    print("only filter genres")
-                    
-                    filterPredicate = NSPredicate(format: "SUBQUERY(%K, $genre, $genre.name IN %@).@count > 0", #keyPath(SavedGames.genreType), genres)
-
-                case (true, false, true, true):
-                    // only filter platforms
-                    print("only filter platforms")
-                    
-                    filterPredicate = NSPredicate(format: "%K in %@", argumentArray: [#keyPath(SavedGames.platformID), platforms])
-                    
-                case (true, false, false, true):
-                    // filter both genres and platforms
-                    print("filter both genres and platforms")
-                    
-                    filterPredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [
-                        NSPredicate(format: "SUBQUERY(%K, $genre, $genre.name IN %@).@count > 0", #keyPath(SavedGames.genreType), genres),
-                        NSPredicate(format: "%K IN %@", argumentArray: [#keyPath(SavedGames.platformID), platforms])
-                    ])
-                    
-                    
-                case (true, true, true, false):
-                    //Filtering by name only
-                    filterPredicate = NSPredicate(format: "%K CONTAINS [c] %@", argumentArray: [#keyPath(SavedGames.title), title])
-                    
-                    
-                case (true, true, false, false):
-                    //filtering by name and genre
-                    filterPredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [
-                        NSPredicate(format: "%K CONTAINS [c] %@", argumentArray: [#keyPath(SavedGames.title), title]),
-                        NSPredicate(format: "SUBQUERY(%K, $genre, $genre.name IN %@).@count > 0", #keyPath(SavedGames.genreType), genres)
-                    ])
-                    
-                case (true, false, true, false):
-                    //filtering by name and platform
-                    filterPredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [
-                        NSPredicate(format: "%K CONTAINS [c] %@", argumentArray: [#keyPath(SavedGames.title), title]),
-                        NSPredicate(format: "%K in %@", argumentArray: [#keyPath(SavedGames.platformID), platforms])
-                    ])
-                    
-                case (true, false, false, false):
-                    //filtering by name, genre, and platform
-        
-                    filterPredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [
-                        NSPredicate(format: "%K CONTAINS [c] %@", argumentArray: [#keyPath(SavedGames.title), title]),
-                        NSPredicate(format: "SUBQUERY(%K, $genre, $genre.name IN %@).@count > 0", #keyPath(SavedGames.genreType), genres),
-                        NSPredicate(format: "%K IN %@", argumentArray: [#keyPath(SavedGames.platformID), platforms])
-                        
-                    ])
-            case (false, true, true, true):
-                //filtering only by date range
-                filterPredicate = NSPredicate(format: "(releaseYear >= %i) AND (releaseYear <= %i)", startYear, endYear)
-            case (false, false, true, true):
+            ])
+        case (false, true, true, true):
+            //filtering only by date range
+            filterPredicate = NSPredicate(format: "(releaseYear >= %i) AND (releaseYear <= %i)", startYear, endYear)
+        case (false, false, true, true):
             //filtering by date range and platforms
-                filterPredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [
-                    NSPredicate(format: "(releaseYear >= %i) AND (releaseYear <= %i)", startYear, endYear),
-                    NSPredicate(format: "%K in %@", argumentArray: [#keyPath(SavedGames.platformID), platforms])
-                ])
-                    
-            case (false, false, false, true):
+            filterPredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [
+                NSPredicate(format: "(releaseYear >= %i) AND (releaseYear <= %i)", startYear, endYear),
+                NSPredicate(format: "%K in %@", argumentArray: [#keyPath(SavedGames.platformID), platforms])
+            ])
+            
+        case (false, false, false, true):
             //filtering by date range, platforms, and genres
-                filterPredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [
-                    NSPredicate(format: "(releaseYear >= %i) AND (releaseYear <= %i)", startYear, endYear),
-                    NSPredicate(format: "%K in %@", argumentArray: [#keyPath(SavedGames.platformID), platforms]),
-                    NSPredicate(format: "SUBQUERY(%K, $genre, $genre.name IN %@).@count > 0", #keyPath(SavedGames.genreType), genres)
-                ])
-            case (false, false, false, false):
+            filterPredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [
+                NSPredicate(format: "(releaseYear >= %i) AND (releaseYear <= %i)", startYear, endYear),
+                NSPredicate(format: "%K in %@", argumentArray: [#keyPath(SavedGames.platformID), platforms]),
+                NSPredicate(format: "SUBQUERY(%K, $genre, $genre.name IN %@).@count > 0", #keyPath(SavedGames.genreType), genres)
+            ])
+        case (false, false, false, false):
             //filtering by date range, platforms, genres, and name
-                filterPredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [
-                    NSPredicate(format: "(releaseYear >= %i) AND (releaseYear <= %i)", startYear, endYear),
-                    NSPredicate(format: "%K in %@", argumentArray: [#keyPath(SavedGames.platformID), platforms]),
-                    NSPredicate(format: "SUBQUERY(%K, $genre, $genre.name IN %@).@count > 0", #keyPath(SavedGames.genreType), genres),
-                    NSPredicate(format: "%K CONTAINS [c] %@", argumentArray: [#keyPath(SavedGames.title), title])
-                ])
-            case (false, true, false, false):
+            filterPredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [
+                NSPredicate(format: "(releaseYear >= %i) AND (releaseYear <= %i)", startYear, endYear),
+                NSPredicate(format: "%K in %@", argumentArray: [#keyPath(SavedGames.platformID), platforms]),
+                NSPredicate(format: "SUBQUERY(%K, $genre, $genre.name IN %@).@count > 0", #keyPath(SavedGames.genreType), genres),
+                NSPredicate(format: "%K CONTAINS [c] %@", argumentArray: [#keyPath(SavedGames.title), title])
+            ])
+        case (false, true, false, false):
             //filtering by date range, genres, and name
-                filterPredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [
-                    NSPredicate(format: "(releaseYear >= %i) AND (releaseYear <= %i)", startYear, endYear),
-                    NSPredicate(format: "SUBQUERY(%K, $genre, $genre.name IN %@).@count > 0", #keyPath(SavedGames.genreType), genres),
-                    NSPredicate(format: "%K CONTAINS [c] %@", argumentArray: [#keyPath(SavedGames.title), title])
-                ])
-        
-            case (false, true, false, true):
+            filterPredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [
+                NSPredicate(format: "(releaseYear >= %i) AND (releaseYear <= %i)", startYear, endYear),
+                NSPredicate(format: "SUBQUERY(%K, $genre, $genre.name IN %@).@count > 0", #keyPath(SavedGames.genreType), genres),
+                NSPredicate(format: "%K CONTAINS [c] %@", argumentArray: [#keyPath(SavedGames.title), title])
+            ])
+            
+        case (false, true, false, true):
             //filtering by date range and genres
-                filterPredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [
-                    NSPredicate(format: "(releaseYear >= %i) AND (releaseYear <= %i)", startYear, endYear),
-                    NSPredicate(format: "SUBQUERY(%K, $genre, $genre.name IN %@).@count > 0", #keyPath(SavedGames.genreType), genres)
-                ])
-            case (false, true, true, false):
+            filterPredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [
+                NSPredicate(format: "(releaseYear >= %i) AND (releaseYear <= %i)", startYear, endYear),
+                NSPredicate(format: "SUBQUERY(%K, $genre, $genre.name IN %@).@count > 0", #keyPath(SavedGames.genreType), genres)
+            ])
+        case (false, true, true, false):
             //filtering by date range and name
-                filterPredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [
-                    NSPredicate(format: "(releaseYear >= %i) AND (releaseYear <= %i)", startYear, endYear),
-                    NSPredicate(format: "%K CONTAINS [c] %@", argumentArray: [#keyPath(SavedGames.title), title])
-                ])
-            case (false, false, true, false):
+            filterPredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [
+                NSPredicate(format: "(releaseYear >= %i) AND (releaseYear <= %i)", startYear, endYear),
+                NSPredicate(format: "%K CONTAINS [c] %@", argumentArray: [#keyPath(SavedGames.title), title])
+            ])
+        case (false, false, true, false):
             //filtering by date range, platforms, and name
-                filterPredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [
-                    NSPredicate(format: "(releaseYear >= %i) AND (releaseYear <= %i)", startYear, endYear),
-                    NSPredicate(format: "%K in %@", argumentArray: [#keyPath(SavedGames.platformID), platforms]),
-                    NSPredicate(format: "%K CONTAINS [c] %@", argumentArray: [#keyPath(SavedGames.title), title])
-                ])
-       
-
+            filterPredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [
+                NSPredicate(format: "(releaseYear >= %i) AND (releaseYear <= %i)", startYear, endYear),
+                NSPredicate(format: "%K in %@", argumentArray: [#keyPath(SavedGames.platformID), platforms]),
+                NSPredicate(format: "%K CONTAINS [c] %@", argumentArray: [#keyPath(SavedGames.title), title])
+            ])
+            
+            
         }
         
         
@@ -556,56 +506,51 @@ class OwnedGamesViewController: UIViewController, OwnedGameDelegate, ModalDelega
         
         
         ownedGames = fetchedResultsController.fetchedObjects as! [SavedGames]
-   
-        tableView.reloadData()
+        collectionView.reloadData()
     }
     
-
     
-    func removeFromLibrary(index: IndexPath) {
-//        print("remove from library")
-        
-        
-            
-            let cancel = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
-
-            let deleteConfirmation = UIAlertAction(title: "Confirm", style: .default) { (action) in
-                
-         
-                self.deleteGameFromCoreData(index: index)
-                self.ownedGames = (self.persistenceManager.fetchGame(SavedGames.self, byGameTitle: nil, platformID: nil, selectedGenres: self.genreSelections, selectedPlatforms: self.platformsToFilter, selectedDateRange: self.dateSelections))
-                
-                if self.ownedGames.count < 1 {
-                    self.toggleNavigationControllerItems(isGameLibraryEmpty: true)
-
-                    self.noGamesInLibraryView.isHidden = false
-
-                } else {
-                    self.toggleNavigationControllerItems(isGameLibraryEmpty: false)
-                    self.noGamesInLibraryView.isHidden = true
-                }
-                self.filteredGameCountLbl.text = "\(self.ownedGames.count)"
-                self.totalGameCountLbl.text = "\(self.totalGameCount)"
-//                print("owned games count",self.ownedGames.count)
-                self.tableView.reloadData()
-            }
-            
-            let alert = UIAlertController(title: "Are you sure you wish to delete this game?", message: "Deleting a game is permanent.  Any user saved pictures and stats will not be able to be restored.", preferredStyle: .alert)
-            
     
-            alert.addAction(deleteConfirmation)
-            alert.addAction(cancel)
-            self.present(alert, animated: true) {
-                
-            }
-
-        
-    }
-
-
+//    func removeFromLibrary(index: IndexPath) {
+//
+//        let cancel = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
+//
+//        let deleteConfirmation = UIAlertAction(title: "Confirm", style: .default) { (action) in
+//
+//
+//            self.deleteGameFromCoreData(index: index)
+//            self.ownedGames = (self.persistenceManager.fetchGame(SavedGames.self, byGameTitle: nil, platformID: nil, selectedGenres: self.genreSelections, selectedPlatforms: self.platformsToFilter, selectedDateRange: self.dateSelections))
+//
+//            if self.ownedGames.count < 1 {
+//                self.toggleNavigationControllerItems(isGameLibraryEmpty: true)
+//
+//                self.noGamesInLibraryView.isHidden = false
+//
+//            } else {
+//                self.toggleNavigationControllerItems(isGameLibraryEmpty: false)
+//                self.noGamesInLibraryView.isHidden = true
+//            }
+//            self.filteredGameCountLbl.text = "\(self.ownedGames.count)"
+//            self.totalGameCountLbl.text = "\(self.totalGameCount)"
+//            self.collectionView.reloadData()
+//        }
+//
+//        let alert = UIAlertController(title: "Are you sure you wish to delete this game?", message: "Deleting a game is permanent.  Any user saved pictures and stats will not be able to be restored.", preferredStyle: .alert)
+//
+//
+//        alert.addAction(deleteConfirmation)
+//        alert.addAction(cancel)
+//        self.present(alert, animated: true) {
+//
+//        }
+//
+//
+//    }
+    
+    
     
     func fetchPlatformObject(platformID: Int) -> PlatformObject {
-
+        
         var platform = PlatformObject(id: 0, abbreviation: nil, alternativeName: nil, category: nil, createdAt: nil, generation: nil, name: "", platformLogo: nil, platformFamily: nil, slug: nil, updatedAt: nil, url: nil, versions: nil, checksum: nil)
         
         let platforms = network.platforms
@@ -614,13 +559,29 @@ class OwnedGamesViewController: UIViewController, OwnedGameDelegate, ModalDelega
             
             if platformObject.id == platformID {
                 
-                 platform = PlatformObject(id: platformObject.id, abbreviation: platformObject.abbreviation, alternativeName: platformObject.alternativeName, category: platformObject.category, createdAt: platformObject.createdAt, generation: platformObject.generation, name: platformObject.name, platformLogo: nil, platformFamily: platformObject.platformFamily, slug: platformObject.slug, updatedAt: platformObject.updatedAt, url: platformObject.url, versions: nil, checksum: platformObject.checksum)
-               
+                platform = PlatformObject(id: platformObject.id, abbreviation: platformObject.abbreviation, alternativeName: platformObject.alternativeName, category: platformObject.category, createdAt: platformObject.createdAt, generation: platformObject.generation, name: platformObject.name, platformLogo: nil, platformFamily: platformObject.platformFamily, slug: platformObject.slug, updatedAt: platformObject.updatedAt, url: platformObject.url, versions: nil, checksum: platformObject.checksum)
+                
             }
         }
         
         return platform
         
+    }
+    
+    
+    @objc func setLayout() {
+        if altLayout == false {
+            UserDefaults.standard.set(true, forKey: "ownedAltLayout")
+        } else {
+            UserDefaults.standard.set(false, forKey: "ownedAltLayout")
+        }
+        
+        
+        altLayout = UserDefaults.standard.bool(forKey: "ownedAltLayout")
+        
+        layoutButton.setImage(altLayout == true ? UIImage(systemName: "rectangle.grid.1x2") : UIImage(systemName: "rectangle.grid.2x2"), for: .normal)
+        collectionView.reloadData()
+        collectionView.setCollectionViewLayout(setupCollectionViewLayout(), animated: false)
     }
     
     func makeSortButton() -> UIButton {
@@ -630,176 +591,71 @@ class OwnedGamesViewController: UIViewController, OwnedGameDelegate, ModalDelega
         backButton.tintColor = lightBlue
         backButton.setTitle("Sort", for: .normal)
         backButton.titleLabel?.font = UIFont.boldSystemFont(ofSize: 15)
-
+        
         backButton.setTitleColor(lightBlue, for: .normal)
         backButton.addTarget(self, action: #selector(self.sortButtonPressed), for: .touchUpInside)
         return backButton
     }
     
     @objc func sortButtonPressed() {
-//        print("Sort Button Success")
         
-        
-       
-
-                if sortDirection == .orderedAscending {
-//                    print("should change z to a")
-                    sortDirection = .orderedDescending
-                    self.sortBtn.setImage(UIImage(named:"ztoa3")?.sd_resizedImage(with: CGSize(width: 20, height: 20), scaleMode: .aspectFit), for: .normal)
-   
-                } else {
-//                    print("should change a to z")
-
-                    
-                    sortDirection = .orderedAscending
-                                self.sortBtn.setImage(UIImage(named:"atoz3")?.sd_resizedImage(with: CGSize(width: 20, height: 20), scaleMode: .aspectFit), for: .normal)
-                                
-                }
+        if sortDirection == .orderedAscending {
+            sortDirection = .orderedDescending
+            self.sortBtn.setImage(UIImage(named:"ztoa3")?.sd_resizedImage(with: CGSize(width: 20, height: 20), scaleMode: .aspectFit), for: .normal)
+            
+        } else {
+            
+            sortDirection = .orderedAscending
+            self.sortBtn.setImage(UIImage(named:"atoz3")?.sd_resizedImage(with: CGSize(width: 20, height: 20), scaleMode: .aspectFit), for: .normal)
+            
+        }
         let temp = self.ownedGames
         self.ownedGames.removeAll()
         self.ownedGames = temp
-//                self.gameArray = network.gameArray
-                
-                tableView.reloadData()
+        collectionView.reloadData()
+    }
+    
+    @objc func tap() {
+        search.searchBar.endEditing(true)
     }
     
     @objc func backButtonPressed() -> Void {
-//        print("back button pressed")
-
+        
         self.navigationController?.popViewController(animated: false)
-
+        
     }
-    
-//    @objc func selectSort() -> Void {
-//        print("sort button pressed")
-//        switch sortSelection {
-//
-//        case SortSection.title.rawValue:
-//            if asecending {
-//                ownedGames.sort(by: {$0.title! > $1.title!} )
-//                self.asecending = false
-//                print("Sorting is asecending = \(self.asecending)")
-//                setSortLabels()
-//                tableView.reloadData()
-//                }
-//             else {
-//
-//        ownedGames.sort(by: {$0.title! < $1.title!} )
-//                self.asecending = true
-//                print("Sorting is asecending = \(self.asecending)")
-//                setSortLabels()
-//
-//                tableView.reloadData()
-//            }
-//
-//        case SortSection.platformName.rawValue:
-//            if asecending {
-//                ownedGames.sort(by: {$0.platformName! > $1.platformName!} )
-//                self.asecending = false
-//                print("Sorting is asecending = \(self.asecending)")
-//                setSortLabels()
-//
-//                tableView.reloadData()
-//                }
-//             else {
-//
-//        ownedGames.sort(by: {$0.platformName! < $1.platformName!} )
-//                self.asecending = true
-//                print("Sorting is asecending = \(self.asecending)")
-//                setSortLabels()
-//
-//                tableView.reloadData()
-//            }
-//
-//        case SortSection.releaseDate.rawValue:
-//            if asecending {
-//                ownedGames.sort(by: {$0.releaseYear > $1.releaseYear} )
-//                self.asecending = false
-//                print("Sorting is asecending = \(self.asecending)")
-//                setSortLabels()
-//
-//                tableView.reloadData()
-//                }
-//             else {
-//
-//        ownedGames.sort(by: {$0.releaseYear < $1.releaseYear} )
-//                self.asecending = true
-//                print("Sorting is asecending = \(self.asecending)")
-//                setSortLabels()
-//
-//                tableView.reloadData()
-//            }
-//
-//        case SortSection.genre.rawValue:
-//            if asecending {
-//                ownedGames.sort(by: {$0.genre! > $1.genre!} )
-//                self.asecending = false
-//                print("Sorting is asecending = \(self.asecending)")
-//                setSortLabels()
-//
-//                tableView.reloadData()
-//                }
-//             else {
-//
-//        ownedGames.sort(by: {$0.genre! < $1.genre!} )
-//                self.asecending = true
-//                print("Sorting is asecending = \(self.asecending)")
-//                setSortLabels()
-//
-//                tableView.reloadData()
-//            }
-//        default:
-//            print("invalid selection")
-//
-//        }
-//
-//        configureNavigationController()
-//
-//
-//    }
-    
-
-    
-
     
     
     func changeDateRange(dateRange: [Int], platformID: Int?) {
-//        print("changeDateRange called")
+        
         self.dateSelections = dateRange
         self.ownedGames = persistenceManager.fetchGame(SavedGames.self, byGameTitle: nil, platformID: nil, selectedGenres: genreSelections, selectedPlatforms: platformsToFilter, selectedDateRange: dateRange)
-            self.ownedGames = persistenceManager.fetchFilteredByReleaseDate(SavedGames.self, platformID: nil, dateRange: dateRange)
+        self.ownedGames = persistenceManager.fetchFilteredByReleaseDate(SavedGames.self, platformID: nil, dateRange: dateRange)
         self.setFilterIndicators()
         filteredGameCountLbl.text = "\(ownedGames.count)"
-
-        tableView.reloadData()
-//        print("changeDateRange called")
-
+        
+        collectionView.reloadData()
+        
     }
     
     func changeValue(value: [String], platformID: Int?){
         self.genreSelections = value
         
-//        print("genreSelections", genreSelections)
-//        print("platformsToFilter", platformsToFilter)
-//        print("changeValue called through protocal")
-
-
         let searchText = search.searchBar.text
         if searchText == "" {
-        self.ownedGames = persistenceManager.fetchGame(SavedGames.self, byGameTitle: nil, platformID: nil, selectedGenres: genreSelections, selectedPlatforms: platformsToFilter, selectedDateRange: dateSelections)
+            self.ownedGames = persistenceManager.fetchGame(SavedGames.self, byGameTitle: nil, platformID: nil, selectedGenres: genreSelections, selectedPlatforms: platformsToFilter, selectedDateRange: dateSelections)
         }
         else {
             
             self.ownedGames = persistenceManager.fetchGame(SavedGames.self, byGameTitle: searchText, platformID: nil, selectedGenres: genreSelections, selectedPlatforms: platformsToFilter, selectedDateRange: dateSelections)
-
+            
         }
- 
+        
         self.setFilterIndicators()
         filteredGameCountLbl.text = "\(ownedGames.count)"
-
-        tableView.reloadData()
-
-//        print("modal delegate filter selections \(self.genreSelections)")
+        
+        collectionView.reloadData()
+        
     }
     
     
@@ -807,31 +663,27 @@ class OwnedGamesViewController: UIViewController, OwnedGameDelegate, ModalDelega
         
         let searchText = search.searchBar.text
         if searchText == "" {
-        self.ownedGames = (self.persistenceManager.fetchGame(SavedGames.self, byGameTitle: nil, platformID: nil, selectedGenres: genreSelections, selectedPlatforms: platformsToFilter, selectedDateRange: dateSelections))
+            self.ownedGames = (self.persistenceManager.fetchGame(SavedGames.self, byGameTitle: nil, platformID: nil, selectedGenres: genreSelections, selectedPlatforms: platformsToFilter, selectedDateRange: dateSelections))
         } else {
             self.ownedGames = (self.persistenceManager.fetchGame(SavedGames.self, byGameTitle: searchText, platformID: nil, selectedGenres: genreSelections, selectedPlatforms: platformsToFilter, selectedDateRange: dateSelections))
-
+            
         }
         filteredGameCountLbl.text = "\(ownedGames.count)"
-
         
-        self.tableView.reloadData()
-//        gamesInPlatformLbl.text = "Total Owned Games"
+        self.collectionView.reloadData()
     }
     
     
     func createGameObjectFromCoreData(persistedObject: SavedGames) -> GameObject {
-//        print("persisted object \(persistedObject)")
+        
         var screenshots : [ImageInfo] = []
         
         if let persistedScreenshots = persistedObject.screenshotImageIDs {
-        for screenshot in persistedScreenshots {
-            let imageInfo = ImageInfo(id: nil, alphaChannel: nil, animated: nil, game: nil, height: nil, imageID: screenshot, url: nil, width: nil, checksum: nil)
-
-//            print("should be adding imageinfo")
-//            print(imageInfo)
-            screenshots.append(imageInfo)
-        }
+            for screenshot in persistedScreenshots {
+                let imageInfo = ImageInfo(id: nil, alphaChannel: nil, animated: nil, game: nil, height: nil, imageID: screenshot, url: nil, width: nil, checksum: nil)
+                
+                screenshots.append(imageInfo)
+            }
         }
         
         
@@ -863,7 +715,7 @@ class OwnedGamesViewController: UIViewController, OwnedGameDelegate, ModalDelega
             boxPhotos: nil,
             totalRating: Int(persistedObject.totalRating),
             userRating: Int(persistedObject.userRating)
-            )
+        )
         
         return game
         
@@ -881,24 +733,21 @@ class OwnedGamesViewController: UIViewController, OwnedGameDelegate, ModalDelega
         }
         let searchText = search.searchBar.text
         platformsToFilter = platformArray
-//        print("filtering platforms", platformsToFilter)
+        
         if searchText == "" {
-//            print("genreSelections", genreSelections)
-//            print("platformsToFilter", platformsToFilter)
+            
             self.ownedGames = self.persistenceManager.fetchGame(SavedGames.self, byGameTitle: nil, platformID: nil, selectedGenres: genreSelections, selectedPlatforms: platformsToFilter, selectedDateRange: dateSelections)
         } else {
-//            print("genreSelections", genreSelections)
-//            print("platformsToFilter", platformsToFilter)
+            
             self.ownedGames = self.persistenceManager.fetchGame(SavedGames.self, byGameTitle: searchText, platformID: nil, selectedGenres: genreSelections, selectedPlatforms: platformsToFilter, selectedDateRange: dateSelections)
         }
         self.setFilterIndicators()
         filteredGameCountLbl.text = "\(ownedGames.count)"
+        
+        collectionView.reloadData()
 
-        tableView.reloadData()
-        
-        
     }
-
+    
     func convertPlatformIDToName(PlatformID: Int) -> String {
         let platforms = network.platforms
         var platformName = ""
@@ -914,7 +763,7 @@ class OwnedGamesViewController: UIViewController, OwnedGameDelegate, ModalDelega
     
     
     func convertPlatformNameToID(platformName: String) -> Int {
-//        print("platformName is", platformName)
+        
         let allPlatforms = network.platforms
         var platformID = 0
         for platform in allPlatforms {
@@ -924,8 +773,8 @@ class OwnedGamesViewController: UIViewController, OwnedGameDelegate, ModalDelega
             }
             
         }
-//        print("platformID is", platformID)
-      return platformID
+        
+        return platformID
     }
     
     
@@ -934,7 +783,7 @@ class OwnedGamesViewController: UIViewController, OwnedGameDelegate, ModalDelega
         
         let defaults = UserDefaults.standard
         let appearanceSelection = defaults.integer(forKey: "appearanceSelection")
-
+        
         
         if appearanceSelection == 0 {
             self.navigationController?.overrideUserInterfaceStyle = .unspecified
@@ -944,34 +793,34 @@ class OwnedGamesViewController: UIViewController, OwnedGameDelegate, ModalDelega
             overrideUserInterfaceStyle = .light
             self.navigationController?.overrideUserInterfaceStyle = .light
             self.tabBarController?.overrideUserInterfaceStyle = .light
-
-
+            
+            
         } else {
             overrideUserInterfaceStyle = .dark
             self.navigationController?.overrideUserInterfaceStyle = .dark
             self.tabBarController?.overrideUserInterfaceStyle = .dark
-
+            
         }
         
         if traitCollection.userInterfaceStyle == .light {
             let lightGray = UIColor(red: 246/255, green: 246/255, blue: 246/255, alpha: 1)
-            tableView.backgroundColor = lightGray
+            collectionView.backgroundColor = lightGray
             view.backgroundColor = lightGray
             noGamesInLibraryView.backgroundColor = lightGray
             gameLibraryImage.image = UIImage(named: "gamelibrarynew")
             
             navigationController?.view.backgroundColor = .white
-
-
+            
+            
         } else if traitCollection.userInterfaceStyle == .dark {
             let darkGray = UIColor(red: (18/255), green: (18/255), blue: (18/255), alpha: 1)
-            tableView.backgroundColor = darkGray
+            collectionView.backgroundColor = darkGray
             view.backgroundColor = darkGray
             noGamesInLibraryView.backgroundColor = darkGray
             gameLibraryImage.image = UIImage(named: "gamelibraryinversenew")
             navigationController?.view.backgroundColor = .black
-
-
+            
+            
         }
     }
     
@@ -1014,7 +863,7 @@ class OwnedGamesViewController: UIViewController, OwnedGameDelegate, ModalDelega
     
     func configureNavigationController() {
         
- 
+        
         if let filterViewController = UIStoryboard(
             name: "Main",
             bundle: nil).instantiateViewController(withIdentifier: "FilterVC") as? FilterVC {
@@ -1033,9 +882,9 @@ class OwnedGamesViewController: UIViewController, OwnedGameDelegate, ModalDelega
             print("Can't load VC. Check name")
         }
         
-
         
-  
+        
+        
         
         let firstAction = UIAction(
             title: "Remove All Filters",
@@ -1049,15 +898,15 @@ class OwnedGamesViewController: UIViewController, OwnedGameDelegate, ModalDelega
             self?.dateSelections.removeAll()
             let searchText = self?.search.searchBar.text
             if searchText == "" {
-            self?.ownedGames = (self?.persistenceManager.fetchGame(SavedGames.self, byGameTitle: nil, platformID: nil, selectedGenres: nil, selectedPlatforms: nil, selectedDateRange: nil))!
+                self?.ownedGames = (self?.persistenceManager.fetchGame(SavedGames.self, byGameTitle: nil, platformID: nil, selectedGenres: nil, selectedPlatforms: nil, selectedDateRange: nil))!
             } else {
                 self?.ownedGames = (self?.persistenceManager.fetchGame(SavedGames.self, byGameTitle: searchText, platformID: nil, selectedGenres: nil, selectedPlatforms: nil, selectedDateRange: nil))!
-
+                
             }
             self?.setFilterIndicators()
             self?.filteredGameCountLbl.text = "\(self!.ownedGames.count)"
-
-            self?.tableView.reloadData()
+            
+            self?.collectionView.reloadData()
         }
         
         
@@ -1067,14 +916,14 @@ class OwnedGamesViewController: UIViewController, OwnedGameDelegate, ModalDelega
         ) { [weak self] action in
             
             guard let viewController = self?.filterVC else {
-            print("something wrong")
-            return }
+                print("something wrong")
+                return }
             viewController.id = self?.platformID
             viewController.delegate = self
             viewController.selectedGenres = self!.genreSelections
             self?.present(viewController, animated: true, completion: nil)
             self?.network.sourceTag = 0
-
+            
         }
         
         
@@ -1101,118 +950,39 @@ class OwnedGamesViewController: UIViewController, OwnedGameDelegate, ModalDelega
         ) { [weak self] action in
             
             guard let viewController = self?.filterVC else {
-            print("something wrong")
-            return }
+                print("something wrong")
+                return }
             viewController.id = self?.platformID
             viewController.platformFilterDelegate = self
             viewController.gameArray = self!.ownedGames
             viewController.selectedPlatforms = self!.platformSelections
             self?.present(viewController, animated: true, completion: nil)
             self?.network.sourceTag = 1
-
+            
         }
-
-//        let sortByTitle = UIAction(title: "Sort by Title", image: UIImage(systemName: "character.book.closed")) { [weak self] action in
-//
-//
-//            let searchText = self?.search.searchBar.text
-//
-//            self?.sortSelection = SortSection.title.rawValue
-//
-//                if searchText == "" {
-//                    self?.ownedGames = (self?.persistenceManager.fetchGame(SavedGames.self, byGameTitle: nil, sortBy: self?.sortSelection, sortByAscending: self!.asecending, platformID: nil, selectedGenres: self?.genreSelections, selectedPlatforms: self?.platformsToFilter, selectedDateRange: self?.dateSelections))!}
-//                else {
-//                    self?.ownedGames = (self?.persistenceManager.fetchGame(SavedGames.self, byGameTitle: searchText, sortBy: self?.sortSelection, sortByAscending: self!.asecending, platformID: nil, selectedGenres: self?.genreSelections, selectedPlatforms: self?.platformsToFilter, selectedDateRange: self?.dateSelections))!}
-//
-//            self?.setSortLabels()
-//
-//            self?.tableView.reloadData()
-//
-//
-//        }
         
-//        let sortByReleaseDate = UIAction(title: "Sort by Release Date", image: UIImage(systemName: "calendar")) { [weak self] action in
-//
-//            self?.sortSelection = SortSection.releaseDate.rawValue
-//            let searchText = self?.search.searchBar.text
-//
-//            if searchText == "" {
-//                self?.ownedGames = (self?.persistenceManager.fetchGame(SavedGames.self, byGameTitle: nil, sortBy: self?.sortSelection, sortByAscending: self!.asecending, platformID: nil, selectedGenres: self?.genreSelections, selectedPlatforms: self?.platformsToFilter, selectedDateRange: self?.dateSelections))! }
-//            else {
-//
-//                self?.ownedGames = (self?.persistenceManager.fetchGame(SavedGames.self, byGameTitle: searchText, sortBy: self?.sortSelection, sortByAscending: self!.asecending, platformID: nil, selectedGenres: self?.genreSelections, selectedPlatforms: self?.platformsToFilter, selectedDateRange: self?.dateSelections))!
-//
-//            }
-//
-//
-//            self?.setSortLabels()
-//
-//            self?.tableView.reloadData()
-//
-//
-//        }
         
-//        let sortByPlatform = UIAction(title: "Sort by Platform", image: UIImage(systemName: "gamecontroller")) { [weak self] action in
-//
-//            self?.sortSelection = SortSection.platformName.rawValue
-//            let searchText = self?.search.searchBar.text
-//
-//            if searchText == "" {
-//                self?.ownedGames = (self?.persistenceManager.fetchGame(SavedGames.self, byGameTitle: nil, sortBy: self?.sortSelection, sortByAscending: self!.asecending, platformID: nil, selectedGenres: self?.genreSelections, selectedPlatforms: self?.platformsToFilter, selectedDateRange: self?.dateSelections))! }
-//            else {
-//
-//                self?.ownedGames = (self?.persistenceManager.fetchGame(SavedGames.self, byGameTitle: searchText, sortBy: self?.sortSelection, sortByAscending: self!.asecending, platformID: nil, selectedGenres: self?.genreSelections, selectedPlatforms: self?.platformsToFilter, selectedDateRange: self?.dateSelections))!
-//
-//
-//            }
-//
-//
-//            self?.setSortLabels()
-//            self?.tableView.reloadData()
-//
-//        }
-            
-     
-            
-        
-
-//        let sortAscending = UIAction(title: "Sort \(ascendingLabel)", image: UIImage(systemName: "arrow.left.arrow.right")) { [weak self] action in
-//
-//            if let ascend = self?.asecending {
-//            if !ascend {
-//                self?.ascendingLabel = "Descending"
-//
-//            } else {
-//                self?.ascendingLabel = "Ascending"
-//            }
-//            }
-//
-//            self?.selectSort()
-//
-//        }
-      
-
         let filterMenu = UIMenu(title:"Filter By", image: UIImage(systemName: "ellipsis"), children: [secondAction,thirdAction,fourthAction])
-//        let sortMenuTwo =  UIMenu(title: "Sort By", image: UIImage(systemName: "ellipsis"), children: [sortByTitle, sortByPlatform, sortByReleaseDate])
-
+        
         let mainMenu = UIMenu(title: "", children: [firstAction, filterMenu])
-//        let sortMenu = UIMenu(title: "", children: [sortAscending, sortMenuTwo])
-
+        
         var filterButton : UIBarButtonItem?
         
         filterButton = UIBarButtonItem(image: UIImage(systemName: "slider.horizontal.3"), menu: mainMenu)
-            
-     
-//        var sortButton : UIBarButtonItem?
-//             sortButton = UIBarButtonItem(image: UIImage(systemName: "arrow.up.arrow.down"), menu: sortMenu)
-        sortBtn = makeSortButton()
+        guard let filter = filterButton else { return }
+//        sortBtn = makeSortButton()
         
-         let sortButton = UIBarButtonItem(customView: sortBtn)
-        self.navigationItem.rightBarButtonItem = filterButton
+        layoutButton.setImage(altLayout == true ? UIImage(systemName: "rectangle.grid.1x2") : UIImage(systemName: "rectangle.grid.2x2"), for: .normal)
+        layoutButton.addTarget(self, action: #selector(setLayout), for: .touchUpInside)
+        let layout = UIBarButtonItem(customView: layoutButton)
+        
+        
+        let sortButton = UIBarButtonItem(customView: sortBtn)
+        self.navigationItem.rightBarButtonItems = [filter, layout]
         self.navigationItem.leftBarButtonItem = sortButton
         
     }
-
+    
     
     func setFilterIndicators() {
         let lightBlue = UIColorFromRGB(0x2B95CE)
@@ -1229,8 +999,8 @@ class OwnedGamesViewController: UIViewController, OwnedGameDelegate, ModalDelega
             platformFilterImg.image = UIImage(systemName: "circle.fill")
             genreFilterImg.image = UIImage(systemName: "circle.fill")
             releaseDateFilterImg.image = UIImage(systemName: "circle.fill")
-
-        
+            
+            
         case (true, true, true):
             //no filters active
             
@@ -1241,11 +1011,11 @@ class OwnedGamesViewController: UIViewController, OwnedGameDelegate, ModalDelega
             platformFilterImg.image = UIImage(systemName: "circle")
             genreFilterImg.image = UIImage(systemName: "circle")
             releaseDateFilterImg.image = UIImage(systemName: "circle")
-
-        
+            
+            
         case (false, true, true):
             //platform filter only is active
-
+            
             platformFilterImg.tintColor = lightBlue
             genreFilterImg.tintColor = .systemGray
             releaseDateFilterImg.tintColor = .systemGray
@@ -1264,7 +1034,7 @@ class OwnedGamesViewController: UIViewController, OwnedGameDelegate, ModalDelega
             platformFilterImg.image = UIImage(systemName: "circle.fill")
             genreFilterImg.image = UIImage(systemName: "circle.fill")
             releaseDateFilterImg.image = UIImage(systemName: "circle")
-        
+            
         case (false, true, false):
             //platform and release date filters active)
             platformFilterImg.tintColor = lightBlue
@@ -1274,7 +1044,7 @@ class OwnedGamesViewController: UIViewController, OwnedGameDelegate, ModalDelega
             platformFilterImg.image = UIImage(systemName: "circle.fill")
             genreFilterImg.image = UIImage(systemName: "circle")
             releaseDateFilterImg.image = UIImage(systemName: "circle.fill")
-        
+            
         case (true, false, false):
             //genre and release date filters active
             platformFilterImg.tintColor = .systemGray
@@ -1284,7 +1054,7 @@ class OwnedGamesViewController: UIViewController, OwnedGameDelegate, ModalDelega
             platformFilterImg.image = UIImage(systemName: "circle")
             genreFilterImg.image = UIImage(systemName: "circle.fill")
             releaseDateFilterImg.image = UIImage(systemName: "circle.fill")
-        
+            
         case (true, true, false):
             //release date filter only is active
             platformFilterImg.tintColor = .systemGray
@@ -1294,7 +1064,7 @@ class OwnedGamesViewController: UIViewController, OwnedGameDelegate, ModalDelega
             platformFilterImg.image = UIImage(systemName: "circle")
             genreFilterImg.image = UIImage(systemName: "circle")
             releaseDateFilterImg.image = UIImage(systemName: "circle.fill")
-        
+            
         case (true, false, true):
             //genre filter only is active
             platformFilterImg.tintColor = .systemGray
@@ -1304,56 +1074,26 @@ class OwnedGamesViewController: UIViewController, OwnedGameDelegate, ModalDelega
             platformFilterImg.image = UIImage(systemName: "circle")
             genreFilterImg.image = UIImage(systemName: "circle.fill")
             releaseDateFilterImg.image = UIImage(systemName: "circle")
-        
-        
-       
+            
+            
+            
         }
         
     }
     
     
     
-//    func setSortLabels() {
-//        switch asecending {
-//        case true:
-//            sortDirectionLbl.text = "Asecending"
-//        case false:
-//            sortDirectionLbl.text = "Descending"
-//        }
-        
-        
-//        switch sortSelection {
-//
-//        case SortSection.title.rawValue:
-//            sortingByLbl.text = "Title"
-//
-//        case SortSection.platformName.rawValue:
-//            sortingByLbl.text = "Platform"
-//
-//        case SortSection.releaseDate.rawValue:
-//            sortingByLbl.text = "Release Date"
-//
-//        case SortSection.genre.rawValue:
-//            sortingByLbl.text = "Genre"
-//
-//        default:
-//            print("Invalid Sort Selection")
-//
-//        }
-//    }
-    
     func removeLeadingArticle(fromString: String) -> String{
         let articles = ["a ", "an ", "the ", "The ", "A ", "An "]
-//        var returnString : String?
         
         for article in articles {
             if fromString.lowercased().hasPrefix(article.lowercased()) {
-//                return string.substring(from: string.index(string.startIndex, offsetBy: article.characters.count))
+                
                 let articleLength = article.count
-                print("articleLength", articleLength)
+
                 let returnString = String(fromString[fromString.index(fromString.startIndex, offsetBy: articleLength)...])
-                print("correctedString", returnString)
-               return returnString
+
+                return returnString
                 
             }
             
@@ -1361,282 +1101,282 @@ class OwnedGamesViewController: UIViewController, OwnedGameDelegate, ModalDelega
         
         return fromString
         
-
+        
     }
     
     
     func sortGameArrays() {
         self.numericGames.sort() {
             firstGame, secondGame in
-
-
+            
+            
             let title1 = removeLeadingArticle(fromString: firstGame.title!)
             let title2 = removeLeadingArticle(fromString: secondGame.title!)
             return title1.localizedCaseInsensitiveCompare(title2) == sortDirection
-
-            }
+            
+        }
         
         self.aGames.sort() {
             firstGame, secondGame in
-        
-        
-                let title1 = removeLeadingArticle(fromString: firstGame.title!)
-                let title2 = removeLeadingArticle(fromString: secondGame.title!)
-                return title1.localizedCaseInsensitiveCompare(title2) == sortDirection
-        
-            }
+            
+            
+            let title1 = removeLeadingArticle(fromString: firstGame.title!)
+            let title2 = removeLeadingArticle(fromString: secondGame.title!)
+            return title1.localizedCaseInsensitiveCompare(title2) == sortDirection
+            
+        }
         
         self.bGames.sort() {
             firstGame, secondGame in
-
-
+            
+            
             let title1 = removeLeadingArticle(fromString: firstGame.title!)
             let title2 = removeLeadingArticle(fromString: secondGame.title!)
             return title1.localizedCaseInsensitiveCompare(title2) == sortDirection
-
-            }
+            
+        }
         
         self.cGames.sort() {
             firstGame, secondGame in
-
-
+            
+            
             let title1 = removeLeadingArticle(fromString: firstGame.title!)
             let title2 = removeLeadingArticle(fromString: secondGame.title!)
             return title1.localizedCaseInsensitiveCompare(title2) == sortDirection
-
-            }
+            
+        }
         
         self.dGames.sort() {
             firstGame, secondGame in
-
-
+            
+            
             let title1 = removeLeadingArticle(fromString: firstGame.title!)
             let title2 = removeLeadingArticle(fromString: secondGame.title!)
             return title1.localizedCaseInsensitiveCompare(title2) == sortDirection
-
-            }
+            
+        }
         
         self.eGames.sort() {
             firstGame, secondGame in
-
-
+            
+            
             let title1 = removeLeadingArticle(fromString: firstGame.title!)
             let title2 = removeLeadingArticle(fromString: secondGame.title!)
             return title1.localizedCaseInsensitiveCompare(title2) == sortDirection
-
-            }
+            
+        }
         
         self.fGames.sort() {
             firstGame, secondGame in
-
-
+            
+            
             let title1 = removeLeadingArticle(fromString: firstGame.title!)
             let title2 = removeLeadingArticle(fromString: secondGame.title!)
             return title1.localizedCaseInsensitiveCompare(title2) == sortDirection
-
-            }
+            
+        }
         
         self.gGames.sort() {
             firstGame, secondGame in
-
-
+            
+            
             let title1 = removeLeadingArticle(fromString: firstGame.title!)
             let title2 = removeLeadingArticle(fromString: secondGame.title!)
             return title1.localizedCaseInsensitiveCompare(title2) == sortDirection
-
-            }
+            
+        }
         
         self.hGames.sort() {
             firstGame, secondGame in
-
-
+            
+            
             let title1 = removeLeadingArticle(fromString: firstGame.title!)
             let title2 = removeLeadingArticle(fromString: secondGame.title!)
             return title1.localizedCaseInsensitiveCompare(title2) == sortDirection
-
-            }
+            
+        }
         
         self.iGames.sort() {
             firstGame, secondGame in
-
-
+            
+            
             let title1 = removeLeadingArticle(fromString: firstGame.title!)
             let title2 = removeLeadingArticle(fromString: secondGame.title!)
             return title1.localizedCaseInsensitiveCompare(title2) == sortDirection
-
-            }
+            
+        }
         
         self.jGames.sort() {
             firstGame, secondGame in
-
-
+            
+            
             let title1 = removeLeadingArticle(fromString: firstGame.title!)
             let title2 = removeLeadingArticle(fromString: secondGame.title!)
             return title1.localizedCaseInsensitiveCompare(title2) == sortDirection
-
-            }
+            
+        }
         
         
         self.kGames.sort() {
             firstGame, secondGame in
-
-
+            
+            
             let title1 = removeLeadingArticle(fromString: firstGame.title!)
             let title2 = removeLeadingArticle(fromString: secondGame.title!)
             return title1.localizedCaseInsensitiveCompare(title2) == sortDirection
-
-            }
+            
+        }
         
         
         self.lGames.sort() {
             firstGame, secondGame in
-
-
+            
+            
             let title1 = removeLeadingArticle(fromString: firstGame.title!)
             let title2 = removeLeadingArticle(fromString: secondGame.title!)
             return title1.localizedCaseInsensitiveCompare(title2) == sortDirection
-
-            }
+            
+        }
         
         self.mGames.sort() {
             firstGame, secondGame in
-
-
+            
+            
             let title1 = removeLeadingArticle(fromString: firstGame.title!)
             let title2 = removeLeadingArticle(fromString: secondGame.title!)
             return title1.localizedCaseInsensitiveCompare(title2) == sortDirection
-
-            }
+            
+        }
         
         self.nGames.sort() {
             firstGame, secondGame in
-
-
+            
+            
             let title1 = removeLeadingArticle(fromString: firstGame.title!)
             let title2 = removeLeadingArticle(fromString: secondGame.title!)
             return title1.localizedCaseInsensitiveCompare(title2) == sortDirection
-
-            }
+            
+        }
         
         self.oGames.sort() {
             firstGame, secondGame in
-
-
+            
+            
             let title1 = removeLeadingArticle(fromString: firstGame.title!)
             let title2 = removeLeadingArticle(fromString: secondGame.title!)
             return title1.localizedCaseInsensitiveCompare(title2) == sortDirection
-
-            }
+            
+        }
         
         self.pGames.sort() {
             firstGame, secondGame in
-
-
+            
+            
             let title1 = removeLeadingArticle(fromString: firstGame.title!)
             let title2 = removeLeadingArticle(fromString: secondGame.title!)
             return title1.localizedCaseInsensitiveCompare(title2) == sortDirection
-
-            }
+            
+        }
         
         self.qGames.sort() {
             firstGame, secondGame in
-
-
+            
+            
             let title1 = removeLeadingArticle(fromString: firstGame.title!)
             let title2 = removeLeadingArticle(fromString: secondGame.title!)
             return title1.localizedCaseInsensitiveCompare(title2) == sortDirection
-
-            }
+            
+        }
         
         self.rGames.sort() {
             firstGame, secondGame in
-
-
+            
+            
             let title1 = removeLeadingArticle(fromString: firstGame.title!)
             let title2 = removeLeadingArticle(fromString: secondGame.title!)
             return title1.localizedCaseInsensitiveCompare(title2) == sortDirection
-
-            }
+            
+        }
         
         self.sGames.sort() {
             firstGame, secondGame in
-
-
+            
+            
             let title1 = removeLeadingArticle(fromString: firstGame.title!)
             let title2 = removeLeadingArticle(fromString: secondGame.title!)
             return title1.localizedCaseInsensitiveCompare(title2) == sortDirection
-
-            }
+            
+        }
         
         self.tGames.sort() {
             firstGame, secondGame in
-
-
+            
+            
             let title1 = removeLeadingArticle(fromString: firstGame.title!)
             let title2 = removeLeadingArticle(fromString: secondGame.title!)
             return title1.localizedCaseInsensitiveCompare(title2) == sortDirection
-
-            }
+            
+        }
         
         
         self.uGames.sort() {
             firstGame, secondGame in
-
-
+            
+            
             let title1 = removeLeadingArticle(fromString: firstGame.title!)
             let title2 = removeLeadingArticle(fromString: secondGame.title!)
             return title1.localizedCaseInsensitiveCompare(title2) == sortDirection
-
-            }
+            
+        }
         
         self.vGames.sort() {
             firstGame, secondGame in
-
-
+            
+            
             let title1 = removeLeadingArticle(fromString: firstGame.title!)
             let title2 = removeLeadingArticle(fromString: secondGame.title!)
             return title1.localizedCaseInsensitiveCompare(title2) == sortDirection
-
-            }
+            
+        }
         
         self.wGames.sort() {
             firstGame, secondGame in
-
-
+            
+            
             let title1 = removeLeadingArticle(fromString: firstGame.title!)
             let title2 = removeLeadingArticle(fromString: secondGame.title!)
             return title1.localizedCaseInsensitiveCompare(title2) == sortDirection
-
-            }
+            
+        }
         self.xGames.sort() {
             firstGame, secondGame in
-
-
+            
+            
             let title1 = removeLeadingArticle(fromString: firstGame.title!)
             let title2 = removeLeadingArticle(fromString: secondGame.title!)
             return title1.localizedCaseInsensitiveCompare(title2) == sortDirection
-
-            }
+            
+        }
         
         self.yGames.sort() {
             firstGame, secondGame in
-
-
+            
+            
             let title1 = removeLeadingArticle(fromString: firstGame.title!)
             let title2 = removeLeadingArticle(fromString: secondGame.title!)
             return title1.localizedCaseInsensitiveCompare(title2) == sortDirection
-
-            }
+            
+        }
         
         self.zGames.sort() {
             firstGame, secondGame in
-
-
+            
+            
             let title1 = removeLeadingArticle(fromString: firstGame.title!)
             let title2 = removeLeadingArticle(fromString: secondGame.title!)
             return title1.localizedCaseInsensitiveCompare(title2) == sortDirection
-
-            }
+            
+        }
     }
     
     
@@ -1646,384 +1386,9 @@ class OwnedGamesViewController: UIViewController, OwnedGameDelegate, ModalDelega
     }
     
     
-//    func setTotalGameCount() {
-//
-//
-//            let allGames = persistenceManager.fetchGame(SavedGames.self, byGameTitle: nil, sortBy: sortSelection, sortByAscending: asecending, platformID: nil, selectedGenres: nil, selectedPlatforms: nil)
-//            totalGameCount = allGames.count
-//
-//    }
-
-    
 }
 
 
-
-
-
-extension OwnedGamesViewController: UITableViewDelegate, UITableViewDataSource {
-    func numberOfSections(in tableView: UITableView) -> Int {
-        return sectionTitles.count
-    }
-    
-    func tableView(_ tableView: UITableView, willDisplayHeaderView view: UIView, forSection section: Int) {
-        let lightGray = UIColor(red: 246/255, green: 246/255, blue: 246/255, alpha: 1)
-        let darkGray = UIColor(red: (18/255), green: (18/255), blue: (18/255), alpha: 1)
-        
-        let header = view as! UITableViewHeaderFooterView
-        header.textLabel?.font = UIFont.preferredFont(forTextStyle: .callout)
-        if traitCollection.userInterfaceStyle == .light {
-            header.contentView.backgroundColor = lightGray
-        } else {
-            header.contentView.backgroundColor = darkGray
-
-        }
-        
-    }
-    
-    func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
-        switch sortDirection {
-        case .orderedAscending :
-        switch section {
-            case 0   :     if numericGames.count > 0 { return "0-9"}
-            case 1   :     if aGames.count > 0 { return sectionTitles[section] }
-            case 2   :     if bGames.count > 0 { return sectionTitles[section] }
-            case 3   :     if cGames.count > 0 { return sectionTitles[section] }
-            case 4   :     if dGames.count > 0 { return sectionTitles[section] }
-            case 5   :     if eGames.count > 0 { return sectionTitles[section] }
-            case 6   :     if fGames.count > 0 { return sectionTitles[section] }
-            case 7   :     if gGames.count > 0 { return sectionTitles[section] }
-            case 8   :     if hGames.count > 0 { return sectionTitles[section] }
-            case 9   :     if iGames.count > 0 { return sectionTitles[section] }
-            case 10  :     if jGames.count > 0 { return sectionTitles[section] }
-            case 11  :     if kGames.count > 0 { return sectionTitles[section] }
-            case 12  :     if lGames.count > 0 { return sectionTitles[section] }
-            case 13  :     if mGames.count > 0 { return sectionTitles[section] }
-            case 14  :     if nGames.count > 0 { return sectionTitles[section] }
-            case 15  :     if oGames.count > 0 { return sectionTitles[section] }
-            case 16  :     if pGames.count > 0 { return sectionTitles[section] }
-            case 17  :     if qGames.count > 0 { return sectionTitles[section] }
-            case 18  :     if rGames.count > 0 { return sectionTitles[section] }
-            case 19  :     if sGames.count > 0 { return sectionTitles[section] }
-            case 20  :     if tGames.count > 0 { return sectionTitles[section] }
-            case 21  :     if uGames.count > 0 { return sectionTitles[section] }
-            case 22  :     if vGames.count > 0 { return sectionTitles[section] }
-            case 23  :     if wGames.count > 0 { return sectionTitles[section] }
-            case 24  :     if xGames.count > 0 { return sectionTitles[section] }
-            case 25  :     if yGames.count > 0 { return sectionTitles[section] }
-            case 26  :     if zGames.count > 0 { return sectionTitles[section] }
-
-            default  :     return nil
-        }
-        
-        case .orderedDescending:
-            switch section {
-           
-            case 0   :     if zGames.count > 0 { return sectionTitles.reversed()[section] }
-        case 1   :     if yGames.count > 0 { return sectionTitles.reversed()[section] }
-        case 2   :     if xGames.count > 0 { return sectionTitles.reversed()[section] }
-        case 3   :     if wGames.count > 0 { return sectionTitles.reversed()[section] }
-        case 4   :     if vGames.count > 0 { return sectionTitles.reversed()[section] }
-        case 5   :     if uGames.count > 0 { return sectionTitles.reversed()[section] }
-        case 6   :     if tGames.count > 0 { return sectionTitles.reversed()[section] }
-        case 7   :     if sGames.count > 0 { return sectionTitles.reversed()[section] }
-        case 8   :     if rGames.count > 0 { return sectionTitles.reversed()[section] }
-        case 9   :     if qGames.count > 0 { return sectionTitles.reversed()[section] }
-        case 10  :     if pGames.count > 0 { return sectionTitles.reversed()[section] }
-        case 11  :     if oGames.count > 0 { return sectionTitles.reversed()[section] }
-        case 12  :     if nGames.count > 0 { return sectionTitles.reversed()[section] }
-        case 13  :     if mGames.count > 0 { return sectionTitles.reversed()[section] }
-        case 14  :     if lGames.count > 0 { return sectionTitles.reversed()[section] }
-        case 15  :     if kGames.count > 0 { return sectionTitles.reversed()[section] }
-        case 16  :     if jGames.count > 0 { return sectionTitles.reversed()[section] }
-        case 17  :     if iGames.count > 0 { return sectionTitles.reversed()[section] }
-        case 18  :     if hGames.count > 0 { return sectionTitles.reversed()[section] }
-        case 19  :     if gGames.count > 0 { return sectionTitles.reversed()[section] }
-        case 20  :     if fGames.count > 0 { return sectionTitles.reversed()[section] }
-        case 21  :     if eGames.count > 0 { return sectionTitles.reversed()[section] }
-        case 22  :     if dGames.count > 0 { return sectionTitles.reversed()[section] }
-        case 23  :     if cGames.count > 0 { return sectionTitles.reversed()[section] }
-        case 24  :     if bGames.count > 0 { return sectionTitles.reversed()[section] }
-        case 25  :     if aGames.count > 0 { return sectionTitles.reversed()[section] }
-        case 26  :     if numericGames.count > 0 { return "9-0"}
-
-        default  :     return nil
-            
-            }
-        default :      return nil
-        }
-        
-        
-        return nil
-    }
-    
-    func sectionIndexTitles(for tableView: UITableView) -> [String]? {
-        if sortDirection == .orderedAscending {
-        return sectionTitles
-        }
-        else {
-            return sectionTitles.reversed()
-        }    }
-    
-    func tableView(_ tableView: UITableView, sectionForSectionIndexTitle title: String, at index: Int) -> Int {
-        return index
-    }
-    
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-//        return ownedGames.count
-        
-        if sortDirection == .orderedAscending {
-        switch section {
-            case 0   :     return numericGames.count
-            case 1   :     return aGames.count
-            case 2   :     return bGames.count
-            case 3   :     return cGames.count
-            case 4   :     return dGames.count
-            case 5   :     return eGames.count
-            case 6   :     return fGames.count
-            case 7   :     return gGames.count
-            case 8   :     return hGames.count
-            case 9   :     return iGames.count
-            case 10  :     return jGames.count
-            case 11  :     return kGames.count
-            case 12  :     return lGames.count
-            case 13  :     return mGames.count
-            case 14  :     return nGames.count
-            case 15  :     return oGames.count
-            case 16  :     return pGames.count
-            case 17  :     return qGames.count
-            case 18  :     return rGames.count
-            case 19  :     return sGames.count
-            case 20  :     return tGames.count
-            case 21  :     return uGames.count
-            case 22  :     return vGames.count
-            case 23  :     return wGames.count
-            case 24  :     return xGames.count
-            case 25  :     return yGames.count
-            case 26  :     return zGames.count
-
-            default  :     return 0
-        }
-        } else {
-            switch section {
-                case 0   :     return zGames.count
-                case 1   :     return yGames.count
-                case 2   :     return xGames.count
-                case 3   :     return wGames.count
-                case 4   :     return vGames.count
-                case 5   :     return uGames.count
-                case 6   :     return tGames.count
-                case 7   :     return sGames.count
-                case 8   :     return rGames.count
-                case 9   :     return qGames.count
-                case 10  :     return pGames.count
-                case 11  :     return oGames.count
-                case 12  :     return nGames.count
-                case 13  :     return mGames.count
-                case 14  :     return lGames.count
-                case 15  :     return kGames.count
-                case 16  :     return jGames.count
-                case 17  :     return iGames.count
-                case 18  :     return hGames.count
-                case 19  :     return gGames.count
-                case 20  :     return fGames.count
-                case 21  :     return eGames.count
-                case 22  :     return dGames.count
-                case 23  :     return cGames.count
-                case 24  :     return bGames.count
-                case 25  :     return aGames.count
-                case 26  :     return numericGames.count
-
-                default  :     return 0
-            }
-        }
-
-        
-    }
-    
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "ownedGamesCell", for: indexPath) as? OwnedGamesVCTableViewCell
-//        print("filterSelections")
-//        print(genreSelections)
-        
-        cell?.index = indexPath
-//        cell?.game = ownedGames[indexPath.row]
-        cell?.delegate = self
-        
-        if sortDirection == .orderedAscending {
-        switch indexPath.section {
-        case 0   :     cell?.game = numericGames[indexPath.row]
-            case 1   :     cell?.game = aGames[indexPath.row]
-            case 2   :     cell?.game = bGames[indexPath.row]
-            case 3   :     cell?.game = cGames[indexPath.row]
-            case 4   :     cell?.game = dGames[indexPath.row]
-            case 5   :     cell?.game = eGames[indexPath.row]
-            case 6   :     cell?.game = fGames[indexPath.row]
-            case 7   :     cell?.game = gGames[indexPath.row]
-            case 8   :     cell?.game = hGames[indexPath.row]
-            case 9   :     cell?.game = iGames[indexPath.row]
-            case 10  :     cell?.game = jGames[indexPath.row]
-            case 11  :     cell?.game = kGames[indexPath.row]
-            case 12  :     cell?.game = lGames[indexPath.row]
-            case 13  :     cell?.game = mGames[indexPath.row]
-            case 14  :     cell?.game = nGames[indexPath.row]
-            case 15  :     cell?.game = oGames[indexPath.row]
-            case 16  :     cell?.game = pGames[indexPath.row]
-            case 17  :     cell?.game = qGames[indexPath.row]
-            case 18  :     cell?.game = rGames[indexPath.row]
-            case 19  :     cell?.game = sGames[indexPath.row]
-            case 20  :     cell?.game = tGames[indexPath.row]
-            case 21  :     cell?.game = uGames[indexPath.row]
-            case 22  :     cell?.game = vGames[indexPath.row]
-            case 23  :     cell?.game = wGames[indexPath.row]
-            case 24  :     cell?.game = xGames[indexPath.row]
-            case 25  :     cell?.game = yGames[indexPath.row]
-            case 26  :     cell?.game = zGames[indexPath.row]
-
-            default  :     cell?.game = ownedGames[indexPath.row]
-        }
-        } else {
-            
-            switch indexPath.section {
-                case 0   :     cell?.game = zGames[indexPath.row]
-                case 1   :     cell?.game = yGames[indexPath.row]
-                case 2   :     cell?.game = xGames[indexPath.row]
-                case 3   :     cell?.game = wGames[indexPath.row]
-                case 4   :     cell?.game = vGames[indexPath.row]
-                case 5   :     cell?.game = uGames[indexPath.row]
-            case 6   :     cell?.game = tGames[indexPath.row]
-                case 7   :     cell?.game = sGames[indexPath.row]
-                case 8   :     cell?.game = rGames[indexPath.row]
-                case 9   :     cell?.game = qGames[indexPath.row]
-                case 10  :     cell?.game = pGames[indexPath.row]
-                case 11  :     cell?.game = oGames[indexPath.row]
-                case 12  :     cell?.game = nGames[indexPath.row]
-                case 13  :     cell?.game = mGames[indexPath.row]
-                case 14  :     cell?.game = lGames[indexPath.row]
-                case 15  :     cell?.game = kGames[indexPath.row]
-                case 16  :     cell?.game = jGames[indexPath.row]
-                case 17  :     cell?.game = iGames[indexPath.row]
-                case 18  :     cell?.game = hGames[indexPath.row]
-                case 19  :     cell?.game = gGames[indexPath.row]
-                case 20  :     cell?.game = fGames[indexPath.row]
-                case 21  :     cell?.game = eGames[indexPath.row]
-                case 22  :     cell?.game = dGames[indexPath.row]
-                case 23  :     cell?.game = cGames[indexPath.row]
-                case 24  :     cell?.game = bGames[indexPath.row]
-                case 25  :     cell?.game = aGames[indexPath.row]
-                case 26  :     cell?.game = numericGames[indexPath.row]
-
-                default  :     cell?.game = ownedGames[indexPath.row]
-            }
-            
-            
-            
-        }
-
-        return cell!
-    }
-    
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-//        print("outside destination")
-        if let destination = segue.destination as? PagingDetailVC {
-//            print("destination")
-//            print(destination)
-            let index = (tableView.indexPathForSelectedRow?.row)!
-            let indexPathForRow = tableView.indexPathForSelectedRow
-            var selectedGame : SavedGames?
-//            let section = tableView.indexPath.se
-//            let selectedGame : SavedGames?
-            if let indexPath = indexPathForRow {
-//                print("index path is not nil")
-                if sortDirection == .orderedAscending {
-                switch indexPath.section {
-                    case 0   :     selectedGame = numericGames[index]
-                    case 1   :     selectedGame = aGames[index]
-                    case 2   :     selectedGame = bGames[index]
-                    case 3   :     selectedGame = cGames[index]
-                    case 4   :     selectedGame = dGames[index]
-                    case 5   :     selectedGame = eGames[index]
-                    case 6   :     selectedGame = fGames[index]
-                    case 7   :     selectedGame = gGames[index]
-                    case 8   :     selectedGame = hGames[index]
-                    case 9   :     selectedGame = iGames[index]
-                    case 10  :    selectedGame = jGames[index]
-                    case 11  :     selectedGame = kGames[index]
-                    case 12  :     selectedGame = lGames[index]
-                    case 13  :     selectedGame = mGames[index]
-                    case 14  :     selectedGame  = nGames[index]
-                    case 15  :     selectedGame = oGames[index]
-                    case 16  :     selectedGame = pGames[index]
-                    case 17  :     selectedGame = qGames[index]
-                    case 18  :     selectedGame = rGames[index]
-                    case 19  :     selectedGame = sGames[index]
-                    case 20  :     selectedGame = tGames[index]
-                    case 21  :     selectedGame = uGames[index]
-                    case 22  :     selectedGame = vGames[index]
-                    case 23  :     selectedGame = wGames[index]
-                    case 24  :     selectedGame = xGames[index]
-                    case 25  :     selectedGame = yGames[index]
-                    case 26  :     selectedGame = zGames[index]
-
-                    default  :     selectedGame = ownedGames[index]
-                }
-                } else {
-                    
-                    switch indexPath.section {
-                        case 0   :     selectedGame = zGames[index]
-                        case 1   :     selectedGame = yGames[index]
-                        case 2   :     selectedGame = xGames[index]
-                        case 3   :     selectedGame = wGames[index]
-                        case 4   :     selectedGame = vGames[index]
-                        case 5   :     selectedGame = uGames[index]
-                        case 6   :     selectedGame = tGames[index]
-                        case 7   :     selectedGame = rGames[index]
-                        case 9   :     selectedGame = qGames[index]
-                        case 10  :     selectedGame = pGames[index]
-                        case 11  :     selectedGame = oGames[index]
-                        case 12  :     selectedGame = nGames[index]
-                        case 13  :     selectedGame = mGames[index]
-                        case 14  :     selectedGame = lGames[index]
-                        case 15  :     selectedGame = kGames[index]
-                        case 16  :     selectedGame = jGames[index]
-                        case 17  :     selectedGame = iGames[index]
-                        case 18  :     selectedGame = hGames[index]
-                        case 19  :     selectedGame = gGames[index]
-                        case 20  :     selectedGame = fGames[index]
-                        case 21  :     selectedGame = eGames[index]
-                        case 22  :     selectedGame = dGames[index]
-                        case 23  :     selectedGame = cGames[index]
-                        case 24  :     selectedGame = bGames[index]
-                        case 25  :     selectedGame = aGames[index]
-                        case 26  :     selectedGame = numericGames[index]
-
-                        default  :     selectedGame = ownedGames[index]
-                    }
-                }
-            
-            
-            }
-            
-            let game = createGameObjectFromCoreData(persistedObject: selectedGame!)
-            
-//            print("prepare persistedGame = \(game)")
-            
-            
-            destination.game = game
-        
-        }
-    }
-    
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-//        print("row selected")
-        self.performSegue(withIdentifier: "pageVC", sender: self)
-        
-
-    }
-    
-    
-    
-}
 
 extension OwnedGamesViewController : NSFetchedResultsControllerDelegate {
     
@@ -2034,7 +1399,7 @@ extension OwnedGamesViewController : NSFetchedResultsControllerDelegate {
             reloadData(byGameTitle: nil, platformID: nil, selectedGenres: genreSelections, selectedPlatforms: platformsToFilter, selectedDateRange: dateSelections)
         } else {
             reloadData(byGameTitle: searchText, platformID: nil, selectedGenres: genreSelections, selectedPlatforms: platformsToFilter, selectedDateRange: dateSelections)
-
+            
         }
         
         let allGames = persistenceManager.fetchGame(SavedGames.self, byGameTitle: nil, platformID: nil, selectedGenres: nil, selectedPlatforms: nil, selectedDateRange: nil)
@@ -2044,29 +1409,24 @@ extension OwnedGamesViewController : NSFetchedResultsControllerDelegate {
     }
     
 }
-                                    
+
 
 extension OwnedGamesViewController : UISearchResultsUpdating {
     
     func updateSearchResults(for searchController: UISearchController) {
         guard let text = searchController.searchBar.text else { return }
-//        print(text)
-
-            
         
-            if text == "" {
-
-                self.ownedGames = self.persistenceManager.fetchGame(SavedGames.self, byGameTitle: nil, platformID: nil, selectedGenres: genreSelections, selectedPlatforms: platformsToFilter, selectedDateRange: dateSelections)
-
-            } else {
-
-                self.ownedGames = self.persistenceManager.fetchGame(SavedGames.self, byGameTitle: text, platformID: nil, selectedGenres: genreSelections, selectedPlatforms: platformsToFilter,selectedDateRange: dateSelections)
-            }
+        if text == "" {
+            
+            self.ownedGames = self.persistenceManager.fetchGame(SavedGames.self, byGameTitle: nil, platformID: nil, selectedGenres: genreSelections, selectedPlatforms: platformsToFilter, selectedDateRange: dateSelections)
+            
+        } else {
+            
+            self.ownedGames = self.persistenceManager.fetchGame(SavedGames.self, byGameTitle: text, platformID: nil, selectedGenres: genreSelections, selectedPlatforms: platformsToFilter,selectedDateRange: dateSelections)
+        }
         self.filteredGameCountLbl.text = "\(self.ownedGames.count)"
-
-       
-//        print(self.ownedGames)
-        tableView.reloadData()
+        
+        collectionView.reloadData()
     }
     
     
@@ -2078,31 +1438,874 @@ extension OwnedGamesViewController: UISearchBarDelegate {
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
         guard let text = searchBar.text else { return }
         
-                self.ownedGames = self.persistenceManager.fetchGame(SavedGames.self, byGameTitle: text, platformID: nil, selectedGenres: genreSelections, selectedPlatforms: platformsToFilter, selectedDateRange: dateSelections)
-            
-      
-//        print("search bar search button clicked")
-        self.filteredGameCountLbl.text = "\(self.ownedGames.count)"
-
-        tableView.reloadData()
+        self.ownedGames = self.persistenceManager.fetchGame(SavedGames.self, byGameTitle: text, platformID: nil, selectedGenres: genreSelections, selectedPlatforms: platformsToFilter, selectedDateRange: dateSelections)
         
-        search.dismiss(animated: true) {
-//            print("search clicked")
-        }
+        self.filteredGameCountLbl.text = "\(self.ownedGames.count)"
+        
+        collectionView.reloadData()
+        
+        search.searchBar.endEditing(true)
+        
         
     }
     
     
     func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
-
-        search.dismiss(animated: true) {
-//            print("cancel clicked")
-        }
         
+        search.searchBar.endEditing(true)
         
     }
+    
+    
+    
+    
     
     
 }
 
 
+extension OwnedGamesViewController: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
+  
+    func collectionView(_ collectionView: UICollectionView, indexPathForIndexTitle title: String, at index: Int) -> IndexPath {
+
+        switch title {
+            
+        case "0-9":
+            return IndexPath(item: 0, section: index)
+       
+        case "A":
+            return IndexPath(item: 0, section: index)
+        case "B":
+        
+            return IndexPath(item: 0, section: index)
+        case "C":
+            return IndexPath(item: 0, section: index)
+
+        case "D":
+            return IndexPath(item: 0, section: index)
+
+        case "E":
+            return IndexPath(item: 0, section: index)
+
+        case "F":
+            return IndexPath(item: 0, section: index)
+
+        case "G":
+            return IndexPath(item: 0, section: index)
+
+        case "H":
+            return IndexPath(item: 0, section: index)
+
+        case "I":
+            return IndexPath(item: 0, section: index)
+
+        case "J":
+            return IndexPath(item: 0, section: index)
+
+        case "K":
+            return IndexPath(item: 0, section: index)
+
+        case "L":
+            return IndexPath(item: 0, section: index)
+
+        case "M":
+            return IndexPath(item: 0, section: index)
+
+        case "N":
+            return IndexPath(item: 0, section: index)
+        case "O":
+            return IndexPath(item: 0, section: index)
+        case "P":
+            return IndexPath(item: 0, section: index)
+        case "Q":
+            return IndexPath(item: 0, section: index)
+        case "R":
+            return IndexPath(item: 0, section: index)
+        case "S":
+            return IndexPath(item: 0, section: index)
+        case "T":
+            return IndexPath(item: 0, section: index)
+        case "U":
+            return IndexPath(item: 0, section: index)
+        case "V":
+            return IndexPath(item: 0, section: index)
+        case "W":
+            return IndexPath(item: 0, section: index)
+        case "X":
+            return IndexPath(item: 0, section: index)
+        case "Y":
+            return IndexPath(item: 0, section: index)
+        case "Z":
+            return IndexPath(item: 0, section: index)
+        default:
+            return IndexPath(item: 0, section: index)
+            
+        }
+
+    }
+    
+    
+    func indexTitles(for collectionView: UICollectionView) -> [String]? {
+        var title = createSectionTitles()
+        if let numericIndex = title.firstIndex(where: {$0 == "0-9"}) {
+            title[numericIndex] = "0"
+        }
+        return title
+        
+
+    }
+    
+    
+    func createSectionTitles()-> [String]
+    {
+        var sectionTitles : [String] = []
+
+        if numericGames.count > 0 {
+            
+            sectionTitles.append("0-9")
+        }
+        if aGames.count > 0 {
+            
+            sectionTitles.append("A")
+        }
+        if bGames.count > 0 {
+            
+            sectionTitles.append("B")
+        }
+        if cGames.count > 0 {
+            
+            sectionTitles.append("C")
+        }
+        if dGames.count > 0 {
+            
+            sectionTitles.append("D")
+        }
+        if eGames.count > 0 {
+            
+            sectionTitles.append("E")
+        }
+        if fGames.count > 0 {
+            
+            sectionTitles.append("F")
+        }
+        if gGames.count > 0 {
+            
+            sectionTitles.append("G")
+        }
+        if hGames.count > 0 {
+            
+            sectionTitles.append("H")
+        }
+        if iGames.count > 0 {
+            
+            sectionTitles.append("I")
+        }
+        if jGames.count > 0 {
+            
+            sectionTitles.append("J")
+        }
+        if kGames.count > 0 {
+            
+            sectionTitles.append("K")
+        }
+        if lGames.count > 0 {
+            
+            sectionTitles.append("L")
+        }
+        if mGames.count > 0 {
+            
+            sectionTitles.append("M")
+        }
+        if nGames.count > 0 {
+            
+            sectionTitles.append("N")
+        }
+        if oGames.count > 0 {
+            
+            sectionTitles.append("O")
+        }
+        if pGames.count > 0 {
+            
+            sectionTitles.append("P")
+        }
+        if qGames.count > 0 {
+            
+            sectionTitles.append("Q")
+        }
+        if rGames.count > 0 {
+            
+            sectionTitles.append("R")
+        }
+        if sGames.count > 0 {
+            
+            sectionTitles.append("S")
+        }
+        if tGames.count > 0 {
+            
+            sectionTitles.append("T")
+        }
+        if uGames.count > 0 {
+            
+            sectionTitles.append("U")
+        }
+        if vGames.count > 0 {
+            
+            sectionTitles.append("V")
+        }
+        if wGames.count > 0 {
+            
+            sectionTitles.append("W")
+        }
+        if xGames.count > 0 {
+            
+            sectionTitles.append("X")
+        }
+        if yGames.count > 0 {
+            
+            sectionTitles.append("Y")
+        }
+        if zGames.count > 0 {
+            
+            sectionTitles.append("Z")
+        }
+        
+        return sectionTitles
+//        return sectionTitles.map(String.init)
+    
+}
+
+    
+
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+//        return gameArray.count
+        
+        
+        let titles = createSectionTitles()
+        
+        
+           
+                
+                switch titles[section] {
+                    
+                case "0-9":
+                    
+                    return numericGames.count
+                case "A":
+                    return  aGames.count
+                case "B":
+                    return  bGames.count
+                case "C":
+                    return  cGames.count
+                case "D":
+                    return  dGames.count
+                case "E":
+                    return  eGames.count
+                case "F":
+                    return  fGames.count
+                case "G":
+                    return  gGames.count
+                case "H":
+                    return  hGames.count
+                case "I":
+                    return  iGames.count
+                case "J":
+                    return  jGames.count
+                case "K":
+                    return  kGames.count
+                case "L":
+                    return  lGames.count
+                case "M":
+                    return  mGames.count
+                case "N":
+                    return  nGames.count
+                case "O":
+                    return  oGames.count
+                case "P":
+                    return  pGames.count
+                case "Q":
+                    return  qGames.count
+                case "R":
+                    return  rGames.count
+                case "S":
+                    return  sGames.count
+                case "T":
+                    return  tGames.count
+                case "U":
+                    return  uGames.count
+                case "V":
+                    return  vGames.count
+                case "W":
+                    return  wGames.count
+                case "X":
+                    return  xGames.count
+                case "Y":
+                    return  yGames.count
+                case "Z":
+                    return  zGames.count
+                default:
+                    return 0
+                }
+        
+//        if sortDirection == .orderedAscending {
+//            switch section {
+//            case 0   :
+//                return numericGames.count
+//            case 1   :
+//                return aGames.count
+//            case 2   :
+//                return bGames.count
+//            case 3   :
+//                return cGames.count
+//            case 4   :
+//                return dGames.count
+//            case 5   :
+//                return eGames.count
+//            case 6   :
+//                return fGames.count
+//            case 7   :
+//                return gGames.count
+//            case 8   :
+//                return hGames.count
+//            case 9   :
+//                return iGames.count
+//            case 10  :
+//                return jGames.count
+//            case 11  :
+//                return kGames.count
+//            case 12  :
+//                return lGames.count
+//            case 13  :
+//                return mGames.count
+//            case 14  :
+//                return nGames.count
+//            case 15  :
+//                return oGames.count
+//            case 16  :
+//                return pGames.count
+//            case 17  :
+//                return qGames.count
+//            case 18  :
+//                return rGames.count
+//            case 19  :
+//                return sGames.count
+//            case 20  :
+//                return tGames.count
+//            case 21  :
+//                return uGames.count
+//            case 22  :
+//                return vGames.count
+//            case 23  :
+//                return wGames.count
+//            case 24  :
+//                return xGames.count
+//            case 25  :
+//                return yGames.count
+//            case 26  :
+//                return zGames.count
+//
+//            default  :     return 0
+//            }
+//        } else {
+//            switch section {
+//            case 0   :
+//                return zGames.count
+//            case 1   :
+//                return yGames.count
+//            case 2   :
+//                return xGames.count
+//            case 3   :
+//                return wGames.count
+//            case 4   :
+//                return vGames.count
+//            case 5   :
+//                return uGames.count
+//            case 6   :
+//
+//                return tGames.count
+//            case 7   :
+//                return sGames.count
+//            case 8   :
+//                return rGames.count
+//            case 9   :
+//                return qGames.count
+//            case 10  :
+//                return pGames.count
+//            case 11  :
+//                return oGames.count
+//            case 12  :
+//                return nGames.count
+//            case 13  :
+//                return mGames.count
+//            case 14  :
+//                return lGames.count
+//            case 15  :
+//                return kGames.count
+//            case 16  :
+//                return jGames.count
+//            case 17  :
+//                return iGames.count
+//            case 18  :
+//                return hGames.count
+//            case 19  :
+//                return gGames.count
+//            case 20  :
+//                return fGames.count
+//            case 21  :
+//                return eGames.count
+//            case 22  :
+//                return dGames.count
+//            case 23  :
+//                return cGames.count
+//            case 24  :
+//                return bGames.count
+//            case 25  :
+//                return aGames.count
+//            case 26  :
+//                return numericGames.count
+//
+//            default  :     return 0
+//            }
+//        }
+        
+    }
+    
+    func numberOfSections(in collectionView: UICollectionView) -> Int {
+//        return sectionTitles.count
+        
+        let sections = createSectionTitles()
+        return sections.count
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
+        
+        guard let supplementaryView = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: VCHeaderView.reuseIdentifier, for: indexPath) as? VCHeaderView else {
+            fatalError("Cannot create header view") }
+        
+        let titles = createSectionTitles()
+        
+        switch titles[indexPath.section] {
+        case "0-9":
+            supplementaryView.indexSection = "0-9"
+
+        case "A":
+            supplementaryView.indexSection = "A"
+        case "B":
+            supplementaryView.indexSection = "B"
+        case "C":
+            supplementaryView.indexSection = "C"
+        case "D":
+            supplementaryView.indexSection = "D"
+        case "E":
+            supplementaryView.indexSection = "E"
+        case "F":
+            supplementaryView.indexSection = "F"
+        case "G":
+            supplementaryView.indexSection = "G"
+        case "H":
+            supplementaryView.indexSection = "H"
+        case "I":
+            supplementaryView.indexSection = "I"
+        case "J":
+            supplementaryView.indexSection = "J"
+        case "K":
+            supplementaryView.indexSection = "K"
+        case "L":
+            supplementaryView.indexSection = "L"
+        case "M":
+            supplementaryView.indexSection = "M"
+        case "N":
+            supplementaryView.indexSection = "N"
+        case "O":
+            supplementaryView.indexSection = "O"
+        case "P":
+            supplementaryView.indexSection = "P"
+        case "Q":
+            supplementaryView.indexSection = "Q"
+        case "R":
+            supplementaryView.indexSection = "R"
+        case "S":
+            supplementaryView.indexSection = "S"
+        case "T":
+            supplementaryView.indexSection = "T"
+        case "U":
+            supplementaryView.indexSection = "U"
+        case "V":
+            supplementaryView.indexSection = "V"
+        case "W":
+            supplementaryView.indexSection = "W"
+        case "X":
+            supplementaryView.indexSection = "X"
+        case "Y":
+            supplementaryView.indexSection = "Y"
+        case "Z":
+            supplementaryView.indexSection = "Z"
+        default:
+            supplementaryView.indexSection = "-"
+
+        }
+        
+        
+//        switch indexPath.section {
+//
+//        case 0:
+//            supplementaryView.indexSection = "0-9"
+//        case 1:
+//            supplementaryView.indexSection = "A"
+//        case 2:
+//            supplementaryView.indexSection = "B"
+//        case 3:
+//            supplementaryView.indexSection = "C"
+//        case 4:
+//            supplementaryView.indexSection = "D"
+//        case 5:
+//            supplementaryView.indexSection = "E"
+//        case 6:
+//            supplementaryView.indexSection = "F"
+//        case 7:
+//            supplementaryView.indexSection = "G"
+//        case 8:
+//            supplementaryView.indexSection = "H"
+//        case 9:
+//            supplementaryView.indexSection = "I"
+//        case 10:
+//            supplementaryView.indexSection = "J"
+//        case 11:
+//            supplementaryView.indexSection = "K"
+//        case 12:
+//            supplementaryView.indexSection = "L"
+//        case 13:
+//            supplementaryView.indexSection = "M"
+//        case 14:
+//            supplementaryView.indexSection = "N"
+//        case 15:
+//            supplementaryView.indexSection = "O"
+//        case 16:
+//            supplementaryView.indexSection = "P"
+//        case 17:
+//            supplementaryView.indexSection = "Q"
+//        case 18:
+//            supplementaryView.indexSection = "R"
+//        case 19:
+//            supplementaryView.indexSection = "S"
+//        case 20:
+//            supplementaryView.indexSection = "T"
+//        case 21:
+//            supplementaryView.indexSection = "U"
+//        case 22:
+//            supplementaryView.indexSection = "V"
+//        case 23:
+//            supplementaryView.indexSection = "W"
+//        case 24:
+//            supplementaryView.indexSection = "X"
+//        case 25:
+//            supplementaryView.indexSection = "Y"
+//        case 26:
+//            supplementaryView.indexSection = "Z"
+//        default:
+//            supplementaryView.indexSection = ""
+//
+//        }
+        
+        
+        return supplementaryView
+        
+    }
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        
+        
+        if let destination = segue.destination as? PagingDetailVC {
+            guard let game = segueObject else { return }
+            destination.game = game
+            
+        }
+        
+    }
+    
+    
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+
+        if altLayout {
+            let cell = collectionView.cellForItem(at: indexPath) as! ViewControllerCVCell
+            segueObject = cell.game
+            self.performSegue(withIdentifier: "pageVC", sender: self)
+        } else {
+            let cell = collectionView.cellForItem(at: indexPath) as! ViewControllerCVTableCell
+            segueObject = cell.game
+            self.performSegue(withIdentifier: "pageVC", sender: self)
+        }
+
+    }
+    
+    
+    
+    
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+       
+        let titles = createSectionTitles()
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "CVCell", for: indexPath) as! ViewControllerCVCell
+        
+        if altLayout {
+            
+            cell.showPlatformFlag = true
+
+            switch titles[indexPath.section] {
+                
+            case "0-9":
+                let savedGame = persistenceManager.convertSavedGameToGameObject(savedGame: numericGames[indexPath.item])
+                cell.game = savedGame
+            case "A":
+                let savedGame = persistenceManager.convertSavedGameToGameObject(savedGame: aGames[indexPath.item])
+                cell.game = savedGame
+            case "B":
+                let savedGame = persistenceManager.convertSavedGameToGameObject(savedGame: bGames[indexPath.item])
+                cell.game = savedGame
+            case "C":
+                let savedGame = persistenceManager.convertSavedGameToGameObject(savedGame: cGames[indexPath.item])
+                cell.game = savedGame
+            case "D":
+                let savedGame = persistenceManager.convertSavedGameToGameObject(savedGame: dGames[indexPath.item])
+                cell.game = savedGame
+            case "E":
+                let savedGame = persistenceManager.convertSavedGameToGameObject(savedGame: eGames[indexPath.item])
+                cell.game = savedGame
+            case "F":
+                let savedGame = persistenceManager.convertSavedGameToGameObject(savedGame: fGames[indexPath.item])
+                cell.game = savedGame
+            case "G":
+                let savedGame = persistenceManager.convertSavedGameToGameObject(savedGame: gGames[indexPath.item])
+                cell.game = savedGame
+            case "H":
+                let savedGame = persistenceManager.convertSavedGameToGameObject(savedGame: hGames[indexPath.item])
+                cell.game = savedGame
+            case "I":
+                let savedGame = persistenceManager.convertSavedGameToGameObject(savedGame: iGames[indexPath.item])
+                cell.game = savedGame
+            case "J":
+                let savedGame = persistenceManager.convertSavedGameToGameObject(savedGame: jGames[indexPath.item])
+                cell.game = savedGame
+            case "K":
+                let savedGame = persistenceManager.convertSavedGameToGameObject(savedGame: kGames[indexPath.item])
+                cell.game = savedGame
+            case "L":
+                let savedGame = persistenceManager.convertSavedGameToGameObject(savedGame: lGames[indexPath.item])
+                cell.game = savedGame
+            case "M":
+                let savedGame = persistenceManager.convertSavedGameToGameObject(savedGame: mGames[indexPath.item])
+                cell.game = savedGame
+            case "N":
+                let savedGame = persistenceManager.convertSavedGameToGameObject(savedGame: nGames[indexPath.item])
+                cell.game = savedGame
+            case "O":
+                let savedGame = persistenceManager.convertSavedGameToGameObject(savedGame: oGames[indexPath.item])
+                cell.game = savedGame
+            case "P":
+                let savedGame = persistenceManager.convertSavedGameToGameObject(savedGame: pGames[indexPath.item])
+                cell.game = savedGame
+            case "Q":
+                let savedGame = persistenceManager.convertSavedGameToGameObject(savedGame: qGames[indexPath.item])
+                cell.game = savedGame
+            case "R":
+                let savedGame = persistenceManager.convertSavedGameToGameObject(savedGame: rGames[indexPath.item])
+                cell.game = savedGame
+            case "S":
+                let savedGame = persistenceManager.convertSavedGameToGameObject(savedGame: sGames[indexPath.item])
+                cell.game = savedGame
+            case "T":
+                let savedGame = persistenceManager.convertSavedGameToGameObject(savedGame: tGames[indexPath.item])
+                cell.game = savedGame
+            case "U":
+                let savedGame = persistenceManager.convertSavedGameToGameObject(savedGame: uGames[indexPath.item])
+                cell.game = savedGame
+            case "V":
+                let savedGame = persistenceManager.convertSavedGameToGameObject(savedGame: vGames[indexPath.item])
+                cell.game = savedGame
+            case "W":
+                let savedGame = persistenceManager.convertSavedGameToGameObject(savedGame: wGames[indexPath.item])
+                cell.game = savedGame
+            case "X":
+                let savedGame = persistenceManager.convertSavedGameToGameObject(savedGame: xGames[indexPath.item])
+                cell.game = savedGame
+            case "Y":
+                let savedGame = persistenceManager.convertSavedGameToGameObject(savedGame: yGames[indexPath.item])
+                cell.game = savedGame
+            case "Z":
+                let savedGame = persistenceManager.convertSavedGameToGameObject(savedGame: zGames[indexPath.item])
+                cell.game = savedGame
+            default:
+                let savedGame = persistenceManager.convertSavedGameToGameObject(savedGame: aGames[indexPath.item])
+                cell.game = savedGame
+            }
+
+            return cell
+
+                
+            } else {
+           
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "tableCell", for: indexPath) as! ViewControllerCVTableCell
+            cell.showPlatformFlag = true
+
+                
+                switch titles[indexPath.section] {
+                    
+                case "0-9":
+                    let savedGame = persistenceManager.convertSavedGameToGameObject(savedGame: numericGames[indexPath.row])
+                    cell.game = savedGame
+                case "A":
+                    let savedGame = persistenceManager.convertSavedGameToGameObject(savedGame: aGames[indexPath.row])
+                    cell.game = savedGame
+                case "B":
+                    let savedGame = persistenceManager.convertSavedGameToGameObject(savedGame: bGames[indexPath.row])
+                    cell.game = savedGame
+                case "C":
+                    let savedGame = persistenceManager.convertSavedGameToGameObject(savedGame: cGames[indexPath.row])
+                    cell.game = savedGame
+                case "D":
+                    let savedGame = persistenceManager.convertSavedGameToGameObject(savedGame: dGames[indexPath.row])
+                    cell.game = savedGame
+                case "E":
+                    let savedGame = persistenceManager.convertSavedGameToGameObject(savedGame: eGames[indexPath.row])
+                    cell.game = savedGame
+                case "F":
+                    let savedGame = persistenceManager.convertSavedGameToGameObject(savedGame: fGames[indexPath.row])
+                    cell.game = savedGame
+                case "G":
+                    let savedGame = persistenceManager.convertSavedGameToGameObject(savedGame: gGames[indexPath.row])
+                    cell.game = savedGame
+                case "H":
+                    let savedGame = persistenceManager.convertSavedGameToGameObject(savedGame: hGames[indexPath.row])
+                    cell.game = savedGame
+                case "I":
+                    let savedGame = persistenceManager.convertSavedGameToGameObject(savedGame: iGames[indexPath.row])
+                    cell.game = savedGame
+                case "J":
+                    let savedGame = persistenceManager.convertSavedGameToGameObject(savedGame: jGames[indexPath.row])
+                    cell.game = savedGame
+                case "K":
+                    let savedGame = persistenceManager.convertSavedGameToGameObject(savedGame: kGames[indexPath.row])
+                    cell.game = savedGame
+                case "L":
+                    let savedGame = persistenceManager.convertSavedGameToGameObject(savedGame: lGames[indexPath.row])
+                    cell.game = savedGame
+                case "M":
+                    let savedGame = persistenceManager.convertSavedGameToGameObject(savedGame: mGames[indexPath.row])
+                    cell.game = savedGame
+                case "N":
+                    let savedGame = persistenceManager.convertSavedGameToGameObject(savedGame: nGames[indexPath.row])
+                    cell.game = savedGame
+                case "O":
+                    let savedGame = persistenceManager.convertSavedGameToGameObject(savedGame: oGames[indexPath.row])
+                    cell.game = savedGame
+                case "P":
+                    let savedGame = persistenceManager.convertSavedGameToGameObject(savedGame: pGames[indexPath.row])
+                    cell.game = savedGame
+                case "Q":
+                    let savedGame = persistenceManager.convertSavedGameToGameObject(savedGame: qGames[indexPath.row])
+                    cell.game = savedGame
+                case "R":
+                    let savedGame = persistenceManager.convertSavedGameToGameObject(savedGame: rGames[indexPath.row])
+                    cell.game = savedGame
+                case "S":
+                    let savedGame = persistenceManager.convertSavedGameToGameObject(savedGame: sGames[indexPath.row])
+                    cell.game = savedGame
+                case "T":
+                    let savedGame = persistenceManager.convertSavedGameToGameObject(savedGame: tGames[indexPath.row])
+                    cell.game = savedGame
+                case "U":
+                    let savedGame = persistenceManager.convertSavedGameToGameObject(savedGame: uGames[indexPath.row])
+                    cell.game = savedGame
+                case "V":
+                    let savedGame = persistenceManager.convertSavedGameToGameObject(savedGame: vGames[indexPath.row])
+                    cell.game = savedGame
+                case "W":
+                    let savedGame = persistenceManager.convertSavedGameToGameObject(savedGame: wGames[indexPath.row])
+                    cell.game = savedGame
+                case "X":
+                    let savedGame = persistenceManager.convertSavedGameToGameObject(savedGame: xGames[indexPath.row])
+                    cell.game = savedGame
+                case "Y":
+                    let savedGame = persistenceManager.convertSavedGameToGameObject(savedGame: yGames[indexPath.row])
+                    cell.game = savedGame
+                case "Z":
+                    let savedGame = persistenceManager.convertSavedGameToGameObject(savedGame: zGames[indexPath.row])
+                    cell.game = savedGame
+                default:
+                    let savedGame = persistenceManager.convertSavedGameToGameObject(savedGame: aGames[indexPath.row])
+                    cell.game = savedGame
+                }
+
+                return cell
+
+            }
+            
+         
+    }
+  
+    
+    func setupCollectionViewLayout() -> UICollectionViewLayout {
+        let layout = UICollectionViewCompositionalLayout { (sectionIndex: Int, layoutEnvironment: NSCollectionLayoutEnvironment) -> NSCollectionLayoutSection? in
+           
+            if self.altLayout {
+                return self.setupAltLayout()
+            } else {
+                return self.setupTableviewLayoutSection()
+            }
+            
+        }
+        
+        return layout
+    }
+    
+    
+    fileprivate func setupAltLayout() -> NSCollectionLayoutSection {
+        var itemSize: NSCollectionLayoutSize = NSCollectionLayoutSize(widthDimension: .absolute(163), heightDimension: .fractionalHeight(1.0))
+        
+        itemSize = NSCollectionLayoutSize(widthDimension: .absolute(170), heightDimension: .fractionalHeight(1.0))
+
+        let item = NSCollectionLayoutItem(layoutSize: itemSize)
+        let groupSize = NSCollectionLayoutSize(widthDimension: .absolute(self.view.frame.width - 22.5), heightDimension: .absolute(325))
+        let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
+        group.interItemSpacing = NSCollectionLayoutSpacing.flexible(0)
+        group.contentInsets = .init(top: 10, leading: 0, bottom: 10, trailing: 0)
+
+        let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
+                                                heightDimension: .estimated(44))
+        let sectionHeader = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: headerSize, elementKind: ViewController.sectionHeaderElementKind, alignment: .top)
+        
+        let section = NSCollectionLayoutSection(group: group)
+        
+        section.boundarySupplementaryItems = [sectionHeader]
+        section.contentInsets = NSDirectionalEdgeInsets(top: 30, leading: 0, bottom: 30, trailing: 0)
+        return section
+    }
+    
+    
+    fileprivate func setupTableviewLayoutSection() -> NSCollectionLayoutSection {
+        var itemSize: NSCollectionLayoutSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .fractionalHeight(1.0))
+        
+        if self.view.frame.width > 429 {
+             itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(0.5), heightDimension: .fractionalHeight(1.0))
+
+        }
+                
+        let item = NSCollectionLayoutItem(layoutSize: itemSize)
+
+        let groupSize = NSCollectionLayoutSize(widthDimension: .absolute(self.view.frame.width - 27.5), heightDimension: .absolute(223))
+        let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
+        group.contentInsets = .init(top: 10, leading: 10, bottom: 10, trailing: 0)
+        let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
+                                                heightDimension: .estimated(44))
+        let sectionHeader = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: headerSize, elementKind: ViewController.sectionHeaderElementKind, alignment: .top)
+        
+        let section = NSCollectionLayoutSection(group: group)
+        
+        section.boundarySupplementaryItems = [sectionHeader]
+        section.contentInsets = NSDirectionalEdgeInsets(top: 30, leading: 0, bottom: 30, trailing: 0)
+        return section
+    }
+    
+    
+    
+    
+}

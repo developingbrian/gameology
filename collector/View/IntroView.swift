@@ -8,7 +8,6 @@ import SwiftUI
 import UIKit
 
 struct IntroView: View {
-//    @Environment(\.presentationMode) var presentationMode
     
     @State var endAmount : CGFloat = 0
     @State var isFilled = false
@@ -18,9 +17,8 @@ struct IntroView: View {
     @State var animationComplete = false
     @State var timerComplete = false
     @State var readyToPushController = false
-    let presentController = "notificationPresent"
-//    var function: (() -> Void)?
     @AppStorage("currentPage") var currentPage = 1
+    let presentController = "notificationPresent"
     var colors = ["color1", "color2", "color3", "color4", "color5", "color6", "color7"]
     
     
@@ -119,7 +117,7 @@ struct IntroView: View {
                                     }
                                     withAnimation(Animation.easeInOut(duration: 2.5).delay(7.0)) {
                                         if readyToPushController == true {
-                                        
+                                            
                                             
                                             
                                         }
@@ -132,7 +130,7 @@ struct IntroView: View {
                             
                             TypeView()
                             
-
+                            
                         }
                         
                         ZStack {
@@ -172,7 +170,7 @@ struct IntroView: View {
                                 
                             }
                             
-                       
+                            
                             OnboardView()
                             
                                 .opacity(scaleReduced ? 1 : 0)
@@ -182,18 +180,16 @@ struct IntroView: View {
                                         currentPage = 1
                                     }
                                     if readyToPushController == true {
-                                    
-                        
+                                        
+                                        
                                     }
                                     withAnimation(.easeInOut(duration: 0.1)) {
                                         self.animationComplete = true
                                     }
-//                                    timerComplete = true
                                     
                                     DispatchQueue.main.asyncAfter(deadline: .now() + 14, execute: {
                                         timerComplete = true
-
-//                                        NotificationCenter.default.post(name: Notification.Name("present"), object: nil)
+                                        
                                     })
                                     
                                 })
@@ -259,7 +255,7 @@ struct TypeView : View {
                     self.typeOffset = 10
                 }
             }
-    
+            
             
         }
         

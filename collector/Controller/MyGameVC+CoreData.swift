@@ -25,10 +25,8 @@ extension MyGameVC {
         let deadline = DispatchTime.now()
         
         DispatchQueue.main.asyncAfter(deadline: deadline) {
-
-                
             self.getSavedPhotos()
-            }
+        }
         
         
     }
@@ -36,23 +34,21 @@ extension MyGameVC {
     func getSavedPhotos() {
         
         let gamePhoto = persistenceManager.fetchUserPhotos(Photos.self, category: "gamePhoto", gameTitle: game.title!)
-         print("there are \(gamePhotos.count) game photos")
-         let manualPhoto = persistenceManager.fetchUserPhotos(Photos.self, category: "manualPhoto", gameTitle: game.title!)
-         
-         let boxPhoto = persistenceManager.fetchUserPhotos(Photos.self, category: "boxPhoto", gameTitle: game.title!)
-//        self.userPhotos = savedPhotos
+        let manualPhoto = persistenceManager.fetchUserPhotos(Photos.self, category: "manualPhoto", gameTitle: game.title!)
+        
+        let boxPhoto = persistenceManager.fetchUserPhotos(Photos.self, category: "boxPhoto", gameTitle: game.title!)
         
         let index = IndexPath(row: 0, section: 0) 
-            
-            if let cell = self.tableView.cellForRow(at: index) as? PhotoCell {
-                cell.gamePhotos = gamePhoto
-                print(cell.gamePhotos)
-                cell.boxPhotos = boxPhoto
-                cell.manualPhotos = manualPhoto
-                cell.collectionReloadData()
-            }
-    
-}
+        
+        if let cell = self.tableView.cellForRow(at: index) as? PhotoCell {
+            cell.gamePhotos = gamePhoto
+
+            cell.boxPhotos = boxPhoto
+            cell.manualPhotos = manualPhoto
+            cell.collectionReloadData()
+        }
+        
+    }
     
     func hasUserPhotos(category: String?) -> Bool {
         
@@ -61,10 +57,10 @@ extension MyGameVC {
         
         if category != nil {
             
-        for photo in savedPhotos {
-            if photo.category == category {
-                returnValue = true            }
-        }
+            for photo in savedPhotos {
+                if photo.category == category {
+                    returnValue = true            }
+            }
             
         } else {
             if savedPhotos.count > 0 {
@@ -74,7 +70,7 @@ extension MyGameVC {
             }
             
         }
-            return returnValue
+        return returnValue
         
     }
 }
@@ -103,10 +99,9 @@ extension PhotoCell {
         let savedPhotos = persistenceManager.fetch(Photos.self)
         
         for photo in savedPhotos {
-//            print("deleting photo core data, category = \(category), photo.category = \(photo.category), image = \(image), photo.photo = \(photo)")
             if photo.category == category && photo.photo == image {
-            persistenceManager.delete(photo)
-            persistenceManager.save()
+                persistenceManager.delete(photo)
+                persistenceManager.save()
             }
         }
         
@@ -118,16 +113,8 @@ extension PhotoCell {
         
         let savedPhotos = persistenceManager.fetch(Photos.self)
         self.userPhotos = savedPhotos
-        printSavedPhotos()
+        
     }
-    
-    func printSavedPhotos() {
-        self.userPhotos.forEach { (photo) in
-//            print(photo.photo)
-        }
-    }
-    
-    
     
     
     

@@ -15,26 +15,24 @@ import AcknowList
 class MenuTableViewController: UITableViewController, SFSafariViewControllerDelegate {
     @IBOutlet weak var vesionLabel: UILabel!
     @IBOutlet weak var appearanceSegmentedControls: UISegmentedControl!
-
-
-
     
     
-       /// CUSTOMIZE TO YOUR OWN APP/LINKS
-    let appStoreURLStringForRating = "itms-apps://apple.com/app/id1534974973"
-    let appStoreURLStringForShareSheet = "https://apps.apple.com/us/app/id1534974973"
+    
+    
+    /// CUSTOMIZE TO YOUR OWN APP/LINKS
+    let appStoreURLStringForRating = "itms-apps://apple.com/us/app/gameology/id1602617032"
+    let appStoreURLStringForShareSheet = "https://apps.apple.com/us/app/gameology/id1602617032"
     let twitterURLString = "https://twitter.com/brianarenddev"
     let igdbURLString = "https://igdb.com"
-    let neorameURLString = "https://www.deviantart.com/neorame"
     let supportEmail = "gameologyapp@gmail.com"
     
     override func viewDidLoad() {
         super.viewDidLoad()
-    
         
-//        if let appVersion = UIApplication.appVersion {
-//            vesionLabel.text = "gameology ver. \(appVersion)"
-//        }
+        
+        //        if let appVersion = UIApplication.appVersion {
+        //            vesionLabel.text = "gameology ver. \(appVersion)"
+        //        }
         vesionLabel.text = "gameology"
         
         let logo = UIImage(named: "gameologylogo44")
@@ -43,6 +41,7 @@ class MenuTableViewController: UITableViewController, SFSafariViewControllerDele
         self.navigationItem.titleView = imageView
         /// delete this if your wildcard settings make all the content take up more than the smallest iPhone screen size
         tableView.isScrollEnabled = true
+        self.edgesForExtendedLayout = []
         tableView.separatorColor = .systemGray
     }
     
@@ -67,44 +66,44 @@ class MenuTableViewController: UITableViewController, SFSafariViewControllerDele
             overrideUserInterfaceStyle = .light
             self.navigationController?.overrideUserInterfaceStyle = .light
             self.tabBarController?.overrideUserInterfaceStyle = .light
-
-
+            
+            
         } else {
             overrideUserInterfaceStyle = .dark
             self.navigationController?.overrideUserInterfaceStyle = .dark
             self.tabBarController?.overrideUserInterfaceStyle = .dark
-
+            
         }
         
         if traitCollection.userInterfaceStyle == .light {
             let lightGray = UIColor(red: 246/255, green: 246/255, blue: 246/255, alpha: 1)
             tableView.backgroundColor = lightGray
             navigationController?.view.backgroundColor = .white
-
-//            tabBarController?.tabBar.backgroundColor = lightGray
-
+            
+            //            tabBarController?.tabBar.backgroundColor = lightGray
+            
         } else if traitCollection.userInterfaceStyle == .dark {
-           let darkGray = UIColor(red: (18/255), green: (18/255), blue: (18/255), alpha: 1)
+            let darkGray = UIColor(red: (18/255), green: (18/255), blue: (18/255), alpha: 1)
             tableView.backgroundColor = darkGray
             navigationController?.view.backgroundColor = .black
-
-//            tabBarController?.tabBar.backgroundColor = darkGray
-
+            
+            //            tabBarController?.tabBar.backgroundColor = darkGray
+            
         }
     }
     //appearanceValueChanged
     @IBAction func appearanceValueDidChange(_ sender: Any) {
-    
-             
+        
+        
         let defaults = UserDefaults.standard
         
         if appearanceSegmentedControls.selectedSegmentIndex == 0 {
             overrideUserInterfaceStyle = .unspecified
             defaults.setValue(0, forKey: "appearanceSelection")
             setAppearance()
-
-            }
-         else if appearanceSegmentedControls.selectedSegmentIndex == 1 {
+            
+        }
+        else if appearanceSegmentedControls.selectedSegmentIndex == 1 {
             overrideUserInterfaceStyle = .light
             defaults.setValue(1, forKey: "appearanceSelection")
             setAppearance()
@@ -113,7 +112,7 @@ class MenuTableViewController: UITableViewController, SFSafariViewControllerDele
             defaults.setValue(2, forKey: "appearanceSelection")
             setAppearance()
         } else {
-//            print("selection error")
+            
         }
     }
     
@@ -135,7 +134,7 @@ class MenuTableViewController: UITableViewController, SFSafariViewControllerDele
     }
     
     override func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-
+        
         /// Set to your own styling preferences
         
         switch section {
@@ -163,9 +162,9 @@ class MenuTableViewController: UITableViewController, SFSafariViewControllerDele
     }
     //yourAppsSwitchValueChanged
     @IBAction func switchChanged(_ sender: Any) {
-   
-    
-    print("Your Apps switch value changed")
+        
+        
+        
     }
     
     func launchHelpfulLink() {
@@ -180,9 +179,6 @@ class MenuTableViewController: UITableViewController, SFSafariViewControllerDele
     }
     
     func launchNeorameLink() {
-//
-//        let acknowledgmentList = AcknowledgmentsTableViewController(style: .grouped)
-//        navigationController?.pushViewController(acknowledgmentList, animated: true)
         
         let viewController = AcknowListViewController()
         self.navigationController?.pushViewController(viewController, animated: true)
@@ -216,10 +212,9 @@ class MenuTableViewController: UITableViewController, SFSafariViewControllerDele
     
     
     
-    //twitterHandleTapped
     @IBAction func handlePressed(_ sender: Any) {
-  
-    let urlString = twitterURLString
+        
+        let urlString = twitterURLString
         
         if let url = URL(string: urlString) {
             let vc = SFSafariViewController(url: url)

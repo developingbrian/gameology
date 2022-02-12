@@ -12,7 +12,10 @@ import Lottie
 
 class BarCodeVC: UIViewController, BarcodeScannerCodeDelegate, BarcodeScannerErrorDelegate, BarcodeScannerDismissalDelegate {
     
-    
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+
+    }
     
     func scanner(_ controller: BarcodeScannerViewController, didReceiveError error: Error) {
         print(error)
@@ -23,27 +26,14 @@ class BarCodeVC: UIViewController, BarcodeScannerCodeDelegate, BarcodeScannerErr
     }
     
     func scanner(_ controller: BarcodeScannerViewController, didCaptureCode code: String, type: String) {
-//        print(code)
-//        print(type)
-//
-//        let intCode = Int(code)
-//        print(intCode)
+
         
         lookupUPC(upc: code) { response in
-//            print("scanner should reset")
-//            controller.reset()
-            
-            
+
             if let httpResponse = response as? HTTPURLResponse {
 
-                
                 if httpResponse.statusCode == 200 {
-//                        print("Couldnt find a match to that UPC at all.")
-//                        print("status code is 200, should do manual search by name")
-                        
-                        
-    //                    while self.network.scannedGameResults.count == 0 {
-            //            if self.network.scannedGameResults.count == 0 {
+
                         controller.dismiss(animated: true, completion: nil)
 
                         self.scanSuccess = false
@@ -55,81 +45,12 @@ class BarCodeVC: UIViewController, BarcodeScannerCodeDelegate, BarcodeScannerErr
 
                     
                     }
-    //                        print("should present alert")
-    //                        let alert = UIAlertController(title: "No Result From Scan", message: "No results were found.  Would you like to enter the game name manually?", preferredStyle: .alert)
-    //                    //                alert.addTextField()
-    //
-    //
-    //
-    //                        let okAction = UIAlertAction(title: "Yes", style: .default) { [weak self, weak alert] action in
-    //
-    //                            print("ok pressed")
-    //
-    //                            let namePrompt = UIAlertController(title: "Enter the game name", message: nil, preferredStyle: .alert)
-    //                            namePrompt.addTextField()
-    //
-    //                            let nameAction = UIAlertAction(title: "Submit", style: .default) { [weak self, weak namePrompt] action in
-    //                                guard let answer = namePrompt?.textFields?[0].text else { return }
-    //
-    //
-    //                                self?.network.fetchGameFromUPC(gameName: answer, completed: { error in
-    //
-    //                                    self?.gameArray = (self?.network.scannedGameResults)!
-    //                                    print("fetch complete")
-    //                                    self?.barcodeTableView.reloadData()
-    //
-    //                                })
-    //
-    //                            }
-    //
-    //
-    //                            namePrompt.addAction(nameAction)
-    //                            self?.present(namePrompt, animated: true)
-    //                        }
-    //
-    //                        alert.addAction(okAction)
-    //                        print("self.present(alert, animated: true)")
-    //                        self.present(alert, animated: true)
-    ////                    }
-    //
-    //                    for game in self.network.scannedGameResults {
-    //
-    //                        print(game.title!)
-    //                    }
-    //                    self.gameArray = self.network.scannedGameResults
-    //                    self.barcodeTableView.reloadData()
-    //
-    //                    UIView.animate(withDuration: 1) {
-    //                        self.barcodeTableView.alpha = 1
-    //                        self.bottomLabel.alpha = 1
-    //                        self.topLabel.alpha = 1
-    //                        self.scanButton.alpha = 1
-    //
-    //                    } completion: { complete in
-    //                        print("tableview shown")
-    //                    }
-                        
+
                                     
             }
         }
         
-//        network.fetchUPCInfo(UPC: code) { titleFromUPC in
-//            print(titleFromUPC)
-//
-//
-//
-//            self.network.fetchGameFromUPC(gameName: titleFromUPC!) { error in
-//                if error != nil {
-//
-//                print("BARCODE SCAN COMPLETE")
-//                print("GAME IS")
-//                print(self.network.scannedGameResults[0])
-//                } else {
-//                    print(error)
-//                }
-//            }
-//        }
-//        controller.reset()
+
     }
  
     let network = Networking.shared
@@ -141,19 +62,11 @@ class BarCodeVC: UIViewController, BarcodeScannerCodeDelegate, BarcodeScannerErr
     
     @IBOutlet weak var animationView: AnimationView!
     var scanSuccess : Bool! {
-//        didSet {
-//            if let value = oldValue {
-//            network.resultsReceived = value
-//            }
-//        }
-        
+ 
         willSet {
             if newValue == false {
                 NotificationCenter.default.post(name: NSNotification.Name(rawValue: "noResultFromUPCSearch"), object: nil)
 
-                
-            } else {
-//                print("newValue is", newValue)
             }
         }
     }
@@ -194,22 +107,23 @@ class BarCodeVC: UIViewController, BarcodeScannerCodeDelegate, BarcodeScannerErr
         viewController.dismissalDelegate = self
         session = URLSession(configuration: .default, delegate: self, delegateQueue: nil)
         session?.configuration.httpCookieAcceptPolicy = .never
+        
         NotificationCenter.default.addObserver(self, selector: #selector(showManualGameEntryAlert), name: NSNotification.Name(rawValue: "noResultFromUPCSearch"), object: nil)
-//
-//        present(viewController, animated: true, completion: nil)
-
-        // Do any additional setup after loading the view.
+ 
     }
     
     override func viewWillAppear(_ animated: Bool) {
         setAppearance()
     }
+    
+    
     enum PriceChartingInfo {
         case platformID
         case title
     }
 
     func extractTitle(requestType: PriceChartingInfo, url:String) -> (Int,String) {
+        //method parses URL to extract game name and platform information
         
         do {
             let regex = try NSRegularExpression(pattern: "pricecharting.com/game/(.*)/(.*)?", options: NSRegularExpression.Options.caseInsensitive)
@@ -222,10 +136,8 @@ class BarCodeVC: UIViewController, BarcodeScannerCodeDelegate, BarcodeScannerErr
                 if let firstRange = Range(firstMatch, in: url) {
                     let platformSS = url[firstRange]
                     let platform = String(platformSS)
-//                     platform = platform.replacingOccurrences(of: "-", with: " ")
+
                     let pID = convertPriceChartingNameToPlatformID(name: platform)
-                    print("platform id is", pID)
-                    print(platform)
                   platformID = pID
                 }
                 
@@ -235,12 +147,11 @@ class BarCodeVC: UIViewController, BarcodeScannerCodeDelegate, BarcodeScannerErr
                     var title = String(titleSS)
                     title = title.removingPercentEncoding!
                     title = title.replacingOccurrences(of: "-", with: " ")
-//                    title = title.replacingOccurrences(of: "spiderman", with: "spider-man")
 
                     let titleComponents = title.components(separatedBy: "?")
                     title = titleComponents[0]
-                    print(title)
-                   platformName = title
+
+                    platformName = title
                 }
                 
       
@@ -250,7 +161,7 @@ class BarCodeVC: UIViewController, BarcodeScannerCodeDelegate, BarcodeScannerErr
             return (platformID, platformName)
         }
         catch {
-          print("error")
+
             return (0,"")
         }
     }
@@ -258,55 +169,22 @@ class BarCodeVC: UIViewController, BarcodeScannerCodeDelegate, BarcodeScannerErr
     
     func lookupUPC(upc: String, completed: @escaping (URLResponse) -> () ) {
         let url = URL(string: "https://www.pricecharting.com/search-products?q=\(upc)&type=prices")!
-//        let url = URL(string: "http://gmail.com")!
+
         var requestHeader = URLRequest.init(url: url)
         requestHeader.httpMethod = "HEAD"
         requestHeader.httpShouldHandleCookies = false
         requestHeader.cachePolicy = .reloadIgnoringLocalAndRemoteCacheData
         
-//        session.dataTask(with: requestHeader, completionHandler: { (data, response, error)  in
-//
-//            print("data task")
-//
-//        }
-//
-//
-//
-//        ).resume()
-        print("curl represent", requestHeader.curlString)
-//        session?.dataTask(with: requestHeader).resume()
         session?.dataTask(with: requestHeader, completionHandler: { (data, response, error) in
-            if let response = response as? HTTPURLResponse {
-                if let l = response.value(forHTTPHeaderField: "Location") {
-                    print("location", l)
-                }
-
-                print(response)
-
-
-            }
-//            print("data is here")
-//            print(String(data: data!, encoding: .utf8))
-//            print(response?.url)
+     
             DispatchQueue.main.async {
                 completed(response!)
 
             }
+            
         }).resume()
         
-//        URLSession.shared.dataTask(with: requestHeader).resume()
-//        URLSession.shared.dataTask(with: requestHeader) { (data, response, error) in
-//
-//            print(data)
-//            print(response?.url)
-//            if let httpResponse = response as? HTTPURLResponse, error == nil {
-//                httpResponse.statusCode == 301
-//                print(httpResponse.allHeaderFields)
-//                print(httpResponse.value(forHTTPHeaderField: "Location"))
-//            }
-//
-//
-//        }.resume()
+
         
     }
     
@@ -380,15 +258,20 @@ class BarCodeVC: UIViewController, BarcodeScannerCodeDelegate, BarcodeScannerErr
     
    @objc func showManualGameEntryAlert() {
         
-        print("should present alert")
-        let alert = UIAlertController(title: "No Result From Scan", message: "No results were found.  Would you like to enter the game name manually?", preferredStyle: .alert)
-    //                alert.addTextField()
+
+       let alert = UIAlertController(title: "No Result From Scan", message: "No results were found.  Would you like to enter the game name manually?", preferredStyle: .alert)
        
-        
+       let cancelAction = UIAlertAction(title: "Cancel", style: .cancel) { action in
+           
+           alert.dismiss(animated: true) {
+               
+           }
+           
+       }
         
         let okAction = UIAlertAction(title: "Yes", style: .default) { [weak self] action in
             
-            print("ok pressed")
+
             
             let namePrompt = UIAlertController(title: "Enter the game name", message: nil, preferredStyle: .alert)
             namePrompt.addTextField()
@@ -400,10 +283,10 @@ class BarCodeVC: UIViewController, BarcodeScannerCodeDelegate, BarcodeScannerErr
                 self?.network.fetchGameFromUPC(gameName: answer, platformID: [], completed: { error in
                     
                     self?.gameArray = (self?.network.scannedGameResults)!
-                    print("fetch complete")
+
                     if self?.network.scannedGameResults.count == 0 {
-//                        print("scannedGameResults count is", self?.network.scannedGameResults.count)
-                        print("scanSuccess false")
+
+
                         self?.animationView.alpha = 1
                         self?.animationView.isHidden = false
                         self?.topLabel.alpha = 0
@@ -412,9 +295,9 @@ class BarCodeVC: UIViewController, BarcodeScannerCodeDelegate, BarcodeScannerErr
                         self?.scanSuccess = false
                         
                     } else {
-//                        print("scannedGameResults count is", self?.network.scannedGameResults.count)
-                        print("scanSuccess true")
 
+
+                        
                         
                         self?.scanButton.setTitle("Scan Another Game", for: .normal)
 
@@ -426,7 +309,7 @@ class BarCodeVC: UIViewController, BarcodeScannerCodeDelegate, BarcodeScannerErr
                             self?.bottomLabel.alpha = 1
                             self?.topLabel.alpha = 1
                         } completion: { complete in
-                            print("tableview shown")
+
                             self?.animationView.isHidden = true
                         }
                         
@@ -440,14 +323,14 @@ class BarCodeVC: UIViewController, BarcodeScannerCodeDelegate, BarcodeScannerErr
                 
             }
             
-            
+            namePrompt.addAction(cancelAction)
             namePrompt.addAction(nameAction)
             self?.present(namePrompt, animated: true)
         }
-        
+        alert.addAction(cancelAction)
         alert.addAction(okAction)
-        print("self.present(alert, animated: true)")
-        self.present(alert, animated: true)
+
+       self.present(alert, animated: true)
         
         
     }
@@ -521,11 +404,8 @@ extension BarCodeVC: URLSessionTaskDelegate, URLSessionDelegate, URLSessionDataD
     
     
     func urlSession(_ session: URLSession, task: URLSessionTask, willPerformHTTPRedirection response: HTTPURLResponse, newRequest request: URLRequest, completionHandler: @escaping (URLRequest?) -> Void) {
-//        print("stop redirect")
-//        print(response.allHeaderFields)
-//        print(response.url)
-//        print(request.url)
-//        
+
+        
         let requestString = (request.url?.absoluteString)!
         let platformInfo = extractTitle(requestType: .title,url: requestString)
         let platformID = platformInfo.0
@@ -541,14 +421,14 @@ extension BarCodeVC: URLSessionTaskDelegate, URLSessionDelegate, URLSessionDataD
         default:
             selectedPlatforms.append(platformID)
         }
-        print("selected platforms =", selectedPlatforms)
+
         
         self.network.fetchGameFromUPC(gameName: title, platformID: selectedPlatforms) { error in
-            print("search results are")
  
             
             if self.network.scannedGameResults.count == 0 {
-                print("search produced no results, starting manual search request")
+                //search produced no results, starting manual search request
+                
                 self.viewController.dismiss(animated: true) {
                     
                 }
@@ -558,7 +438,7 @@ extension BarCodeVC: URLSessionTaskDelegate, URLSessionDelegate, URLSessionDataD
                 self.topLabel.alpha = 0
                 self.bottomLabel.alpha = 0
             } else {
-                print("search was successful")
+                //search was successful
                 self.viewController.dismiss(animated: true) {
                     
                 }
@@ -573,16 +453,13 @@ extension BarCodeVC: URLSessionTaskDelegate, URLSessionDelegate, URLSessionDataD
                     self.topLabel.alpha = 1
                     
                 } completion: { complete in
-                    print("tableview shown")
+                    //show tableview
                     self.animationView.isHidden = true
                 }
 
             }
             
-            for game in self.network.scannedGameResults {
-                
-                print(game.title!)
-            }
+          
             self.gameArray = self.network.scannedGameResults
             self.barcodeTableView.reloadData()
 
@@ -627,37 +504,16 @@ extension BarCodeVC: UITableViewDelegate, UITableViewDataSource {
         return cell!
     }
     
-//    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-//        
-//        
-////        let cell = tableView.cellForRow(at: indexPath) as! BarcodeTableViewCell
-////        print("test \(cell.frontImageName)")
-//        print("game array count",gameArray.count)
-//        segueObject = gameArray[indexPath.row]
-//        
-//        print("game array is", gameArray)
-//        print("segue object is", segueObject)
-////        if let image = cell.tableViewCoverImage.image {
-////            print("setting boxartimage")
-////            segueObject?.boxartImage = image
-////        }
-////        print(segueObject)
-//
-//        self.performSegue(withIdentifier: "pagingBarcodeVC", sender: self)
-//        
-//    }
+
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         
-        print("prepare for segue")
         if let destination = segue.destination as? PagingDetailVC {
             let index = barcodeTableView.indexPathForSelectedRow
             segueObject = gameArray[index!.row]
             destination.game = segueObject!
 
-            print("destination.game \(destination.game)")
-                        
-            print("destination2.game", destination.game)
+
 
         }
         

@@ -18,7 +18,7 @@ extension PlatformsVC {
 func fetchCoreDataPlatformObject(id: Int) -> Platform {
     
     let platform = persistenceManager.fetchFilteredByPlatform(Platform.self, platformID: id)
-    print(platform)
+
     let platformobj = platform[0]
     
     return platformobj

@@ -36,13 +36,16 @@ final class ShadowTextField: UITextField {
             shadowLayer.shadowRadius = 2
 
             layer.insertSublayer(shadowLayer, at: 0)
-            //layer.insertSublayer(shadowLayer, below: nil) // also works
-        }
-        if traitCollection.userInterfaceStyle == .light {
-        shadowLayer.fillColor = UIColor.tertiarySystemBackground.cgColor
 
+        }
+        
+        if traitCollection.userInterfaceStyle == .light {
+       
+            shadowLayer.fillColor = UIColor.tertiarySystemBackground.cgColor
         shadowLayer.shadowColor = UIColor.darkGray.cgColor
+       
         } else {
+            
             shadowLayer.fillColor = UIColor.tertiarySystemBackground.cgColor
             shadowLayer.shadowColor = UIColor.gray.cgColor
         }

@@ -12,16 +12,13 @@ import SwiftUI
 
 
 class OnboardController: UIViewController {
-  
-
+    
+    
     deinit {
         NotificationCenter.default.removeObserver(self)
-
         
     }
     
-
-
     override func viewDidLoad() {
         super.viewDidLoad()
         createObserver()
@@ -29,10 +26,9 @@ class OnboardController: UIViewController {
         let introView = IntroView()
         
         if UserDefaults.standard.bool(forKey: "isOnboardingDone") == true {
-            print("splashView")
             
             let launchController = UIHostingController.init(rootView: splashView)
-
+            
             self.addChild(launchController)
             launchController.didMove(toParent: self)
             self.view.addSubview(launchController.view)
@@ -46,46 +42,43 @@ class OnboardController: UIViewController {
             ])
             
         } else {
-            print("introView")
-        UserDefaults.standard.set(true, forKey: "isOnboardingDone")
-        
-        let onboardController = UIHostingController.init(rootView: introView)
-
-        self.addChild(onboardController)
-        
-        
-        onboardController.didMove(toParent: self)
-        
-       
-        self.view.addSubview(onboardController.view)
-        
-        
-        onboardController.view.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            onboardController.view.topAnchor.constraint(equalTo: self.view.topAnchor),
-            onboardController.view.leadingAnchor.constraint(equalTo: self.view.leadingAnchor),
-            onboardController.view.trailingAnchor.constraint(equalTo: self.view.trailingAnchor),
-            onboardController.view.bottomAnchor.constraint(equalTo: self.view.bottomAnchor),
-        ])
-        
+            
+            UserDefaults.standard.set(true, forKey: "isOnboardingDone")
+            
+            let onboardController = UIHostingController.init(rootView: introView)
+            
+            self.addChild(onboardController)
+            
+            
+            onboardController.didMove(toParent: self)
+            
+            
+            self.view.addSubview(onboardController.view)
+            
+            
+            onboardController.view.translatesAutoresizingMaskIntoConstraints = false
+            NSLayoutConstraint.activate([
+                onboardController.view.topAnchor.constraint(equalTo: self.view.topAnchor),
+                onboardController.view.leadingAnchor.constraint(equalTo: self.view.leadingAnchor),
+                onboardController.view.trailingAnchor.constraint(equalTo: self.view.trailingAnchor),
+                onboardController.view.bottomAnchor.constraint(equalTo: self.view.bottomAnchor),
+            ])
+            
         }
     }
     
     func createObserver() {
         
-        NotificationCenter.default.addObserver(self, selector: #selector(testFunc(_:)), name: NSNotification.Name(rawValue: "present"), object: nil)
         
         NotificationCenter.default.addObserver(self, selector: #selector(segueToStart(_:)), name: NSNotification.Name(rawValue: "push"), object: nil)
         
         NotificationCenter.default.addObserver(self, selector: #selector(updateInterfaceStyle(_:)), name: NSNotification.Name(rawValue: "interfaceStyle"), object: nil)
     }
-
+    
     
     @objc func updateInterfaceStyle(_ notification : Notification) {
         
         if let style = notification.userInfo?["style"] as? Int {
-            
-            print("updating interface style to ", style)
             
             switch style {
             case 0:
@@ -105,28 +98,21 @@ class OnboardController: UIViewController {
         
     }
     
-    @objc func testFunc(_ notification:Notification) {
-        
-        print("notification working")
-        
-        
-    }
-
     
-   @objc func segueToStart(_ notification: Notification) {
-        print("UIKit function called from SWIFTUI")
-       
-                let loadedStoryboard = UIStoryboard(name: "Main", bundle: nil)
-                //Load the ViewController
-                  let startVC =  loadedStoryboard.instantiateViewController(withIdentifier: "start")
-       startVC.modalTransitionStyle = .crossDissolve
-       startVC.modalPresentationStyle = .fullScreen
-       
-
-       present(startVC, animated: true, completion: {
-           
-       })
-       
+    
+    @objc func segueToStart(_ notification: Notification) {
+        
+        let loadedStoryboard = UIStoryboard(name: "Main", bundle: nil)
+        //Load the ViewController
+        let startVC =  loadedStoryboard.instantiateViewController(withIdentifier: "start")
+        startVC.modalTransitionStyle = .crossDissolve
+        startVC.modalPresentationStyle = .fullScreen
+        
+        
+        present(startVC, animated: true, completion: {
+            
+        })
+        
     }
-
+    
 }

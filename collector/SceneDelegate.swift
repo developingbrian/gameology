@@ -21,50 +21,20 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // Use this method to optionally configure and attach the UIWindow `window` to the provided UIWindowScene `scene`.
         // If using a storyboard, the `window` property will automatically be initialized and attached to the scene.
         // This delegate does not imply the connecting scene or session are new (see `application:configurationForConnectingSceneSession` instead).
-//        guard let _ = (scene as? UIWindowScene) else { return }
-   
-//        let storyboard = UIStoryboard(name: "Main", bundle: nil)
 
-
-//         if UserDefaults.standard.bool(forKey: "isOnboardingDone") == true {
-//              //Skip onboarding
-//            let mainVC = storyboard.instantiateViewController(identifier: "start")
-////            let mainVC = storyboard.instantiateViewController(identifier: "advancedSearch")
-//
-//            window?.rootViewController = mainVC
-//
-//         } else {
-//              //Show onboarding screens
-////              UserDefaults.standard.set(true, forKey: "isOnboardingDone")
-//        let contentView = ContentView().environment(\.managedObjectContext, context)
-//            let onboardVC = storyboard.instantiateViewController(identifier: "initial")
-//            window?.rootViewController = onboardVC
-//        window?.rootViewController = UIHostingController(rootView: contentView)
         Self.shared = self
-//        var onboardDelegate : OnboardDelegate?
-//        onboardDelegate = self
-//        let contentView = IntroView()
+
         if let windowScene = scene as? UIWindowScene {
             let window = UIWindow(windowScene: windowScene)
             let storyboard = UIStoryboard(name: "Main", bundle: nil)
-//            let mainVC = storyboard.instantiateViewController(withIdentifier: "start")
+
             let onboardingVC = storyboard.instantiateViewController(withIdentifier: "onboardController")
-//            if UserDefaults.standard.bool(forKey: "isOnboardingDone")  == true {
-//                window.rootViewController = mainVC
-//            } else {
-//                window.rootViewController = UIHostingController(rootView: contentView)
-//            }
+
             window.rootViewController = onboardingVC
             self.window = window
             window.makeKeyAndVisible()
         }
-//         }
-        
-//        var context: NSManagedObjectContext!
-//        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-//        context = appDelegate.persistentContainer.viewContext
-//        context.automaticallyMergesChangesFromParent = true
-//
+
 
     }
 

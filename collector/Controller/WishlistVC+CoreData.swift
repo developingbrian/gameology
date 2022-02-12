@@ -11,18 +11,11 @@ import CoreData
 
 
 extension WishlistVC {
-    func printSavedGenres() {
-        savedGenres.forEach{ (genre) in
-//            print("genre core data")
-//            print(genre.name)
-            
-        }
-    }
+    
     
     func getSavedGenres() {
         let savedGenres = persistenceManager.fetch(GameGenre.self)
         self.savedGenres = savedGenres
-        printSavedGenres()
     }
     
     func checkForGenreInLibrary(name: String) -> Bool {
@@ -30,14 +23,14 @@ extension WishlistVC {
         let savedGenres = persistenceManager.fetch(GameGenre.self)
         
         for genre in savedGenres {
-//            print(genre.name)
+            
             if genre.name == name {
-//                print("Genre", genre.name, "is saved")
+                
                 return true
             }
             
         }
-//        print("genre is not saved")
+        
         return false
     }
     
@@ -66,22 +59,19 @@ extension WishlistVC {
     }
     
     func checkForPlatformInLibrary(name: String, id:Int) -> Bool {
-//        print("checkforPlatform called")
         
         let savedPlatforms = persistenceManager.fetch(Platform.self)
         
         for platform in savedPlatforms {
-//            print(platform.name, platform.id)
+            
             if platform.name == name && platform.id == id {
-//                print("Platform \(platform.name) is in library")
+                
                 return true
             }
             
         }
-//        print("Platform is not in library")
+        
         return false
-        
-        
         
     }
     

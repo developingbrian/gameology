@@ -11,44 +11,37 @@ struct OnboardView: View {
     @AppStorage("currentPage") var currentPage = 1
     var onboardComplete = false
     let presentController = "notificationPresent"
-
+    
     @State var showApp = false
     @State var readyToPushController = false
-
-
+    
+    
     var body: some View {
         if currentPage > totalPages {
             ZStack{
                 AnimatedBackground().edgesIgnoringSafeArea(.all)
-                .overlay(
-                    ZStack{
-                Home()
-                    .transition(.opacity)
-                
-                    .onAppear {
-                        if showApp == true {
-                            showApp = false
-                        }
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 5, execute: {
-//                            readyToPushController = true
-                            showApp = true
+                    .overlay(
+                        ZStack{
+                            Home()
+                                .transition(.opacity)
                             
-                            if showApp == true {
-                                NotificationCenter.default.post(name: NSNotification.Name(rawValue: "push"), object: nil)
-                            }
-
-                        })
-
-                    }
-                
-                if showApp == true {
-//                VCSwiftUIView(storyboard: "Main", VC: "start")
-//                        .transition(.opacity)
-//                        .ignoresSafeArea()
-                   
-                }
-                    }
-                )
+                                .onAppear {
+                                    if showApp == true {
+                                        showApp = false
+                                    }
+                                    DispatchQueue.main.asyncAfter(deadline: .now() + 5, execute: {
+                                        showApp = true
+                                        
+                                        if showApp == true {
+                                            NotificationCenter.default.post(name: NSNotification.Name(rawValue: "push"), object: nil)
+                                        }
+                                        
+                                    })
+                                    
+                                }
+                            
+                        }
+                    )
                 
             }
         } else {
@@ -96,149 +89,150 @@ struct ScreenView: View {
     @AppStorage("currentPage") var currentPage = 1
     @ObservedObject var appSettings = AppSettings.shared
     @ObservedObject var interfaceSetting = InterfaceSetting.shared
-
-    var body: some View {
-        let currentTheme = sceneDelegate?.window?.traitCollection.userInterfaceStyle
-        let deselectedColor = (interfaceSetting.selection == 0 || interfaceSetting.selection == 1 ? Color.black.opacity(0.4) : Color.white.opacity(0.4))
-        let selectedColor = (interfaceSetting.selection == 0 || interfaceSetting.selection == 1 ? Color.blue.opacity(0.4) : deselectedColor)
-
-       
-        ZStack{
-           
-            GradientBGView(bgColor: bgColor).edgesIgnoringSafeArea(.all)
-        
-            VStack(spacing: 20) {
-        
-        HStack {
-
-            if currentPage == 1 {
-                VStack(alignment: .leading) {
-                Text("Welcome to Gameology")
-                    .font(.title)
-                    .fontWeight(.semibold)
-                    .kerning(1.4)
-                    
-                Text("Lets take a look around...")
-                }
-                
-            } else {
-                Button(action: {
-                    
-                    
-                    withAnimation(.easeInOut) {
-                        currentPage -= 1
-                    }
-                }, label: {
-                    SwiftUI.Image(systemName: "chevron.left")
-                        .foregroundColor(Color.white)
-                        .padding(.vertical, 10)
-                        .padding(.horizontal)
-                        .background(interfaceSetting.selection == 0 || interfaceSetting.selection == 1 ? Color.black.opacity(0.4) : Color.white.opacity(0.4))
-                        .cornerRadius(10)
-                    
-                    
-                })
-                
-            }
-            
-            Spacer(minLength: 0)
-            
-            Button(action: {
-                withAnimation(.easeOut) {
-                    
-                    currentPage = 7
-                }
-                
-            }, label: {
-                
-                Text("Skip")
-                    .fontWeight(.semibold)
-                    .kerning(1.2)
+    var traitCollection = UITraitCollection()
     
-            })
-        }
-        .foregroundColor(interfaceSetting.selection == 0 || interfaceSetting.selection == 1 ? .black : .white)
-        .padding()
+    var body: some View {
+        
+        let deselectedColor = (interfaceSetting.selection == 1 ? Color.black.opacity(0.4) : Color.white.opacity(0.4))
+        let selectedColor = (interfaceSetting.selection == 2 ? Color.white.opacity(1) : deselectedColor)
+        
+        
+        ZStack{
             
-        Spacer(minLength: 0)
+            GradientBGView(bgColor: bgColor).edgesIgnoringSafeArea(.all)
             
-            SwiftUI.Image(image)
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-            
-        Text(title)
-                .font(.title)
-                .fontWeight(.bold)
-                .foregroundColor(interfaceSetting.selection == 0 || interfaceSetting.selection == 1 ? .black : .white)
-                .padding(.top)
-           
-            if currentPage == 6 {
+            VStack(spacing: 20) {
+                
                 HStack {
-          
-                    Button(action: {
-                        model.mode = 0
-                        interfaceSetting.selection = 0
-                    }, label: {
-                        Text("Adaptive")
-                            .foregroundColor(interfaceSetting.selection == 0 ? .black : .white)
-
-                            .padding(.vertical, 10)
-                            .padding(.horizontal)
-                    })
-                        .background(Capsule().fill(interfaceSetting.selection == 0 ? selectedColor : deselectedColor))
-                                                   
-                                                   
-
+                    
+                    if currentPage == 1 {
+                        VStack(alignment: .leading) {
+                            Text("Welcome to Gameology")
+                                .font(.title)
+                                .fontWeight(.semibold)
+                                .kerning(1.4)
+                            
+                            Text("Lets take a look around...")
+                        }
+                        
+                    } else {
+                        Button(action: {
+                            
+                            
+                            withAnimation(.easeInOut) {
+                                currentPage -= 1
+                            }
+                        }, label: {
+                            SwiftUI.Image(systemName: "chevron.left")
+                                .foregroundColor(Color.white)
+                                .padding(.vertical, 10)
+                                .padding(.horizontal)
+                                .background(interfaceSetting.selection == 1 ? Color.black.opacity(0.4) : Color.white.opacity(0.4))
+                                .cornerRadius(10)
+                            
+                            
+                        })
+                        
+                    }
+                    
+                    Spacer(minLength: 0)
                     
                     Button(action: {
-                        interfaceSetting.selection = 1
-                        model.mode = 1
-                    }, label: {
-                        Text("Light")
+                        withAnimation(.easeOut) {
+                            
+                            currentPage = 7
+                        }
                         
+                    }, label: {
+                        
+                        Text("Skip")
+                            .fontWeight(.semibold)
+                            .kerning(1.2)
                             .foregroundColor(interfaceSetting.selection == 1 ? .black : .white)
-                            .padding(.vertical, 10)
-                            .padding(.horizontal)
-
-
-                    })
-                        .background(Capsule().fill(interfaceSetting.selection == 1 ? selectedColor : deselectedColor))
-
-                    
-                    Button(action: {
-                        print("mode should be 2")
-                        model.mode = 2
-                        interfaceSetting.selection = 2
                         
-                    }, label: {
-                        Text("Dark")
-                            .foregroundColor(interfaceSetting.selection == 2 ? .black : .white)
-
-                            .padding(.vertical, 10)
-                            .padding(.horizontal)
-
-
                     })
-                        .background(Capsule().fill(interfaceSetting.selection == 2 ? selectedColor : deselectedColor))
-
                 }
-
+                .foregroundColor(interfaceSetting.selection == 1 ? .black : .white)
+                .padding()
+                
+                Spacer(minLength: 0)
+                
+                SwiftUI.Image(image)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                
+                Text(title)
+                    .font(.title)
+                    .fontWeight(.bold)
+                    .foregroundColor(interfaceSetting.selection == 1 ? .black : .white)
+                    .padding(.top)
+                
+                if currentPage == 6 {
+                    HStack {
+                        
+//                        Button(action: {
+//                            model.mode = 0
+//                            interfaceSetting.selection = 0
+//                        }, label: {
+//                            Text("Adaptive")
+//                                .foregroundColor(interfaceSetting.selection == 0 ? .black : .white)
+//
+//                                .padding(.vertical, 10)
+//                                .padding(.horizontal)
+//                        })
+//                            .background(Capsule().fill(interfaceSetting.selection == 0 ? selectedColor : deselectedColor))
+//
+                        
+                        
+                        
+                        Button(action: {
+                            interfaceSetting.selection = 1
+                            model.mode = 1
+                        }, label: {
+                            Text("Light")
+                            
+                                .foregroundColor(interfaceSetting.selection == 1 ? .black : .white)
+                                .padding(.vertical, 10)
+                                .padding(.horizontal)
+                            
+                            
+                        })
+                            .background(Capsule().fill(interfaceSetting.selection == 1 ? selectedColor : deselectedColor))
+                        
+                        
+                        Button(action: {
+                            model.mode = 2
+                            interfaceSetting.selection = 2
+                            
+                        }, label: {
+                            Text("Dark")
+                                .foregroundColor(interfaceSetting.selection == 2 ? .black : .white)
+                            
+                                .padding(.vertical, 10)
+                                .padding(.horizontal)
+                            
+                            
+                        })
+                            .background(Capsule().fill(interfaceSetting.selection == 2 ? selectedColor : deselectedColor))
+                        
+                    }
+                    
+                }
+                
+                Text(detail)
+                    .fontWeight(.semibold)
+                    .kerning(1.3)
+                    .multilineTextAlignment(.center)
+                    .foregroundColor(interfaceSetting.selection == 1 ? .black : .white)
+                
+                
+                Spacer(minLength: 120)
+                
+                
             }
             
-            Text(detail)
-                .fontWeight(.semibold)
-                .kerning(1.3)
-                .multilineTextAlignment(.center)
-                .foregroundColor(interfaceSetting.selection == 0 || interfaceSetting.selection == 1 ? .black : .white)
-
-
-        Spacer(minLength: 120)
-            
-        
         }
         
-        }
-
         
         
     }
@@ -252,7 +246,7 @@ struct WalkthroughScreen: View {
     @ObservedObject var appSettings = AppSettings.shared
     @ObservedObject var interfaceSetting = InterfaceSetting.shared
     @State var interfaceStyle = SceneDelegate.shared?.window?.traitCollection.userInterfaceStyle
-
+    
     var body: some View {
         ZStack{
             
@@ -287,31 +281,42 @@ struct WalkthroughScreen: View {
             
             if currentPage == 6 {
                 
-                if interfaceSetting.selection == 1 || interfaceSetting.selection == 0{
+                
+                if interfaceSetting.selection == 0{
                     
-                if interfaceStyle == .light {
-                    
-                ScreenView(image: "onboarding6", title: "Dark Mode", detail: "Dark mode support is built in.  Set your preferred mode and we'll remember it.", bgColor: "color6")
-                    .transition(.scale)
-                    
-                    
-                }
+                    if interfaceStyle == .light {
+
+                        ScreenView(image: "onboarding6", title: "Dark Mode", detail: "Dark mode support is built in.  Set your preferred mode and we'll remember it.", bgColor: "color6")
+                            .transition(.scale)
+                        
+                        
+                    } else {
+
+                        ScreenView(image: "onboarding6", title: "Dark Mode", detail: "Dark mode support is built in.  Set your preferred mode and we'll remember it.", bgColor: "color7")
+                            .transition(.scale)
+                        
+                    }
                     
                 }
                 
+                if interfaceSetting.selection == 1 {
+                    
+                    ScreenView(image: "onboarding6", title: "Dark Mode", detail: "Dark mode support is built in.  Set your preferred mode and we'll remember it.", bgColor: "color6")
+                        .transition(.scale)
+                                        
+                }
+                
                 if interfaceSetting.selection == 2 {
-            
-//                if interfaceStyle == .dark {
+                    
                     ScreenView(image: "onboarding6", title: "Dark Mode", detail: "Dark mode support is built in.  Set your preferred mode and we'll remember it.", bgColor: "color7")
                         .transition(.scale)
                     
-//                }
                     
                 }
                 
             }
             
-        
+            
             
         }
         .overlay(
@@ -322,16 +327,15 @@ struct WalkthroughScreen: View {
                         currentPage += 1
                         DispatchQueue.main.async {
                             
-                        
-                        NotificationCenter.default.post(name: NSNotification.Name(rawValue: "present"), object: nil)
+                            NotificationCenter.default.post(name: NSNotification.Name(rawValue: "present"), object: nil)
                         }
                     }
-                
-            },
+                    
+                },
                 label: {
-
+                    
                     if interfaceSetting.selection == 2 {
-//                    if interfaceStyle == .dark {
+
                         SwiftUI.Image(systemName: "chevron.right")
                             .font(.system(size: 20, weight: .semibold))
                             .foregroundColor(.black)
@@ -339,25 +343,25 @@ struct WalkthroughScreen: View {
                             .background(Color.white)
                             .clipShape(Circle())
                             .overlay(
-                        
+                                
                                 ZStack{
                                     
-                                   
+                                    
                                     Circle()
                                         .stroke(Color.white.opacity(0.2), lineWidth: 4)
                                     
-                                      
-                                        
                                     
-                           
+                                    
+                                    
+                                    
                                     Circle()
                                         .trim(from: 0, to: CGFloat(currentPage) / CGFloat(totalPages))
                                         .stroke(Color.white,lineWidth: 4)
                                         .rotationEffect(.init(degrees: -90))
-                                        
+                                    
                                 }
                                     .padding(-15)
-                            
+                                
                             )
                     } else {
                         SwiftUI.Image(systemName: "chevron.right")
@@ -368,46 +372,46 @@ struct WalkthroughScreen: View {
                             .clipShape(Circle()).shadow(radius: 3)
                         
                             .overlay(
-                        
+                                
                                 ZStack{
                                     
-                                   
-                                    Circle()
-                                        .stroke(Color.black.opacity(0.2), lineWidth: 4)
-                                      
-                                        
                                     
                                     Circle()
-                                                .trim(from: 0, to: CGFloat(currentPage) / CGFloat(totalPages))
-                                                .stroke(Color.black,lineWidth: 4)
-                                                .rotationEffect(.init(degrees: -90))
-                                        
+                                        .stroke(Color.black.opacity(0.2), lineWidth: 4)
+                                    
+                                    
+                                    
+                                    Circle()
+                                        .trim(from: 0, to: CGFloat(currentPage) / CGFloat(totalPages))
+                                        .stroke(Color.black,lineWidth: 4)
+                                        .rotationEffect(.init(degrees: -90))
+                                    
                                 }
                                     .padding(-15)
-                            
+                                
                             )
                         
                     }
-   
-
-            })
+                    
+                    
+                })
                 .padding(.bottom, 20)
             , alignment: .bottom
-        
-   
+            
+            
         )
         
     }
-        
+    
 }
-                
+
 
 struct BGView : View {
     var bgColor : String
     
     var body: some View {
-            Color(bgColor)
-
+        Color(bgColor)
+        
     }
 }
 
@@ -415,14 +419,14 @@ struct BGView : View {
 
 struct GradientBGView : View {
     var bgColor : String
-
-
-var body: some View {
     
-    RadialGradient(colors: [.white, Color(bgColor)], center: .center, startRadius: 0, endRadius: 400).offset(x: 0, y: -50).padding(-50)
+    
+    var body: some View {
         
-
-}
+        RadialGradient(colors: [.white, Color(bgColor)], center: .center, startRadius: 0, endRadius: 400).offset(x: 0, y: -50).padding(-50)
+        
+        
+    }
 }
 
 class ToggleModel : ObservableObject {
@@ -430,23 +434,6 @@ class ToggleModel : ObservableObject {
     let defaults = UserDefaults.standard
     static let shared = ToggleModel()
 
-//    @State var mode : UIUserInterfaceStyle = .unspecified {
-//        didSet {
-//            sceneDelegate?.window!.overrideUserInterfaceStyle = mode
-//            if mode == .unspecified {
-//                defaults.setValue(0, forKey: "appearanceSelection")
-//            }
-//
-//            if mode == .light {
-//                defaults.setValue(1, forKey: "appearanceSelection")
-//            }
-//
-//            if mode == .dark {
-//                defaults.setValue(2, forKey: "appearanceSelection")
-//            }
-//        }
-//    }
-    
     var mode = 0 {
         didSet {
             var interface : UIUserInterfaceStyle = .unspecified
@@ -464,61 +451,61 @@ class ToggleModel : ObservableObject {
             
             sceneDelegate?.window!.overrideUserInterfaceStyle = interface
             if mode == 0 {
-                print("mode 0")
+
                 NotificationCenter.default.post(name: Notification.Name(rawValue: "interfaceStyle"), object: nil, userInfo: ["style" : 0])
                 defaults.setValue(0, forKey: "appearanceSelection")
             }
             
             if mode == 1 {
-                print("mode 1")
 
+                
                 NotificationCenter.default.post(name: Notification.Name(rawValue: "interfaceStyle"), object: nil, userInfo: ["style" : 1])
                 defaults.setValue(1, forKey: "appearanceSelection")
             }
             
             if mode == 2 {
-                print("mode 2")
 
+                
                 NotificationCenter.default.post(name: Notification.Name(rawValue: "interfaceStyle"), object: nil, userInfo: ["style" : 2])
                 defaults.setValue(2, forKey: "appearanceSelection")
             }
         }
     }
     
-    var selection : Int = 0 
-
+    var selection : Int = 0
+    
 }
 
 struct VCSwiftUIView: UIViewControllerRepresentable {
-
+    
     let storyboard: String
     let VC: String
-
-  func makeUIViewController(context: UIViewControllerRepresentableContext<VCSwiftUIView>) -> UITabBarController {
-
-    //Load the storyboard
-    let loadedStoryboard = UIStoryboard(name: storyboard, bundle: nil)
-    //Load the ViewController
-      return loadedStoryboard.instantiateViewController(withIdentifier: "start") as! UITabBarController
-  }
-
-  func updateUIViewController(_ uiViewController: UITabBarController, context: UIViewControllerRepresentableContext<VCSwiftUIView>) {
-  }
+    
+    func makeUIViewController(context: UIViewControllerRepresentableContext<VCSwiftUIView>) -> UITabBarController {
+        
+        //Load the storyboard
+        let loadedStoryboard = UIStoryboard(name: storyboard, bundle: nil)
+        //Load the ViewController
+        return loadedStoryboard.instantiateViewController(withIdentifier: "start") as! UITabBarController
+    }
+    
+    func updateUIViewController(_ uiViewController: UITabBarController, context: UIViewControllerRepresentableContext<VCSwiftUIView>) {
+    }
 }
 
 
 class AppSettings: ObservableObject {
-
+    
     static let shared = AppSettings()
     @AppStorage("current_theme") var currentTheme = "light"
-
+    
 }
 
 class InterfaceSetting: ObservableObject {
-
+    
     static let shared = InterfaceSetting()
-    @AppStorage("current_selection") var selection = 0
-
+    @AppStorage("current_selection") var selection = 1
+    
 }
 
 var totalPages = 6
