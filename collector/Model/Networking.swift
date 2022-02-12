@@ -19,7 +19,7 @@ protocol NetworkingDelegate: AnyObject {
 
 
 class Networking {
-    
+    //test push
     var persistenceManager = PersistenceManager.shared
     var initialFetchComplete = false
     var gameFetchDidFail = false
