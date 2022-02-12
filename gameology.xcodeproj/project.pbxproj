@@ -93,7 +93,7 @@
 		D394487D272DAA4800ADD685 /* AdvancedSearchResultsCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = D394487C272DAA4800ADD685 /* AdvancedSearchResultsCell.swift */; };
 		D39538C02727AC770035E483 /* AlignedCollectionViewFlowLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = D39538BD2727AC770035E483 /* AlignedCollectionViewFlowLayout.swift */; };
 		D39AF114277439EA000764AB /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = D39AF113277439EA000764AB /* Constants.swift */; };
-		D39AF11727768D71000764AB /* Secrets.swift in Sources */ = {isa = PBXBuildFile; fileRef = D39AF11627768D71000764AB /* Secrets.swift */; };
+		D39AF11727768D71000764AB /* Secret.swift in Sources */ = {isa = PBXBuildFile; fileRef = D39AF11627768D71000764AB /* Secret.swift */; };
 		D39B7816275E9895004231D7 /* OnboardVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = D39B7815275E9895004231D7 /* OnboardVC.swift */; };
 		D39DAC7525DF86E0007D3B84 /* SPAlert in Frameworks */ = {isa = PBXBuildFile; productRef = D39DAC7425DF86E0007D3B84 /* SPAlert */; };
 		D39DAC7725E49C45007D3B84 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = D39DAC7625E49C45007D3B84 /* README.md */; };
@@ -276,7 +276,7 @@
 		D394487C272DAA4800ADD685 /* AdvancedSearchResultsCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdvancedSearchResultsCell.swift; sourceTree = "<group>"; };
 		D39538BD2727AC770035E483 /* AlignedCollectionViewFlowLayout.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlignedCollectionViewFlowLayout.swift; sourceTree = "<group>"; };
 		D39AF113277439EA000764AB /* Constants.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
-		D39AF11627768D71000764AB /* Secrets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Secrets.swift; sourceTree = "<group>"; };
+		D39AF11627768D71000764AB /* Secret.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Secret.swift; sourceTree = "<group>"; };
 		D39B7815275E9895004231D7 /* OnboardVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardVC.swift; sourceTree = "<group>"; };
 		D39DAC7625E49C45007D3B84 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../../../../Desktop/README.md; sourceTree = "<group>"; };
 		D39DAC7825E49CB3007D3B84 /* image1 2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "image1 2.png"; path = "../../../../Desktop/image1 2.png"; sourceTree = "<group>"; };
@@ -491,7 +491,7 @@
 				D389B571241005B900B8BA54 /* SceneDelegate.swift */,
 				D39AF113277439EA000764AB /* Constants.swift */,
 				D3AFF6782462403E00DA8EB0 /* Constants.swift */,
-				D39AF11627768D71000764AB /* Secrets.swift */,
+				D39AF11627768D71000764AB /* Secret.swift */,
 				D30D47492638CDBA004FD097 /* DropdownPickerView.swift */,
 				D32CA0BB266B427D004DE5ED /* KDCircularProgress.swift */,
 				D39EB8E826D72DC500E88166 /* collector.podspec.json */,
@@ -826,7 +826,7 @@
 				D3B2628E2795140E001785EA /* NESAddButton.swift in Sources */,
 				D3790E9F275B0DA400CAC749 /* OnboardView.swift in Sources */,
 				D375D47C264663C400DC8672 /* TopTwentyCell.swift in Sources */,
-				D39AF11727768D71000764AB /* Secrets.swift in Sources */,
+				D39AF11727768D71000764AB /* Secret.swift in Sources */,
 				D3AB9033270519A700EE90CD /* Photos+CoreDataClass.swift in Sources */,
 				D39DAC7B25EB5DF2007D3B84 /* WishlistVC+CoreData.swift in Sources */,
 				D382AF6F2655DB98007FCEF8 /* ImagePageVC.swift in Sources */,

@@ -374,7 +374,7 @@ class Networking {
         let url = URL(string: "https://30kn8ciec4.execute-api.us-west-2.amazonaws.com/production/v4/games")!
         var requestHeader = URLRequest.init(url: url)
         requestHeader.httpBody = httpBodyString.data(using: .utf8, allowLossyConversion: false)
-        if let key = Data(base64Encoded: Secrets.apiKey!, options: []).map( {String(data: $0, encoding: .utf8) }) {
+        if let key = Data(base64Encoded: Secret.apiKey!, options: []).map( {String(data: $0, encoding: .utf8) }) {
             requestHeader.addValue(key!, forHTTPHeaderField: "X-Api-Key")
         }
         requestHeader.httpMethod = "POST"
@@ -734,7 +734,7 @@ class Networking {
         
         let url = URL(string: "https://30kn8ciec4.execute-api.us-west-2.amazonaws.com/production/v4/games")!
         var requestHeader = URLRequest.init(url: url)
-        if let key = Data(base64Encoded: Secrets.apiKey!, options: []).map( {String(data: $0, encoding: .utf8) }) {
+        if let key = Data(base64Encoded: Secret.apiKey!, options: []).map( {String(data: $0, encoding: .utf8) }) {
             requestHeader.addValue(key!, forHTTPHeaderField: "X-Api-Key")
         }
         requestHeader.httpBody = httpBodyString.data(using: .utf8, allowLossyConversion: false)
@@ -956,7 +956,7 @@ class Networking {
         var requestHeader = URLRequest.init(url: url)
         
         
-        if let key = Data(base64Encoded: Secrets.apiKey!, options: []).map( {String(data: $0, encoding: .utf8) }) {
+        if let key = Data(base64Encoded: Secret.apiKey!, options: []).map( {String(data: $0, encoding: .utf8) }) {
             requestHeader.addValue(key!, forHTTPHeaderField: "X-Api-Key")
         }
         
@@ -1177,7 +1177,7 @@ class Networking {
         let url = URL(string: "https://30kn8ciec4.execute-api.us-west-2.amazonaws.com/production/v4/games")!
         var requestHeader = URLRequest.init(url: url)
         
-        if let key = Data(base64Encoded: Secrets.apiKey!, options: []).map( {String(data: $0, encoding: .utf8) }) {
+        if let key = Data(base64Encoded: Secret.apiKey!, options: []).map( {String(data: $0, encoding: .utf8) }) {
             requestHeader.addValue(key!, forHTTPHeaderField: "X-Api-Key")
         }
         
@@ -1405,7 +1405,7 @@ class Networking {
             let httpBodyString = fields + parameters
             let url = URL(string: "https://30kn8ciec4.execute-api.us-west-2.amazonaws.com/production/v4/games")!
             var requestHeader = URLRequest.init(url: url)
-            if let key = Data(base64Encoded: Secrets.apiKey!, options: []).map( {String(data: $0, encoding: .utf8) }) {
+            if let key = Data(base64Encoded: Secret.apiKey!, options: []).map( {String(data: $0, encoding: .utf8) }) {
                 requestHeader.addValue(key!, forHTTPHeaderField: "X-Api-Key")
             }
             requestHeader.httpBody = httpBodyString.data(using: .utf8, allowLossyConversion: false)
@@ -1495,7 +1495,7 @@ class Networking {
         let httpBody = createHTTPBody(sortByField: sortByField, sortAscending: sortAscending, filterBy: filterBy, platformID: platformID, searchByName: searchByName, offset: offset, resultsPerPage: resultsPerPage)
         
         
-        if let key = Data(base64Encoded: Secrets.apiKey!, options: []).map( {String(data: $0, encoding: .utf8) }) {
+        if let key = Data(base64Encoded: Secret.apiKey!, options: []).map( {String(data: $0, encoding: .utf8) }) {
             requestHeader.addValue(key!, forHTTPHeaderField: "X-Api-Key")
         }
         
@@ -1626,7 +1626,7 @@ class Networking {
         requestHeader.httpBody = "fields *; limit 500;".data(using: .utf8, allowLossyConversion: false)
         
         
-        if let key = Data(base64Encoded: Secrets.apiKey!, options: []).map( {String(data: $0, encoding: .utf8) }) {
+        if let key = Data(base64Encoded: Secret.apiKey!, options: []).map( {String(data: $0, encoding: .utf8) }) {
             requestHeader.addValue(key!, forHTTPHeaderField: "X-Api-Key")
         }
         
@@ -1687,7 +1687,7 @@ class Networking {
         requestHeader.httpBody = "fields *; limit 500;".data(using: .utf8, allowLossyConversion: false)
         
         
-        if let key = Data(base64Encoded: Secrets.apiKey!, options: []).map( {String(data: $0, encoding: .utf8) }) {
+        if let key = Data(base64Encoded: Secret.apiKey!, options: []).map( {String(data: $0, encoding: .utf8) }) {
             requestHeader.addValue(key!, forHTTPHeaderField: "X-Api-Key")
         }
         
