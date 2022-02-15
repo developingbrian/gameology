@@ -628,7 +628,8 @@ final class PersistenceManager {
         
     }
     
-    
+
+
     func updateCompletedPercent<T: NSManagedObject>(objectType: T.Type, gameTitle: String, completedValue: Float) {
         let context = persistenceContainer.viewContext
         
@@ -1322,6 +1323,71 @@ final class PersistenceManager {
         
     }
 
+    func convertWishlistGameToGameObject(wishListGame: WishList) -> GameObject {
+
+        var screenshots : [ImageInfo] = []
+
+        if let persistedScreenshots = wishListGame.screenshotImageIDs {
+            for screenshot in persistedScreenshots {
+                let imageInfo = ImageInfo(id: nil, alphaChannel: nil, animated: nil, game: nil, height: nil, imageID: screenshot, url: nil, width: nil, checksum: nil)
+
+                screenshots.append(imageInfo)
+            }
+        }
+        var savedGenres : [Genre] = []
+        let genres = network.genres
+
+        for genre in genres {
+
+            for savedGenre in wishListGame.genres! {
+
+                if genre.name == savedGenre {
+                    let genreObject = Genre(id: genre.id, createdAt: nil, name: genre.name, slug: genre.slug, updatedAt: nil, url: nil, checksum: nil)
+                    savedGenres.append(genreObject)
+
+                }
+
+            }
+
+        }
+
+        let game = GameObject(
+            title: wishListGame.title,
+            id: Int(wishListGame.gameID),
+            overview: wishListGame.overview,
+            boxartFrontImage: wishListGame.boxartImageURL,
+            boxartHeight: Int(wishListGame.boxartHeight),
+            boxartWidth: Int(wishListGame.boxartWidth),
+            boxartRearImage: nil,
+            fanartImage: nil,
+            rating: wishListGame.rating,
+            releaseDate: wishListGame.releaseDate,
+            owned: true,
+            index: nil,
+            screenshots: screenshots,
+            developerIDs: nil,
+            genreIDs: nil,
+            pusblisherIDs: nil,
+            youtubePath: wishListGame.youtubeURL,
+            platformID: Int(wishListGame.platformID),
+            maxPlayers: wishListGame.maxPlayers,
+            genreDescriptions: wishListGame.genre,
+            genre: savedGenres,
+            genres: wishListGame.genres,
+            developer: wishListGame.developerName,
+            gamePhotos: nil,
+            manualPhotos: nil,
+            boxPhotos: nil,
+            totalRating: Int(wishListGame.totalRating),
+            userRating: Int(wishListGame.userRating)
+
+
+
+        )
+
+        return game
+
+    }
     
 }
 

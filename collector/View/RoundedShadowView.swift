@@ -13,22 +13,6 @@ final class RoundedShadowView: UIView {
 
     override func awakeFromNib() {
         super.awakeFromNib()
-        
-//        self.layer.cornerRadius = 10
-//        self.layer.shadowOffset = CGSize(width: 2, height: 2)
-//        self.layer.shadowOpacity = 0.75
-//        self.layer.shadowRadius = 2
-////        self.layer.masksToBounds = true
-//        self.translatesAutoresizingMaskIntoConstraints = false
-//                    if traitCollection.userInterfaceStyle == .light {
-//
-//
-//                        self.layer.shadowColor = UIColor.darkGray.cgColor
-//                    } else {
-//
-//                        self.layer.shadowColor = UIColor.gray.cgColor
-//                    }
-
 
     }
     

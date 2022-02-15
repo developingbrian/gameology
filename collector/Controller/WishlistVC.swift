@@ -196,8 +196,7 @@ extension WishlistVC: UICollectionViewDataSource, UICollectionViewDelegate, UICo
             
             
             if let selectedGame = cell.game {
-                let game = fetchGameObject(wishlistObject: selectedGame)
-                
+                let game = persistenceManager.convertWishlistGameToGameObject(wishListGame: selectedGame)
                 destination.game = game
             }
             
@@ -369,18 +368,13 @@ extension WishlistVC : WishlistDelegate{
         let wishlistAction = UIAlertAction(title: "Remove from Wishlist", style: .default) { (action) in
             
             let indexPath = self.collectionView.indexPath(for: sender)!
-            
-            guard let title = self.sectionArray[indexPath.section].game[indexPath.item].title else { return }
             let gameID = self.sectionArray[indexPath.section].game[indexPath.item].gameID
             let id = Int(gameID)
             
-            if self.checkForGameInWishList(name: title, id: id) {
-                
-                self.deleteGameFromWishList(title: title, id: id)
-                self.wishlist = self.persistenceManager.fetch(WishList.self)
-                
+            if self.persistenceManager.isGameInWishlist(gameID: id) {
+                self.persistenceManager.removeGameFromWishlist(gameID: id)
+                self.wishlist = self.persistenceManager.fetchAllWishlistGames()
                 self.platforms = self.wishlist.map( {$0.platformName!} )
-                
                 self.platforms.removeDuplicates()
                 self.platforms.sort {
                     
@@ -408,93 +402,24 @@ extension WishlistVC : WishlistDelegate{
             //Respond to selection
             let indexPath = self.collectionView.indexPath(for: sender)!
             let game = self.sectionArray[indexPath.section].game[indexPath.item]
-            guard let name = game.title else { return }
             let id = Int(game.gameID)
-            let platform = self.fetchPlatformObject(platformID: Int(game.platformID))
-            let platformName = platform.name
-            let platformID = platform.id
+
+            let wishlistGame = self.persistenceManager.convertWishlistGameToGameObject(wishListGame: game)
+            self.persistenceManager.saveGameToLibrary(game: wishlistGame)
             
-            self.saveGameToCoreData(game: game)
-            
-            let savedGames = self.persistenceManager.fetch(SavedGames.self)
-            
-            for currentGame in savedGames {
+            if self.persistenceManager.isGameInWishlist(gameID: id) {
                 
-                if currentGame.title == name && currentGame.gameID == Int32(id) {
-                    
-                    if let genres = currentGame.genres {
-                        
-                        for genre in genres {
-                            
-                            if self.checkForGenreInLibrary(name: genre) {
-                                //genre exists-retrieving and adding to game
-                                let existingGenre = self.fetchCoreDataGenreObject(name: genre)
-                                currentGame.addToGenreType(existingGenre)
-                                self.persistenceManager.save()
-                                
-                            } else {
-                                //genre doesnt exist, creating and then adding to game
-                                self.saveGenreToCoreData(genreName: genre)
-                                
-                                let newGenre = self.fetchCoreDataGenreObject(name: genre)
-                                currentGame.addToGenreType(newGenre)
-                                self.persistenceManager.save()
-                            }
-                            
-                            
-                        }
-                        
-                    }
-                    
-                    let savedPlatform = self.persistenceManager.fetch(Platform.self)
-                    
-                    if savedPlatform.count >= 1 {
-                        
-                        if self.checkForPlatformInLibrary(name: platformName, id: platformID) {
-                            
-                            let existingPlatform = self.fetchCoreDataPlatformObject(id: platformID)
-                            existingPlatform.addToGames(currentGame)
-                            self.persistenceManager.save()
-                            
-                        } else {
-                            
-                            self.savePlatformToCoreData(platformID)
-                            let newPlatform = self.fetchCoreDataPlatformObject(id: platformID)
-                            newPlatform.addToGames(currentGame)
-                            self.persistenceManager.save()
-                            
-                        }
-                    }
-                    else {
-                        self.savePlatformToCoreData(platformID)
-                        let newPlatform = self.fetchCoreDataPlatformObject(id: platformID)
-                        newPlatform.addToGames(currentGame)
-                        self.persistenceManager.save()
-                        
-                    }
-                    
-                    
-                }
-            }
-            
-            if self.checkForGameInWishList(name: name, id: id) {
-                
-                self.deleteGameFromWishList(title: name, id: id)
-                self.wishlist = self.persistenceManager.fetch(WishList.self)
-                
+                self.wishlist = self.persistenceManager.fetchAllWishlistGames()
                 self.platforms = self.wishlist.map( {$0.platformName!} )
-                
                 self.platforms.removeDuplicates()
                 self.platforms.sort {
                     
                     $0 < $1
                 }
                 self.createSectionData()
-                
             }
             
             let alertView = SPAlertView(title: "Success!!\nGame has been added to your library.\nIt will now be removed from your wishlist.", preset: .done)
-//            alertView.present(duration: 3)
             alertView.present(haptic: .success) {
                 
             }
@@ -517,132 +442,6 @@ extension WishlistVC : WishlistDelegate{
         self.present(alertController, animated: true) {
             
         }
-    }
-    
-    
-    func checkForGameInWishList(name: String, id: Int) -> Bool {
-        
-        let savedGames = persistenceManager.fetch(WishList.self)
-        
-        for savedGame in savedGames {
-            
-            if savedGame.title == name && savedGame.gameID == id {
-                
-                return true
-            }
-            
-            
-        }
-        
-        return false
-        
-    }
-    
-    
-    func deleteGameFromWishList(title: String, id: Int) {
-        
-        let savedGames = persistenceManager.fetch(WishList.self)
-        for currentGame in savedGames {
-            
-            if currentGame.title == title && currentGame.gameID == id {
-                
-                persistenceManager.delete(currentGame)
-                persistenceManager.save()
-            }
-        }
-        
-    }
-    
-    
-    func saveGameToCoreData(game: WishList) {
-        let persistedGame = SavedGames(context: persistenceManager.context)
-        
-        persistedGame.title = game.title
-        persistedGame.gameID = game.gameID
-        persistedGame.overview = game.overview
-        persistedGame.boxartImage = game.boxartImage
-        persistedGame.owned = true
-        persistedGame.releaseDate = game.releaseDate
-        persistedGame.releaseYear = game.releaseYear
-        persistedGame.rating = game.rating
-        persistedGame.boxartImageURL = game.boxartImageURL
-        persistedGame.screenshotImageIDs = game.screenshotImageIDs
-        persistedGame.developerName = game.developerName
-        persistedGame.platformName = game.platformName
-        persistedGame.platformID = game.platformID
-        persistedGame.maxPlayers = game.maxPlayers
-        persistedGame.genre = game.genre
-        persistedGame.genres = game.genres
-        persistedGame.totalRating = game.totalRating
-        persistedGame.userRating = game.userRating
-        persistedGame.youtubeURL = game.youtubeURL
-        
-        persistenceManager.save()
-        
-        
-    }
-    
-    func fetchPlatformObject(platformID: Int) -> PlatformObject {
-        
-        var platform = PlatformObject(id: 0, abbreviation: nil, alternativeName: nil, category: nil, createdAt: nil, generation: nil, name: "", platformLogo: nil, platformFamily: nil, slug: nil, updatedAt: nil, url: nil, versions: nil, checksum: nil)
-        
-        let platforms = network.platforms
-        
-        for platformObject in platforms {
-            
-            if platformObject.id == platformID {
-                
-                platform = PlatformObject(id: platformObject.id, abbreviation: platformObject.abbreviation, alternativeName: platformObject.alternativeName, category: platformObject.category, createdAt: platformObject.createdAt, generation: platformObject.generation, name: platformObject.name, platformLogo: nil, platformFamily: platformObject.platformFamily, slug: platformObject.slug, updatedAt: platformObject.updatedAt, url: platformObject.url, versions: nil, checksum: platformObject.checksum)
-                
-            }
-        }
-        
-        return platform
-        
-    }
-    
-    func fetchGameObject(wishlistObject: WishList) -> GameObject {
-        
-        var screenshots : [ImageInfo] = []
-        
-        if let screenshotImages = wishlistObject.screenshotImageIDs {
-            for screenshot in screenshotImages {
-                let screenshot = ImageInfo(id: nil, alphaChannel: nil, animated: nil, game: nil, height: nil, imageID: screenshot, url: nil, width: nil, checksum: nil)
-                screenshots.append(screenshot)
-            }
-        }
-        
-        let game = GameObject(
-            title: wishlistObject.title,
-            id: Int(wishlistObject.gameID),
-            overview: wishlistObject.overview,
-            boxartFrontImage: wishlistObject.boxartImageURL,
-            boxartHeight: Int(wishlistObject.boxartHeight),
-            boxartWidth: Int(wishlistObject.boxartWidth),
-            boxartRearImage: nil,
-            fanartImage: nil,
-            rating: wishlistObject.rating,
-            releaseDate: wishlistObject.releaseDate ,
-            owned: false,
-            index: nil,
-            screenshots: screenshots,
-            developerIDs: nil,
-            genreIDs: nil,
-            pusblisherIDs: nil,
-            youtubePath: wishlistObject.youtubeURL,
-            platformID: Int(wishlistObject.platformID),
-            maxPlayers: wishlistObject.maxPlayers,
-            genreDescriptions: wishlistObject.genre,
-            genres: wishlistObject.genres,
-            developer: wishlistObject.developerName,
-            gamePhotos: nil,
-            manualPhotos: nil,
-            boxPhotos: nil,
-            totalRating: Int(wishlistObject.totalRating),
-            userRating: Int(wishlistObject.userRating))
-        
-        
-        return game
     }
     
     func setAppearance() {
