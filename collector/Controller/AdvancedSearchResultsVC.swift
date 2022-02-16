@@ -244,175 +244,7 @@ class AdvancedSearchResultsVC: UIViewController {
         setAppearance()
         self.collectionView.reloadData()
     }
-    
-    
-//    func addRemoveBtnPressed(_ sender: AdvancedSearchResultsCell) {
-//
-//        let indexPath = tableView.indexPath(for: sender)
-//
-//        if let cell = tableView.cellForRow(at: indexPath!) as? AdvancedSearchResultsCell {
-//
-//            guard let title = cell.game?.title else {return}
-//            guard let gameID = cell.game?.id else {return}
-//            guard let platformID = cell.game?.platformID else {return}
-//
-//            let platform = fetchPlatformObject(platformID: platformID)
-//            let unownedImage = fetchAddToButtonIcon(platformID: platformID, owned: false)
-//
-//            if checkForGameInLibrary(name: title, id: gameID, platformID: platformID) {
-//                //game is in library.  confirm  request then delete
-//
-//                let cancel = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
-//
-//                let deleteConfirmation = UIAlertAction(title: "Confirm", style: .default) { action in
-//
-//                    cell.addRemoveBtn.setImage(UIImage(named: unownedImage), for: .normal)
-//
-//                    cell.game?.owned = false
-//
-//                    if self.checkForPlatformInLibrary(name: cell.platformName, id: platformID) {
-//
-//                        self.deleteGameFromCoreData()
-//
-//                        let existingPlatforms = self.fetchCoreDataPlatformObject(id: platformID)
-//
-//                        if existingPlatforms.games!.count < 1 {
-//                            self.deletePlatformFromCoreData()
-//
-//                        }
-//
-//
-//                    }
-//
-//
-//                }
-//
-//                let alert = UIAlertController(title: "Are you sure you wish to delete this game?", message: "Deleting a game is permanent.  Any user saved pictures and stats will not be able to be restored.", preferredStyle: .alert)
-//                alert.addAction(deleteConfirmation)
-//                alert.addAction(cancel)
-//                self.present(alert, animated: true) {
-//
-//                }
-//
-//
-//            } else {
-//                //game is not owned, save game
-//
-//                guard let title = cell.game?.title, let image = cell.portraitImage.image, let platformID = cell.game?.platformID else { return }
-//
-//
-//                let platformName = cell.platformName
-//
-//                let imageData = image.jpegData(compressionQuality: 1)!
-//
-//                guard let game = cell.game else { return }
-//
-//                if checkForGameInWishList(name: name, id: gameID) {
-//
-//                    deleteGameFromWishList(title: name, id: gameID)
-//                }
-//                saveGameToCoreData(title, gameID, imageData, platform, game)
-//
-//                let platformButtonImg = self.fetchAddToButtonIcon(platformID: platformID, owned: true)
-//                cell.addRemoveBtn.setImage(UIImage(named: platformButtonImg), for: .normal)
-//                cell.game?.owned = true
-//
-//                let savedGames = persistenceManager.fetch(SavedGames.self)
-//
-//
-//                for currentGame in savedGames {
-//
-//                    if currentGame.title == cell.game?.title && currentGame.gameID == (cell.game?.id)! {
-//
-//
-//                        if let genres = currentGame.genres {
-//
-//                            for genre in genres {
-//
-//
-//                                if checkForGenreInLibrary(name: genre) {
-//
-//                                    let existingGenre = fetchCoreDataGenreObject(name: genre)
-//                                    currentGame.addToGenreType(existingGenre)
-//                                    persistenceManager.save()
-//
-//
-//                                } else {
-//
-//                                    saveGenreToCoreData(genreName: genre)
-//                                    let newGenre = fetchCoreDataGenreObject(name: genre)
-//                                    currentGame.addToGenreType(newGenre)
-//                                    persistenceManager.save()
-//
-//                                }
-//
-//
-//                            }
-//
-//
-//
-//                        }
-//
-//
-//
-//                        let savedPlatform = persistenceManager.fetch(Platform.self)
-//
-//                        if savedPlatform.count >= 1 {
-//                            if checkForPlatformInLibrary(name: platformName, id: platformID) {
-//                                //Platform already exists--retreiving and adding game to platform
-//                                let existingPlatform = fetchCoreDataPlatformObject(id: platformID)
-//
-//                                existingPlatform.addToGames(currentGame)
-//                                persistenceManager.save()
-//
-//
-//                            } else {
-//
-//
-//                                //Platform doesnt exist--creating platform then adding game to platform
-//                                savePlatformToCoreData(platformID)
-//                                let newPlatform = fetchCoreDataPlatformObject(id: platformID)
-//
-//                                newPlatform.addToGames(currentGame)
-//                                persistenceManager.save()
-//
-//                            }
-//
-//
-//
-//                        } else {
-//
-//                            //Platform doesnt exist--creating platform then adding game to platform
-//                            savePlatformToCoreData(platformID)
-//                            let newPlatform = fetchCoreDataPlatformObject(id: platformID)
-//                            newPlatform.addToGames(currentGame)
-//                            persistenceManager.save()
-//
-//                        }
-//
-//
-//
-//                    }
-//
-//
-//                }
-//
-//
-//            }
-//
-//
-//        }
-//
-//
-//
-//        getSavedGames()
-//        getSavedPlatforms()
-//
-//
-//    }
-    
-    
-    
+
     func checkForGameInWishList(name: String, id: Int) -> Bool {
         
         let savedGames = persistenceManager.fetch(WishList.self)
@@ -430,8 +262,7 @@ class AdvancedSearchResultsVC: UIViewController {
         return false
         
     }
-    
-    
+
     func fetchPlatformObject(platformID: Int) -> PlatformObject {
         
         var platform = PlatformObject(id: 0, abbreviation: nil, alternativeName: nil, category: nil, createdAt: nil, generation: nil, name: "", platformLogo: nil, platformFamily: nil, slug: nil, updatedAt: nil, url: nil, versions: nil, checksum: nil)
@@ -471,8 +302,7 @@ class AdvancedSearchResultsVC: UIViewController {
         
         
     }
-    
-    
+
     func sortGameArrays() {
         self.numericGames.sort() {
             firstGame, secondGame in
@@ -803,14 +633,8 @@ class AdvancedSearchResultsVC: UIViewController {
             navigationController?.view.backgroundColor = .black
             
         }
-        
-        
-        
-        
     }
-    
-    
-    
+
     func prepareData() {
         
         var selectedPlatformIDs : [Int] = []
@@ -820,8 +644,6 @@ class AdvancedSearchResultsVC: UIViewController {
             for platform in platforms {
                 let platformID = formatPrettyPlatformNameToID(platformName: platform)
                 selectedPlatformIDs.append(platformID)
-                
-                
             }
         }
         
@@ -840,33 +662,27 @@ class AdvancedSearchResultsVC: UIViewController {
             }
         }
         spinView.isHidden = true
-//        spinView.isHidden = false
         self.showSpinner(onView: spinView, userInterfaceStyle: traitCollection.userInterfaceStyle)
-        
-        
+
         network.fetchAdvancedSearchData(title: name, platforms: selectedPlatformIDs, genres: selectedGenreIDs, yearRange: years) {
             
             self.gameArray = network.searchResultsData
             self.collectionView.reloadData()
             self.removeSpinner()
             self.searchResultsCount.text = String(self.gameArray.count)
-//            self.spinView.isHidden = true
-            
+
             UIView.animate(withDuration: 3) {
                 self.searchResultsLbl.alpha = 1
                 self.searchResultsCount.alpha = 1
             } completion: { complete in
                 
             }
-            
-            
         }
     }
-    
-    
-    func createSectionTitles()-> [String]
-    {
+
+    func createSectionTitles()-> [String] {
         var sectionTitles : [String] = []
+
         if numericGames.count > 0 {
             
             sectionTitles.append("0-9")
@@ -977,11 +793,7 @@ class AdvancedSearchResultsVC: UIViewController {
         }
         
         return sectionTitles
-    
 }
-    
-    
-    
 }
 
 
@@ -990,8 +802,7 @@ class AdvancedSearchResultsVC: UIViewController {
 
 
 extension AdvancedSearchResultsVC : UICollectionViewDelegate, UICollectionViewDataSource {
-   
-    
+
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         let titles = createSectionTitles()
 
@@ -1064,9 +875,7 @@ extension AdvancedSearchResultsVC : UICollectionViewDelegate, UICollectionViewDa
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let titles = createSectionTitles()
-//        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "CVCell", for: indexPath) as! ViewControllerCVCell
-//        if altLayout {
-    
+
         if altLayout == true {
             
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "CVCell", for: indexPath) as! ViewControllerCVCell
@@ -1392,8 +1201,7 @@ extension AdvancedSearchResultsVC : UICollectionViewDelegate, UICollectionViewDa
             }
             
         }
-        
-        
+
         return layout
     }
     
@@ -1401,29 +1209,13 @@ extension AdvancedSearchResultsVC : UICollectionViewDelegate, UICollectionViewDa
     fileprivate func setupAltLayout() -> NSCollectionLayoutSection {
         var itemSize: NSCollectionLayoutSize = NSCollectionLayoutSize(widthDimension: .absolute(163), heightDimension: .fractionalHeight(1.0))
         
-//        if self.view.frame.width > 429 {
              itemSize = NSCollectionLayoutSize(widthDimension: .absolute(170), heightDimension: .fractionalHeight(1.0))
 
-//        }
-        
-
-        
         let item = NSCollectionLayoutItem(layoutSize: itemSize)
-//
-//        if self.view.frame.width > 429 {
-//            item.contentInsets = .init(top: 0, leading: 14, bottom: 0, trailing: 14)
-//
-//        }
-        
         let groupSize = NSCollectionLayoutSize(widthDimension: .absolute(self.view.frame.width - 22.5), heightDimension: .absolute(325))
         let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
         group.interItemSpacing = NSCollectionLayoutSpacing.flexible(0)
-//        if self.view.frame.width < 429 {
-            group.contentInsets = .init(top: 10, leading: 0, bottom: 10, trailing: 0)
-
-//        } else {
-//        group.contentInsets = .init(top: 10, leading: 0, bottom: 10, trailing: 50)
-//        }
+        group.contentInsets = .init(top: 10, leading: 0, bottom: 10, trailing: 0)
         let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
                                                 heightDimension: .estimated(44))
         let sectionHeader = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: headerSize, elementKind: ViewController.sectionHeaderElementKind, alignment: .top)
@@ -1443,16 +1235,7 @@ extension AdvancedSearchResultsVC : UICollectionViewDelegate, UICollectionViewDa
              itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(0.5), heightDimension: .fractionalHeight(1.0))
 
         }
-        
-
-        
         let item = NSCollectionLayoutItem(layoutSize: itemSize)
-        
-//        if self.view.frame.width > 429 {
-//            item.contentInsets = .init(top: 0, leading: 15, bottom: 0, trailing: 15)
-//
-//        }
-        
         let groupSize = NSCollectionLayoutSize(widthDimension: .absolute(self.view.frame.width - 27.5), heightDimension: .absolute(223))
         let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
         group.contentInsets = .init(top: 10, leading: 10, bottom: 10, trailing: 0)

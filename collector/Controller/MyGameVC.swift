@@ -9,7 +9,6 @@
 import UIKit
 import CoreData
 
-
 class MyGameVC: UIViewController, UINavigationControllerDelegate, UITextViewDelegate {
     
     let persistenceManager = PersistenceManager.shared
@@ -22,25 +21,18 @@ class MyGameVC: UIViewController, UINavigationControllerDelegate, UITextViewDele
     var boxPhotos : [Photos] = [Photos]()
     let network = Networking.shared
     let lightGray = UIColor(red: 246/255, green: 246/255, blue: 246/255, alpha: 1)
-    
     let darkGray = UIColor(red: (18/255), green: (18/255), blue: (18/255), alpha: 1)
     @IBOutlet weak var tableView: UITableView!
     
-    
     deinit {
         NotificationCenter.default.removeObserver(self)
-        
     }
-    
-    
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         tableView.delegate = self
         tableView.dataSource = self
         tableView.contentInset = UIEdgeInsets(top: 45, left: 0, bottom: 0, right: 0)
-//        getUserPhotos()
         setAppearance()
         let tapGestureReconizer = UITapGestureRecognizer(target: self, action: #selector(tap))
         tapGestureReconizer.cancelsTouchesInView = false
@@ -54,42 +46,16 @@ class MyGameVC: UIViewController, UINavigationControllerDelegate, UITextViewDele
         let notificationCenter = NotificationCenter.default
         notificationCenter.addObserver(self, selector: #selector(adjustForKeyboard), name: UIResponder.keyboardWillHideNotification, object: nil)
         notificationCenter.addObserver(self, selector: #selector(adjustForKeyboard), name: UIResponder.keyboardWillChangeFrameNotification, object: nil)
-        
-        
     }
-    
-    
-    
+
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(true)
-//        getUserPhotos()
-        
         self.ownedGames = persistenceManager.fetchSingleGameObjectByName(SavedGames.self, name: game.title!, platformID: game.platformID!)
         singleGame = ownedGames[0]
         setAppearance()
-//        reloadCollectionView()
         self.tableView.reloadData()
-        
     }
-    
-    
-    
-//    func reloadCollectionView() {
-//
-//    }
-    
-//    func addPhotoButton(_ sender: PhotoCell) {
-//        let vc = UIImagePickerController()
-//        vc.sourceType = .camera
-//        vc.allowsEditing = true
-//        vc.delegate = self
-//        present(vc, animated: true)
-//    }
-    
-    
-    
-    
-    
+
     @objc func tap() {
         view.endEditing(true)
     }
@@ -138,29 +104,12 @@ class MyGameVC: UIViewController, UINavigationControllerDelegate, UITextViewDele
         tableView.scrollIndicatorInsets = contentInsets
         
     }
-    
-    
-    
-    
-    
-//    func getUserPhotos() {
-//        gamePhotos = persistenceManager.fetchUserPhotos(Photos.self, category: "gamePhoto", gameTitle: game.title!)
-//
-//        manualPhotos = persistenceManager.fetchUserPhotos(Photos.self, category: "manualPhoto", gameTitle: game.title!)
-//
-//        boxPhotos = persistenceManager.fetchUserPhotos(Photos.self, category: "boxPhoto", gameTitle: game.title!)
-//
-//
-//    }
-    
-    
-    
+
     func setAppearance() {
         
         let defaults = UserDefaults.standard
         let appearanceSelection = defaults.integer(forKey: "appearanceSelection")
-        
-        
+
         if appearanceSelection == 0 {
             self.navigationController?.overrideUserInterfaceStyle = .unspecified
             self.tabBarController?.overrideUserInterfaceStyle = .unspecified
@@ -169,30 +118,20 @@ class MyGameVC: UIViewController, UINavigationControllerDelegate, UITextViewDele
             overrideUserInterfaceStyle = .light
             self.navigationController?.overrideUserInterfaceStyle = .light
             self.tabBarController?.overrideUserInterfaceStyle = .light
-            
-            
         } else {
             overrideUserInterfaceStyle = .dark
             self.navigationController?.overrideUserInterfaceStyle = .dark
             self.tabBarController?.overrideUserInterfaceStyle = .dark
-            
         }
         
         if traitCollection.userInterfaceStyle == .light {
             let lightGray = UIColor(red: 246/255, green: 246/255, blue: 246/255, alpha: 1)
-            
             tableView.layer.backgroundColor = lightGray.cgColor
-            
         } else if traitCollection.userInterfaceStyle == .dark {
             let darkGray = UIColor(red: 18/255, green: 18/255, blue: 18/255, alpha: 1)
-            
             tableView.layer.backgroundColor = darkGray.cgColor
-            
         }
     }
-    
-    
-    
 }
 
 
@@ -210,8 +149,6 @@ extension MyGameVC: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
         
         switch section {
-//        case 0:
-//            return "Photos"
         case 0:
             return "Details"
         case 1:
@@ -227,30 +164,16 @@ extension MyGameVC: UITableViewDelegate, UITableViewDataSource {
             return nil
         }
     }
-    
 
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return UITableView.automaticDimension
     }
-    
-    
+
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let initialCell = UITableViewCell()
         
         switch indexPath.section {
-            
-//        case 0:
-//            let cell = tableView.dequeueReusableCell(withIdentifier: "UserPhotos", for: indexPath) as! PhotoCell
-//            initialCell = cell
-//            cell.delegate = self
-//            cell.parent = self
-//            cell.gameObject = self.game
-//            cell.gamePhotos = self.gamePhotos
-//            cell.boxPhotos = self.boxPhotos
-//            cell.manualPhotos = self.manualPhotos
-//
-//            return cell
-            
+
         case 0:
             let cell = tableView.dequeueReusableCell(withIdentifier: "copyCell", for: indexPath) as! CopyCell
             cell.gameObject = self.game
@@ -287,85 +210,5 @@ extension MyGameVC: UITableViewDelegate, UITableViewDataSource {
         default:
             return initialCell
         }
-        
-        
     }
-    
-    
-}
-
-
-
-extension MyGameVC: UIImagePickerControllerDelegate {
-    
-    
-    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
-        
-        picker.dismiss(animated: true)
-        
-        var categoryString = ""
-        
-        let gameAction = UIAlertAction(title: "Game Photo",
-                                       style: .default) { (action) in
-            
-            
-            categoryString = "gamePhoto"
-            
-            guard let image = info[.editedImage] as? UIImage else {
-                return
-            }
-            guard let title = self.game.title else { return }
-            
-            self.savePhotoToCoreData(image: image, category: categoryString, gameTitle: title)
-            
-//            self.reloadCollectionView()
-            self.tableView.reloadData()
-        }
-        
-        let manualAction = UIAlertAction(title: "Manual Photo",
-                                         style: .default) { (action) in
-            
-            categoryString = "manualPhoto"
-            
-            guard let image = info[.editedImage] as? UIImage else {
-                return
-            }
-            guard let title = self.game.title else { return }
-            
-            self.savePhotoToCoreData(image: image, category: categoryString, gameTitle: title)
-//            self.reloadCollectionView()
-            self.tableView.reloadData()
-        }
-        
-        let boxAction = UIAlertAction(title: "Box Photo", style: .default) { (action) in
-            
-            categoryString = "boxPhoto"
-            
-            guard let image = info[.editedImage] as? UIImage else {
-                
-                return
-            }
-            guard let title = self.game.title else { return }
-            
-            self.savePhotoToCoreData(image: image, category: categoryString, gameTitle: title)
-//            self.reloadCollectionView()
-            self.tableView.reloadData()
-        }
-        
-        let alert = UIAlertController(title: "Category", message: nil, preferredStyle: .actionSheet)
-        
-        alert.addAction(gameAction)
-        alert.addAction(manualAction)
-        alert.addAction(boxAction)
-        
-        self.present(alert, animated: true) {
-            
-        }
-        
-        
-        
-    }
-    
-    
-    
 }
