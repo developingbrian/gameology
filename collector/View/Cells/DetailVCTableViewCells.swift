@@ -239,10 +239,10 @@ extension TitleCell {
     func configureCell() {
         setAppearance()
        configureRatingView()
-        
-        let platformImageName = setPlatformIconName(platformID: game?.platformID, mode: traitCollection.userInterfaceStyle)
-
-        platformImage.image = UIImage(named: platformImageName)
+        guard let platformID = game?.platformID else { return }
+//        let platformImageName = setPlatformIconName(platformID: game?.platformID, mode: traitCollection.userInterfaceStyle)
+        let image = game?.fetchPlatformFlag(platformID: platformID, uiMode: traitCollection.userInterfaceStyle)
+        platformImage.image = image
         
         if let totalRating = game?.totalRating {
             if totalRating == 0 {

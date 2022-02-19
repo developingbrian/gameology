@@ -121,12 +121,13 @@ class WishlistVC: UIViewController {
     func getPlatformImage(platformName: String, mode: UIUserInterfaceStyle) -> UIImage {
         
         let platformID = changePlatformNameToID(platformName: platformName)
-        
-        let platformIcon = setPlatformIcon(platformID: platformID, mode: mode)
-        
-        guard let platformImage = UIImage(named: platformIcon) else { fatalError("no platform icon was found") }
-        
-        return platformImage
+        let image = wishlist[0].fetchPlatformFlag(platformID: platformID, uiMode: traitCollection.userInterfaceStyle)
+//        let platformIcon = setPlatformIcon(platformID: platformID, mode: mode)
+//        guard let platformImage = UIImage(named: platformIcon) else { fatalError("no platform icon was found") }
+//        
+//        return platformImage
+
+        return image
     }
     
     

@@ -273,10 +273,8 @@ extension OwnedGamesVCTableViewCell {
             developerLabel.text = " "
         }
         if let platformID = game?.platformID {
-            let platformName =
-            self.setPlatformIconName(platformID: Int(platformID), mode: self.traitCollection.userInterfaceStyle)
-            
-            platformImage.image = UIImage(named: platformName)
+            let image = game?.fetchPlatformFlag(platformID: Int(platformID), uiMode: traitCollection.userInterfaceStyle)            
+            platformImage.image = image
         }
         
     }

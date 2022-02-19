@@ -820,74 +820,74 @@ extension UIViewController {
         
     }
     
-    func formatPrettyPlatformNameToID(platformName: String) -> Int {
-        
-        switch platformName {
-        case "3DO Interactive Multiplayer"                  :   return 50
-        case "Amiga CD32"                                   :   return 114
-        case "Atari 2600"                                   :   return 59
-        case "Atari 5200"                                   :   return 66
-        case "Atari 7800"                                   :   return 60
-        case "Atari Jaguar"                                 :   return 62
-        case "Atari Lynx"                                   :   return 61
-        case "ColecoVision"                                 :   return 68
-        case "Fairchild Channel F"                          :   return 127
-        case "Intellivision"                                :   return 67
-        case "Magnavox Odyssey"                             :   return 88
-        case "Microsoft Xbox"                               :   return 11
-        case "Microsoft Xbox 360"                           :   return 12
-        case "Microsoft Xbox One"                           :   return 49
-        case "Microsoft Xbox Series S|X"                    :   return 169
-        case "Neo Geo AES"                                  :   return 80
-        case "Neo Geo CD"                                   :   return 136
-        case "Neo Geo Pocket"                               :   return 119
-        case "Neo Geo Pocket Color"                         :   return 120
-        case "Nintendo Game & Watch"                        :   return 307
-        case "Nintendo Entertainment System (NES)"          :   return 18
-        case "Super Nintendo Entertainment System (SNES)"   :   return 19
-        case "Nintendo Virtual Boy"                         :   return 87
-        case "Nintendo 64"                                  :   return 4
-        case "Nintendo GameCube"                            :   return 21
-        case "Nintendo Wii"                                 :   return 5
-        case "Nintendo Wii U"                               :   return 41
-        case "Nintendo Switch"                              :   return 130
-        case "Nintendo Game Boy"                            :   return 33
-        case "Nintendo Game Boy Color"                      :   return 22
-        case "Nintendo Game Boy Advance"                    :   return 24
-        case "Nintendo DS"                                  :   return 20
-        case "Nintendo DSi"                                 :   return 159
-        case "Nintendo 3DS"                                 :   return 37
-        case "New Nintendo 3DS"                             :   return 137
-        case "Nintendo Pokémon Mini"                        :   return 166
-        case "Nokia N-Gage"                                 :   return 42
-        case "Nuon"                                         :   return 122
-        case "TurboGrafx-16/PC Engine"                      :   return 86
-        case "PC Engine SuperGrafx"                         :   return 128
-        case "Philips CD-i"                                 :   return 117
-        case "Sega SG-1000"                                 :   return 84
-        case "Sega Master System"                           :   return 64
-        case "Sega Genesis/Mega Drive"                      :   return 29
-        case "Sega CD"                                      :   return 78
-        case "Sega 32X"                                     :   return 30
-        case "Sega Saturn"                                  :   return 32
-        case "Sega Dreamcast"                               :   return 23
-        case "Sega Game Gear"                               :   return 35
-        case "Sega Pico"                                    :   return 339
-        case "Sony PlayStation"                             :   return 7
-        case "Sony PlayStation 2"                           :   return 8
-        case "Sony PlayStation 3"                           :   return 9
-        case "Sony PlayStation 4"                           :   return 48
-        case "Sony PlayStation 5"                           :   return 167
-        case "Sony PlayStation Portable (PSP)"              :   return 38
-        case "Sony PlayStation Vita"                        :   return 46
-        case "Vectrex"                                      :   return 70
-        case "WonderSwan"                                   :   return 57
-        case "WonderSwan Color"                             :   return 123
-        case "Zeebo"                                        :   return 240
-        default                                             :   return 18
-        }
-        
-    }
+//    func formatPrettyPlatformNameToID(platformName: String) -> Int {
+//
+//        switch platformName {
+//        case "3DO Interactive Multiplayer"                  :   return 50
+//        case "Amiga CD32"                                   :   return 114
+//        case "Atari 2600"                                   :   return 59
+//        case "Atari 5200"                                   :   return 66
+//        case "Atari 7800"                                   :   return 60
+//        case "Atari Jaguar"                                 :   return 62
+//        case "Atari Lynx"                                   :   return 61
+//        case "ColecoVision"                                 :   return 68
+//        case "Fairchild Channel F"                          :   return 127
+//        case "Intellivision"                                :   return 67
+//        case "Magnavox Odyssey"                             :   return 88
+//        case "Microsoft Xbox"                               :   return 11
+//        case "Microsoft Xbox 360"                           :   return 12
+//        case "Microsoft Xbox One"                           :   return 49
+//        case "Microsoft Xbox Series S|X"                    :   return 169
+//        case "Neo Geo AES"                                  :   return 80
+//        case "Neo Geo CD"                                   :   return 136
+//        case "Neo Geo Pocket"                               :   return 119
+//        case "Neo Geo Pocket Color"                         :   return 120
+//        case "Nintendo Game & Watch"                        :   return 307
+//        case "Nintendo Entertainment System (NES)"          :   return 18
+//        case "Super Nintendo Entertainment System (SNES)"   :   return 19
+//        case "Nintendo Virtual Boy"                         :   return 87
+//        case "Nintendo 64"                                  :   return 4
+//        case "Nintendo GameCube"                            :   return 21
+//        case "Nintendo Wii"                                 :   return 5
+//        case "Nintendo Wii U"                               :   return 41
+//        case "Nintendo Switch"                              :   return 130
+//        case "Nintendo Game Boy"                            :   return 33
+//        case "Nintendo Game Boy Color"                      :   return 22
+//        case "Nintendo Game Boy Advance"                    :   return 24
+//        case "Nintendo DS"                                  :   return 20
+//        case "Nintendo DSi"                                 :   return 159
+//        case "Nintendo 3DS"                                 :   return 37
+//        case "New Nintendo 3DS"                             :   return 137
+//        case "Nintendo Pokémon Mini"                        :   return 166
+//        case "Nokia N-Gage"                                 :   return 42
+//        case "Nuon"                                         :   return 122
+//        case "TurboGrafx-16/PC Engine"                      :   return 86
+//        case "PC Engine SuperGrafx"                         :   return 128
+//        case "Philips CD-i"                                 :   return 117
+//        case "Sega SG-1000"                                 :   return 84
+//        case "Sega Master System"                           :   return 64
+//        case "Sega Genesis/Mega Drive"                      :   return 29
+//        case "Sega CD"                                      :   return 78
+//        case "Sega 32X"                                     :   return 30
+//        case "Sega Saturn"                                  :   return 32
+//        case "Sega Dreamcast"                               :   return 23
+//        case "Sega Game Gear"                               :   return 35
+//        case "Sega Pico"                                    :   return 339
+//        case "Sony PlayStation"                             :   return 7
+//        case "Sony PlayStation 2"                           :   return 8
+//        case "Sony PlayStation 3"                           :   return 9
+//        case "Sony PlayStation 4"                           :   return 48
+//        case "Sony PlayStation 5"                           :   return 167
+//        case "Sony PlayStation Portable (PSP)"              :   return 38
+//        case "Sony PlayStation Vita"                        :   return 46
+//        case "Vectrex"                                      :   return 70
+//        case "WonderSwan"                                   :   return 57
+//        case "WonderSwan Color"                             :   return 123
+//        case "Zeebo"                                        :   return 240
+//        default                                             :   return 18
+//        }
+//
+//    }
     
     func formatIGDBToPrettyTitle(platformName: String) -> String {
         
@@ -1296,400 +1296,400 @@ extension UIViewController {
     }
     
     
-    func setPlatformIcon(platformID: Int, mode: UIUserInterfaceStyle?) -> String {
-        
-        var platformImageName: String = ""
-
-        switch platformID {
-        case 18:
-            
-            if mode == .light {
-                //Light Mode
-                platformImageName = "NESLogo"
-            } else {
-                //Dark Mode
-                platformImageName = "NESLogoInverse"
-                
-            }
-            
-        case 19:
-            if mode == .light {
-                //Light Mode
-                platformImageName = "SNESLogo"
-            } else {
-                //Dark Mode
-                platformImageName = "SNESLogoInverse"
-                
-            }
-        case 4:
-            if mode == .light {
-                //Light Mode
-                platformImageName = "N64Logo"
-            } else {
-                //Dark Mode
-                platformImageName = "N64LogoInverse"
-                
-            }
-        case 21:
-            if mode == .light {
-                //Light Mode
-                platformImageName = "GCLogo"
-            } else {
-                //Dark Mode
-                platformImageName = "GCLogoInverse"
-                
-            }
-        case 33:
-            if mode == .light {
-                //Light Mode
-                platformImageName = "GBLogo"
-            } else {
-                //Dark Mode
-                platformImageName = "GBLogoInverse"
-                
-            }
-        case 22:
-            platformImageName = "GameBoyColorLogo"
-            
-        case 24:
-            if mode == .light {
-                //Light Mode
-                platformImageName = "GBALogo"
-            } else {
-                //Dark Mode
-                platformImageName = "gbaLogoInverse"
-                
-            }
-        case 29:
-            if mode == .light {
-                //Light Mode
-                platformImageName = "SegaGenesisLogo"
-            } else {
-                //Dark Mode
-                platformImageName = "SegaGenesisLogoInverse"
-                
-            }
-        case 78:
-            if mode == .light {
-                //Light Mode
-                platformImageName = "SegaCDLogo"
-            } else {
-                //Dark Mode
-                platformImageName = "SegaCDLogoInverse"
-                
-            }
-            
-        case 339:
-            platformImageName = "SegaPicoLogo"
-            
-        case 8:
-            if mode == .light {
-                platformImageName = "SonyPlaystation2Logo"
-            } else {
-                
-                platformImageName = "SonyPlaystation2LogoInverse"
-            }
-            
-        case 88:
-            platformImageName = "OdysseyLogo"
-            
-        case 68:
-            platformImageName = "ColecovisionLogo"
-        case 35:
-            if mode == .light {
-                platformImageName = "SegaGameGearLogo"
-            } else {
-                platformImageName = "SegaGameGearLogoInverse"
-            }
-        case 123:
-            if mode == .light {
-                platformImageName = "WonderSwanColorLogo"
-            } else {
-                platformImageName = "WonderSwanColorLogoInverse"
-            }
-        case 136:
-            if mode == .light {
-                platformImageName = "NeoGeoCDLogo"
-            } else {
-                platformImageName = "NeoGeoCDLogoInverse"
-                
-            }
-            
-        case 62:
-            platformImageName = "AtariJaguarLogo"
-            
-        case 87:
-            platformImageName = "VirtualBoyLogo"
-        case 89:
-            platformImageName = "MicrovisionLogo"
-        case 128:
-            platformImageName = "SuperGrafxLogo"
-            
-        case 86:
-            platformImageName = "TurboGrafx16Logo"
-        case 23:
-            if mode == .light {
-                platformImageName = "SegaDreamcastLogo"
-            } else {
-                platformImageName = "SegaDreamcastLogoInverse"
-            }
-        case 70:
-            if mode == .light {
-                platformImageName = "VectrexLogo"
-            } else {
-                platformImageName = "VectrexLogoInverse"
-            }
-            
-        case 119:
-            if mode == .light {
-                platformImageName = "NeoGeoPocketLogo"
-            } else {
-                platformImageName = "NeoGeoPocketLogoInverse"
-            }
-            
-        case 124:
-            if mode == .light {
-                platformImageName = "SwanCrystalLogo"
-            } else {
-                platformImageName = "SwanCrystalLogoInverse"
-            }
-        case 127:
-            if mode == .light {
-                platformImageName = "FairchildChannelFLogo"
-            } else {
-                platformImageName = "FairchildChannelFLogoInverse"
-            }
-        case 130:
-            if mode == .light {
-                platformImageName = "NintendoSwitchLogo"
-            } else {
-                platformImageName = "NintendoSwitchLogoInverse"
-            }
-        case 138:
-            if mode == .light {
-                platformImageName = "VC4000Logo"
-                
-            } else {
-                platformImageName = "VC4000LogoInverse"
-            }
-        case 159:
-            if mode == .light {
-                platformImageName = "NintendoDSiLogo"
-            } else {
-                platformImageName = "NintendoDSiLogoInverse"
-            }
-        case 11:
-            platformImageName = "XBoxLogo"
-        case 50:
-            if mode == .light {
-                platformImageName = "3DOLogo"
-            } else {
-                platformImageName = "3DOLogoInverse"
-            }
-        case 60:
-            if mode == .light {
-                platformImageName = "Atari7800Logo"
-            } else {
-                platformImageName = "Atari7800LogoInverse"
-            }
-        case 30:
-            if mode == .light {
-                platformImageName = "Sega32XLogo"
-            } else {
-                platformImageName = "Sega32XLogoInverse"
-            }
-            
-            
-        case 41:
-            platformImageName = "NintendoWiiULogo"
-        case 114:
-            if mode == .light {
-                platformImageName = "AmigaCD32Logo"
-            } else {
-                platformImageName = "AmigaCD32LogoInverse"
-            }
-        case 117:
-            if mode == .light {
-                platformImageName = "PhilipsCDiLogo"
-            }
-            else {
-                platformImageName = "PhilipsCDiLogoInverse"
-            }
-        case 122:
-            if mode == .light {
-                platformImageName = "NuonLogo"
-            } else {
-                platformImageName = "NuonLogoInverse"
-            }
-        case 120:
-            if mode == .light {
-                platformImageName = "NeoGeoPocketColorLogo"
-            } else {
-                platformImageName = "NeoGeoPocketColorLogoInverse"
-                
-            }
-        case 37:
-            if mode == .light {
-                platformImageName = "Nintendo3DSLogo"
-            } else {
-                platformImageName = "Nintendo3DSLogoInverse"
-                
-            }
-        case 64:
-            platformImageName = "SegaMasterSystemLogo"
-        case 38:
-            if mode == .light {
-                platformImageName = "SonyPSPLogo"
-            } else {
-                platformImageName = "SonyPSPLogoInverse"
-                
-            }
-        case 307:
-            if mode == .light {
-                platformImageName = "GameAndWatchLogo"
-            } else {
-                platformImageName = "GameAndWatchLogoInverse"
-            }
-        case 20:
-            if mode == .light {
-                platformImageName = "NintendoDSLogo"
-            } else {
-                platformImageName = "NintendoDSLogoInverse"
-            }
-        case 32:
-            platformImageName = "SegaSaturnLogo"
-        case 42:
-            if mode == .light {
-                platformImageName = "NokiaNGageLogo"
-            } else {
-                platformImageName = "NokiaNGageLogoInverse"
-            }
-        case 66:
-            if mode == .light {
-                platformImageName = "Atari5200Logo"
-            } else {
-                platformImageName = "Atari5200LogoInverse"
-            }
-        case 67:
-            if mode == .light {
-                platformImageName = "MattelIntelliVisionLogo"
-            } else {
-                platformImageName = "MattelIntelliVisionLogoInverse"
-                
-            }
-            
-        case 9:
-            if mode == .light {
-                platformImageName = "SonyPlaystation3Logo"
-            } else {
-                platformImageName = "SonyPlaystation3LogoInverse"
-            }
-        case 46:
-            if mode == .light {
-                platformImageName = "SonyPSVitaLogo"
-            } else {
-                platformImageName = "SonyPSVitaLogoInverse"
-                
-            }
-        case 48:
-            if mode == .light {
-                platformImageName = "SonyPlaystation4Logo"
-            } else {
-                platformImageName = "SonyPlaystation4LogoInverse"
-                
-            }
-        case 49:
-            if mode == .light {
-                platformImageName = "XBoxOneLogo"
-            } else {
-                platformImageName = "XBoxOneLogoInverse"
-            }
-        case 61:
-            platformImageName = "AtariLynxLogo"
-        case 12:
-            if mode == .light {
-                platformImageName = "XBox360Logo"
-            } else {
-                platformImageName = "XBox360LogoInverse"
-            }
-        case 167:
-            if mode == .light {
-                platformImageName = "SonyPlaystation5Logo"
-            } else {
-                platformImageName = "SonyPlaystation5LogoInverse"
-                
-            }
-        case 137:
-            if mode == .light {
-                platformImageName = "NewNintendo3DSLogo"
-            } else {
-                platformImageName = "NewNintendo3DSLogoInverse"
-                
-            }
-            
-        case 7:
-            if mode == .light {
-                platformImageName = "SonyPlaystationLogo"
-            } else {
-                platformImageName = "SonyPlayStationLogoInverse"
-            }
-        case 80:
-            if mode == .light {
-                platformImageName = "NeoGeoLogo"
-            } else {
-                platformImageName = "NeoGeoLogoInverse"
-                
-            }
-        case 84:
-            platformImageName = "SegaSG1000Logo"
-            
-            
-            
-        case 57:
-            if mode == .light {
-                platformImageName = "WonderSwanLogo"
-            } else {
-                platformImageName = "WonderSwanLogoInverse"
-                
-            }
-            
-        case 169:
-            if mode == .light {
-                platformImageName = "XBoxSeriesLogo"
-            } else {
-                platformImageName = "XBoxSeriesLogoInverse"
-                
-            }
-        case 5:
-            platformImageName = "NintendoWiiLogo"
-        case 166:
-            platformImageName = "PokemonMiniLogo"
-        case 240:
-            platformImageName = "ZeeboLogo"
-        case 274:
-            platformImageName = "PCFXLogo"
-        case 59:
-            platformImageName = "Atari2600Logo"
-            
-        case 0:
-            
-            if mode == .light {
-                //Light Mode
-                platformImageName = "allPlatformLogo"
-            } else {
-                //Dark Mode
-                platformImageName = "allPlatformLogoInverse"
-                
-            }
-            
-        default:
-            print("Invalid Platform")
-            
-            
-        }
-        return platformImageName
-        
-    }
+//    func setPlatformIcon(platformID: Int, mode: UIUserInterfaceStyle?) -> String {
+//        
+//        var platformImageName: String = ""
+//
+//        switch platformID {
+//        case 18:
+//            
+//            if mode == .light {
+//                //Light Mode
+//                platformImageName = "NESLogo"
+//            } else {
+//                //Dark Mode
+//                platformImageName = "NESLogoInverse"
+//                
+//            }
+//            
+//        case 19:
+//            if mode == .light {
+//                //Light Mode
+//                platformImageName = "SNESLogo"
+//            } else {
+//                //Dark Mode
+//                platformImageName = "SNESLogoInverse"
+//                
+//            }
+//        case 4:
+//            if mode == .light {
+//                //Light Mode
+//                platformImageName = "N64Logo"
+//            } else {
+//                //Dark Mode
+//                platformImageName = "N64LogoInverse"
+//                
+//            }
+//        case 21:
+//            if mode == .light {
+//                //Light Mode
+//                platformImageName = "GCLogo"
+//            } else {
+//                //Dark Mode
+//                platformImageName = "GCLogoInverse"
+//                
+//            }
+//        case 33:
+//            if mode == .light {
+//                //Light Mode
+//                platformImageName = "GBLogo"
+//            } else {
+//                //Dark Mode
+//                platformImageName = "GBLogoInverse"
+//                
+//            }
+//        case 22:
+//            platformImageName = "GameBoyColorLogo"
+//            
+//        case 24:
+//            if mode == .light {
+//                //Light Mode
+//                platformImageName = "GBALogo"
+//            } else {
+//                //Dark Mode
+//                platformImageName = "gbaLogoInverse"
+//                
+//            }
+//        case 29:
+//            if mode == .light {
+//                //Light Mode
+//                platformImageName = "SegaGenesisLogo"
+//            } else {
+//                //Dark Mode
+//                platformImageName = "SegaGenesisLogoInverse"
+//                
+//            }
+//        case 78:
+//            if mode == .light {
+//                //Light Mode
+//                platformImageName = "SegaCDLogo"
+//            } else {
+//                //Dark Mode
+//                platformImageName = "SegaCDLogoInverse"
+//                
+//            }
+//            
+//        case 339:
+//            platformImageName = "SegaPicoLogo"
+//            
+//        case 8:
+//            if mode == .light {
+//                platformImageName = "SonyPlaystation2Logo"
+//            } else {
+//                
+//                platformImageName = "SonyPlaystation2LogoInverse"
+//            }
+//            
+//        case 88:
+//            platformImageName = "OdysseyLogo"
+//            
+//        case 68:
+//            platformImageName = "ColecovisionLogo"
+//        case 35:
+//            if mode == .light {
+//                platformImageName = "SegaGameGearLogo"
+//            } else {
+//                platformImageName = "SegaGameGearLogoInverse"
+//            }
+//        case 123:
+//            if mode == .light {
+//                platformImageName = "WonderSwanColorLogo"
+//            } else {
+//                platformImageName = "WonderSwanColorLogoInverse"
+//            }
+//        case 136:
+//            if mode == .light {
+//                platformImageName = "NeoGeoCDLogo"
+//            } else {
+//                platformImageName = "NeoGeoCDLogoInverse"
+//                
+//            }
+//            
+//        case 62:
+//            platformImageName = "AtariJaguarLogo"
+//            
+//        case 87:
+//            platformImageName = "VirtualBoyLogo"
+//        case 89:
+//            platformImageName = "MicrovisionLogo"
+//        case 128:
+//            platformImageName = "SuperGrafxLogo"
+//            
+//        case 86:
+//            platformImageName = "TurboGrafx16Logo"
+//        case 23:
+//            if mode == .light {
+//                platformImageName = "SegaDreamcastLogo"
+//            } else {
+//                platformImageName = "SegaDreamcastLogoInverse"
+//            }
+//        case 70:
+//            if mode == .light {
+//                platformImageName = "VectrexLogo"
+//            } else {
+//                platformImageName = "VectrexLogoInverse"
+//            }
+//            
+//        case 119:
+//            if mode == .light {
+//                platformImageName = "NeoGeoPocketLogo"
+//            } else {
+//                platformImageName = "NeoGeoPocketLogoInverse"
+//            }
+//            
+//        case 124:
+//            if mode == .light {
+//                platformImageName = "SwanCrystalLogo"
+//            } else {
+//                platformImageName = "SwanCrystalLogoInverse"
+//            }
+//        case 127:
+//            if mode == .light {
+//                platformImageName = "FairchildChannelFLogo"
+//            } else {
+//                platformImageName = "FairchildChannelFLogoInverse"
+//            }
+//        case 130:
+//            if mode == .light {
+//                platformImageName = "NintendoSwitchLogo"
+//            } else {
+//                platformImageName = "NintendoSwitchLogoInverse"
+//            }
+//        case 138:
+//            if mode == .light {
+//                platformImageName = "VC4000Logo"
+//                
+//            } else {
+//                platformImageName = "VC4000LogoInverse"
+//            }
+//        case 159:
+//            if mode == .light {
+//                platformImageName = "NintendoDSiLogo"
+//            } else {
+//                platformImageName = "NintendoDSiLogoInverse"
+//            }
+//        case 11:
+//            platformImageName = "XBoxLogo"
+//        case 50:
+//            if mode == .light {
+//                platformImageName = "3DOLogo"
+//            } else {
+//                platformImageName = "3DOLogoInverse"
+//            }
+//        case 60:
+//            if mode == .light {
+//                platformImageName = "Atari7800Logo"
+//            } else {
+//                platformImageName = "Atari7800LogoInverse"
+//            }
+//        case 30:
+//            if mode == .light {
+//                platformImageName = "Sega32XLogo"
+//            } else {
+//                platformImageName = "Sega32XLogoInverse"
+//            }
+//            
+//            
+//        case 41:
+//            platformImageName = "NintendoWiiULogo"
+//        case 114:
+//            if mode == .light {
+//                platformImageName = "AmigaCD32Logo"
+//            } else {
+//                platformImageName = "AmigaCD32LogoInverse"
+//            }
+//        case 117:
+//            if mode == .light {
+//                platformImageName = "PhilipsCDiLogo"
+//            }
+//            else {
+//                platformImageName = "PhilipsCDiLogoInverse"
+//            }
+//        case 122:
+//            if mode == .light {
+//                platformImageName = "NuonLogo"
+//            } else {
+//                platformImageName = "NuonLogoInverse"
+//            }
+//        case 120:
+//            if mode == .light {
+//                platformImageName = "NeoGeoPocketColorLogo"
+//            } else {
+//                platformImageName = "NeoGeoPocketColorLogoInverse"
+//                
+//            }
+//        case 37:
+//            if mode == .light {
+//                platformImageName = "Nintendo3DSLogo"
+//            } else {
+//                platformImageName = "Nintendo3DSLogoInverse"
+//                
+//            }
+//        case 64:
+//            platformImageName = "SegaMasterSystemLogo"
+//        case 38:
+//            if mode == .light {
+//                platformImageName = "SonyPSPLogo"
+//            } else {
+//                platformImageName = "SonyPSPLogoInverse"
+//                
+//            }
+//        case 307:
+//            if mode == .light {
+//                platformImageName = "GameAndWatchLogo"
+//            } else {
+//                platformImageName = "GameAndWatchLogoInverse"
+//            }
+//        case 20:
+//            if mode == .light {
+//                platformImageName = "NintendoDSLogo"
+//            } else {
+//                platformImageName = "NintendoDSLogoInverse"
+//            }
+//        case 32:
+//            platformImageName = "SegaSaturnLogo"
+//        case 42:
+//            if mode == .light {
+//                platformImageName = "NokiaNGageLogo"
+//            } else {
+//                platformImageName = "NokiaNGageLogoInverse"
+//            }
+//        case 66:
+//            if mode == .light {
+//                platformImageName = "Atari5200Logo"
+//            } else {
+//                platformImageName = "Atari5200LogoInverse"
+//            }
+//        case 67:
+//            if mode == .light {
+//                platformImageName = "MattelIntelliVisionLogo"
+//            } else {
+//                platformImageName = "MattelIntelliVisionLogoInverse"
+//                
+//            }
+//            
+//        case 9:
+//            if mode == .light {
+//                platformImageName = "SonyPlaystation3Logo"
+//            } else {
+//                platformImageName = "SonyPlaystation3LogoInverse"
+//            }
+//        case 46:
+//            if mode == .light {
+//                platformImageName = "SonyPSVitaLogo"
+//            } else {
+//                platformImageName = "SonyPSVitaLogoInverse"
+//                
+//            }
+//        case 48:
+//            if mode == .light {
+//                platformImageName = "SonyPlaystation4Logo"
+//            } else {
+//                platformImageName = "SonyPlaystation4LogoInverse"
+//                
+//            }
+//        case 49:
+//            if mode == .light {
+//                platformImageName = "XBoxOneLogo"
+//            } else {
+//                platformImageName = "XBoxOneLogoInverse"
+//            }
+//        case 61:
+//            platformImageName = "AtariLynxLogo"
+//        case 12:
+//            if mode == .light {
+//                platformImageName = "XBox360Logo"
+//            } else {
+//                platformImageName = "XBox360LogoInverse"
+//            }
+//        case 167:
+//            if mode == .light {
+//                platformImageName = "SonyPlaystation5Logo"
+//            } else {
+//                platformImageName = "SonyPlaystation5LogoInverse"
+//                
+//            }
+//        case 137:
+//            if mode == .light {
+//                platformImageName = "NewNintendo3DSLogo"
+//            } else {
+//                platformImageName = "NewNintendo3DSLogoInverse"
+//                
+//            }
+//            
+//        case 7:
+//            if mode == .light {
+//                platformImageName = "SonyPlaystationLogo"
+//            } else {
+//                platformImageName = "SonyPlayStationLogoInverse"
+//            }
+//        case 80:
+//            if mode == .light {
+//                platformImageName = "NeoGeoLogo"
+//            } else {
+//                platformImageName = "NeoGeoLogoInverse"
+//                
+//            }
+//        case 84:
+//            platformImageName = "SegaSG1000Logo"
+//            
+//            
+//            
+//        case 57:
+//            if mode == .light {
+//                platformImageName = "WonderSwanLogo"
+//            } else {
+//                platformImageName = "WonderSwanLogoInverse"
+//                
+//            }
+//            
+//        case 169:
+//            if mode == .light {
+//                platformImageName = "XBoxSeriesLogo"
+//            } else {
+//                platformImageName = "XBoxSeriesLogoInverse"
+//                
+//            }
+//        case 5:
+//            platformImageName = "NintendoWiiLogo"
+//        case 166:
+//            platformImageName = "PokemonMiniLogo"
+//        case 240:
+//            platformImageName = "ZeeboLogo"
+//        case 274:
+//            platformImageName = "PCFXLogo"
+//        case 59:
+//            platformImageName = "Atari2600Logo"
+//            
+//        case 0:
+//            
+//            if mode == .light {
+//                //Light Mode
+//                platformImageName = "allPlatformLogo"
+//            } else {
+//                //Dark Mode
+//                platformImageName = "allPlatformLogoInverse"
+//                
+//            }
+//            
+//        default:
+//            print("Invalid Platform")
+//            
+//            
+//        }
+//        return platformImageName
+//        
+//    }
     
     
 //    func getImageFileName(imageType: String, imageData: [GameImages.Inner]) -> String {
@@ -1942,76 +1942,6 @@ extension UITableViewCell {
             .filter { String(describing: $0).range(of: "UISwipeActionStandardButton") != nil }
             .flatMap { $0.subviews }
             .compactMap { $0 as? UILabel }.first
-    }
-    
-    
-    func formatPrettyPlatformNameToID(platformName: String) -> Int {
-        
-        switch platformName {
-        case "3DO Interactive Multiplayer"                  :   return 50
-        case "Amiga CD32"                                   :   return 114
-        case "Atari 2600"                                   :   return 59
-        case "Atari 5200"                                   :   return 66
-        case "Atari 7800"                                   :   return 60
-        case "Atari Jaguar"                                 :   return 62
-        case "Atari Lynx"                                   :   return 61
-        case "ColecoVision"                                 :   return 68
-        case "Fairchild Channel F"                          :   return 127
-        case "Intellivision"                                :   return 67
-        case "Magnavox Odyssey"                             :   return 88
-        case "Microsoft Xbox"                               :   return 11
-        case "Microsoft Xbox 360"                           :   return 12
-        case "Microsoft Xbox One"                           :   return 49
-        case "Microsoft Xbox Series S|X"                    :   return 169
-        case "Neo Geo AES"                                  :   return 80
-        case "Neo Geo CD"                                   :   return 136
-        case "Neo Geo Pocket"                               :   return 119
-        case "Neo Geo Pocket Color"                         :   return 120
-        case "Nintendo Game & Watch"                        :   return 307
-        case "Nintendo Entertainment System (NES)"          :   return 18
-        case "Super Nintendo Entertainment System (SNES)"   :   return 19
-        case "Nintendo Virtual Boy"                         :   return 87
-        case "Nintendo 64"                                  :   return 4
-        case "Nintendo GameCube"                            :   return 21
-        case "Nintendo Wii"                                 :   return 5
-        case "Nintendo Wii U"                               :   return 41
-        case "Nintendo Switch"                              :   return 130
-        case "Nintendo Game Boy"                            :   return 33
-        case "Nintendo Game Boy Color"                      :   return 22
-        case "Nintendo Game Boy Advance"                    :   return 24
-        case "Nintendo DS"                                  :   return 20
-        case "Nintendo DSi"                                 :   return 159
-        case "Nintendo 3DS"                                 :   return 37
-        case "New Nintendo 3DS"                             :   return 137
-        case "Nintendo Pokémon Mini"                        :   return 166
-        case "Nokia N-Gage"                                 :   return 42
-        case "Nuon"                                         :   return 122
-        case "TurboGrafx-16/PC Engine"                      :   return 86
-        case "PC Engine SuperGrafx"                         :   return 128
-        case "Philips CD-i"                                 :   return 117
-        case "Sega SG-1000"                                 :   return 84
-        case "Sega Master System"                           :   return 64
-        case "Sega Genesis/Mega Drive"                      :   return 29
-        case "Sega CD"                                      :   return 78
-        case "Sega 32X"                                     :   return 30
-        case "Sega Saturn"                                  :   return 32
-        case "Sega Dreamcast"                               :   return 23
-        case "Sega Game Gear"                               :   return 35
-        case "Sega Pico"                                    :   return 339
-        case "Sony PlayStation"                             :   return 7
-        case "Sony PlayStation 2"                           :   return 8
-        case "Sony PlayStation 3"                           :   return 9
-        case "Sony PlayStation 4"                           :   return 48
-        case "Sony PlayStation 5"                           :   return 167
-        case "Sony PlayStation Portable (PSP)"              :   return 38
-        case "Sony PlayStation Vita"                        :   return 46
-        case "Vectrex"                                      :   return 70
-        case "WonderSwan"                                   :   return 57
-        case "WonderSwan Color"                             :   return 123
-        case "Zeebo"                                        :   return 240
-        default                                             :   return 18
-        }
-        
     }
 }
 

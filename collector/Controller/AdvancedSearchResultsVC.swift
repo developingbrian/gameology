@@ -642,7 +642,7 @@ class AdvancedSearchResultsVC: UIViewController {
         
         if platforms.count > 0 {
             for platform in platforms {
-                let platformID = formatPrettyPlatformNameToID(platformName: platform)
+                let platformID = gameArray[0].formatPrettyPlatformNameToID(platformName: platform)
                 selectedPlatformIDs.append(platformID)
             }
         }

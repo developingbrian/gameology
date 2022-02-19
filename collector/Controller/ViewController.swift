@@ -849,8 +849,10 @@ class ViewController: UIViewController {
         
         if network.gameArray.count != 0 {
             self.gameArray = self.network.gameArray
-            let platformImage = self.setPlatformIcon(platformID: self.gameArray[0].platformID!, mode: self.traitCollection.userInterfaceStyle)
-            self.tableviewPlatformImage.image = UIImage(named: platformImage)
+            guard let platformID = gameArray[0].platformID else { return }
+            let game = gameArray[0]
+            let platformImage = game.fetchPlatformFlag(platformID: platformID, uiMode: traitCollection.userInterfaceStyle)
+            self.tableviewPlatformImage.image = platformImage
             self.collectionView.reloadData()
          
         }
@@ -1005,9 +1007,9 @@ class ViewController: UIViewController {
         
         
         if let platformID = gameArray[0].platformID {
-            let platformLogos = self.setPlatformIcon(platformID: platformID, mode: self.traitCollection.userInterfaceStyle)
-            
-            self.tableviewPlatformImage.image = UIImage(named: platformLogos)
+            let game = gameArray[0]
+            let platformLogos = game.fetchPlatformFlag(platformID: platformID, uiMode: traitCollection.userInterfaceStyle)
+            self.tableviewPlatformImage.image = platformLogos
         }
         
     }
@@ -1265,7 +1267,7 @@ extension ViewController: DropdownPickerViewDelegate {
             self.progressIndicator.alpha = 1
             self.activityIndicator.alpha = 1
             
-            let selectedPlatformID = formatPrettyPlatformNameToID(platformName: item)
+            let selectedPlatformID = gameArray[0].formatPrettyPlatformNameToID(platformName: item)
             network.lastRequestedPlatformID = selectedPlatformID
             
             dropDownView.setTitle(item, for: .normal)
@@ -1276,9 +1278,9 @@ extension ViewController: DropdownPickerViewDelegate {
             self.network.currentOffset = 0
             
             self.search.searchBar.placeholder = "Search within \(item)"
-            let platformLogos = self.setPlatformIcon(platformID: selectedPlatformID, mode: self.traitCollection.userInterfaceStyle)
+            let platformLogos = gameArray[0].fetchPlatformFlag(platformID: selectedPlatformID, uiMode: traitCollection.userInterfaceStyle)
             UIView.transition(with: self.tableviewPlatformImage, duration: 1, options: .transitionCrossDissolve, animations: {
-                self.tableviewPlatformImage.image = UIImage(named: platformLogos)
+                self.tableviewPlatformImage.image = platformLogos
                 
             }, completion: nil)
             
